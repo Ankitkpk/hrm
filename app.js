@@ -1,6 +1,8 @@
 const express = require('express');
 const connectDB = require('./config/db');
 const employeeRoutes = require('./routes/employeeRoutes');
+const notificationRoutes = require("./routes/notification.route")
+const companyRoutes = require("./routes/company.route")
 
 // Connect to MongoDB
 connectDB();
@@ -14,6 +16,8 @@ app.use('/uploads', express.static('uploads'));// Make uploads publicly accessib
 
 // Routes
 app.use('/api/employees', employeeRoutes);
+app.use("/api/notification", notificationRoutes)
+app.use("/api/company", companyRoutes)
 
 // Error handling
 app.use((err, req, res, next) => {

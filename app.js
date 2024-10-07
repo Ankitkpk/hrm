@@ -11,6 +11,7 @@ const User = require('./models/user.model');
 connectDB();
 
 const app = express();
+app.use(express.json()); // Handles JSON payloads
 
 
 //data 
@@ -155,7 +156,7 @@ app.post("/seed_data", async (req, res) => {
 
 app.use('/api/users', userRoutes);
 // Middleware
-app.use(express.json()); // Handles JSON payloads
+
 app.use(express.urlencoded({ extended: true })); // Handles URL-encoded form data
 app.use('/uploads', express.static('uploads'));// Make uploads publicly accessible
 

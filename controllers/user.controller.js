@@ -125,7 +125,7 @@ const resetPassword = async (req, res) => {
 // Create a new user
 const createUser = async (req, res) => {
   try {
-    const { name, qualification, email, grade, birthdate, address, marital_status, city, state, zip_code, anniversary_date, role, password, companyId } = req.body;
+    const { name, qualification, email, grade, birthdate, address, marital_status, city, state, zip_code, anniversary_date, role, password, companyId,department } = req.body;
     
     // Hash the password before saving
     const saltRounds = 10;
@@ -143,9 +143,10 @@ const createUser = async (req, res) => {
       city,
       state,
       zip_code,
+      department,
       anniversary_date,
       role,
-      password_hash,
+      password:password_hash,
       companyId
     });
 
@@ -159,7 +160,7 @@ const createUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     try {
-      const { email, password_hash } = req.body;
+      const { email, password } = req.body;
   
       // Find user by username
       const user = await User.findOne({ email });
@@ -168,7 +169,7 @@ const loginUser = async (req, res) => {
       }
   
       // Check if password is correct
-      const isMatch = await bcrypt.compare(password_hash, user.password);
+      const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return res.status(401).json({ message: 'Invalid credentials' });
       }
@@ -192,7 +193,7 @@ const loginUser = async (req, res) => {
   
       // Send a response with user details or redirect URL
       // const redirectUrl = accessRecord.allowedPages.length ? accessRecord.allowedPages[0] : '/default'; // Default or first allowed page
-      res.status(200).json({ message: 'Login successful' });
+      res.status(200).json({ message: 'Login successful',token });
     } catch (error) {
       res.status(500).json({ message: 'Error logging in', error: error.message });
     }

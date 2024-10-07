@@ -6,7 +6,7 @@ const router = express.Router();
 const checkCompanyId = require("../middlewares/checkCompanyId.middleware");
 
 // POST endpoint to add a user
-router.post('/createUser', checkCompanyId, userController.createUser);
+router.post('/createUser', userController.createUser);
 
 // Login endpoint
 router.post('/login', userController.loginUser);

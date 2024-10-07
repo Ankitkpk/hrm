@@ -50,7 +50,7 @@ const userSchema = new mongoose.Schema({
   role: {
     type: String,
     enum: ['user', 'superadmin', 'mainadmin', 'hr', 'finance'],
-    required: true,
+    // required: true,
     trim: true
   },
   password: {
@@ -78,7 +78,7 @@ const userSchema = new mongoose.Schema({
   companyId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Company',
-    required: true
+    // required: true
   },
   department: {
     type: String,

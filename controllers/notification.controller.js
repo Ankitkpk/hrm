@@ -101,5 +101,4 @@ module.exports = {
     getNotificationsForUser,
     markNotificationAsRead,
     deleteNotification
-
 }

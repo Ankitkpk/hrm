@@ -12,7 +12,8 @@ const employeeSchema = new mongoose.Schema({
   },
   phoneNumber: {
     type: String,
-    required: true
+    required: true,
+    unique:true
   },
   positionApplied: {
     type: String,
@@ -23,11 +24,11 @@ const employeeSchema = new mongoose.Schema({
     required: true
   },
   dateOfBirth: {
-    type: Date,
+    type: String,
     required: true
   },
   joiningDate: {
-    type: Date,
+    type: String,
     required: true
   },
   employmentType: {
@@ -45,12 +46,18 @@ const employeeSchema = new mongoose.Schema({
   photo: {
     type: String,
   },
-  documents: [
-    {
-      filePath: { type: String },
-      fileType: { type: String }
-    }
-  ]
+  // documents: [
+  //   {
+  //     filePath: { type: String },
+  //     fileType: { type: String }
+  //   }
+  // ]
+  cv:{type:String},
+  relievingLetter:{type:String},
+  bankDetails:{type:String},
+  passportPhotograph:{type:String},
+
+
 });
 
 module.exports = mongoose.model('Employee2', employeeSchema);

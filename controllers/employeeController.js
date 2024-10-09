@@ -146,7 +146,7 @@ const getCandidateName = async (req, res) => {
 
 //get candidate data on basis of fullName and department
 const getCandidate = async (req, res) => {
-  const { fullName, department } = req.params;   
+  const { fullName, department } = req.query;   
   try {
     const employee = await Employee.findOne({ fullName, department });
    

@@ -37,6 +37,8 @@ router.put('/upload/:id', upload.fields([
 // View profile of an employee
 router.get('/profile/:id', employeeController.viewProfile);
 
+//Get Candidate Name
+router.get('/getCandidateName',employeeController.getCandidateName)
 
 // Get all employees
 router.get('/', employeeController.getAllEmployees); 

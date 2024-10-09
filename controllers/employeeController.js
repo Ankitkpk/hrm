@@ -133,6 +133,15 @@ const uploadDocuments = async (req, res) => {
 };
 
 
+//get all candidate names
+const getCandidateName = async (req, res) => {
+  try {
+    const getName = await Employee.find({}).select('fullName');
+    res.status(200).json(getName);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching candidate names', error: error.message });
+  }
+};
 
 
 // Get all employees
@@ -153,6 +162,7 @@ const getAllEmployees = async (req, res) => {
 
 module.exports = {
   addNewCandidate,
+  getCandidateName,
   searchEmployees,
   uploadDocuments,
   getAllEmployees,

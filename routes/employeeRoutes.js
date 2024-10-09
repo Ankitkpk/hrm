@@ -22,7 +22,16 @@ router.post('/create', upload.fields([{ name: 'photo', maxCount: 1 }]), employee
 router.get('/search', employeeController.searchEmployees);
 
 // Upload documents for employees
-router.post('/upload/:id', upload.single('file'), employeeController.uploadDocuments);
+//router.post('/upload/:id', upload.single('file'), employeeController.uploadDocuments);
+
+router.put('/upload/:id', upload.fields([
+    { name: 'cv', maxCount: 1 },
+    { name: 'relievingLetter', maxCount: 1 },
+    { name: 'bankDetails', maxCount: 1 },
+    { name: 'aadharCard', maxCount: 1 },
+    { name: 'postalAddress', maxCount: 1 },
+    { name: 'permanentAddress', maxCount: 1 }
+]), employeeController.uploadDocuments);
 
 // View profile of an employee
 router.get('/profile/:id', employeeController.viewProfile);

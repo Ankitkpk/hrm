@@ -46,18 +46,12 @@ const employeeSchema = new mongoose.Schema({
   photo: {
     type: String,
   },
-  // documents: [
-  //   {
-  //     filePath: { type: String },
-  //     fileType: { type: String }
-  //   }
-  // ]
   cv:{type:String},
   relievingLetter:{type:String},
   bankDetails:{type:String},
-  passportPhotograph:{type:String},
-
-
+  aadharCard:{type:String},
+  postalAddress:{type:String},
+  permanentAddress:{type:String}
 });
 
 module.exports = mongoose.model('Employee2', employeeSchema);

@@ -43,45 +43,7 @@ const addNewCandidate = async (req, res) => {
     return res.status(500).json({ error: err.message });
   }
 };
-// add reeturn for all apis
-// Search employees
-// const searchEmployees = async (req, res) => {
-//   const { name, designation, department } = req.query;
 
-//   if (!name && !designation && !department) {
-//     return res.status(400).json({
-//       message:
-//         "Please provide at least one search criterion (name, designation, or department)",
-//     });
-//   }
-
-//   try {
-//     const employees = await Employee.find({
-//       $or: [
-//         name && { fullName: { $regex: new RegExp(name, "i") } },
-//         designation && {
-//           positionApplied: { $regex: new RegExp(designation, "i") },
-//         },
-//         department && { department: { $regex: new RegExp(department, "i") } },
-//       ].filter(Boolean),
-//     });
-//     //check this one
-//     // const employees = await Employee.find({
-//     //     req.query
-//     // })
-
-//     if (!employees.length) {
-//       return res.status(404).json({ message: "No employees found" });
-//     }
-//     //add status code
-
-//     return res.status(201).json({ message: "Found employee", employees });
-//   } catch (error) {
-//     return res
-//       .status(500)
-//       .json({ message: "Error searching for employees", error });
-//   }
-// };
 const searchEmployees = async (req, res) => {
     const allowedFields = ['fullName', 'positionApplied', 'department'];
     const query = {};
@@ -114,7 +76,6 @@ const searchEmployees = async (req, res) => {
   };
   
 // View profile for an employee
-//look for modification
 const viewProfile = async (req, res) => {
   const { id } = req.params;
 
@@ -134,32 +95,36 @@ const viewProfile = async (req, res) => {
   }
 };
 
-// Upload documents for an employee
+
 const uploadDocuments = async (req, res) => {
   const { id } = req.params;
-  const { fileType } = req.body;
+  const files = req.files; // Expecting multiple files with specific field names
 
   try {
-    const employee = await Employee.findById(id);
-    if (!employee) {
-      return res.status(404).json({ message: "Employee not found" });
-    }
+      const employee = await Employee.findById(id);
+      if (!employee) {
+          return res.status(404).json({ message: "Employee not found" });
+      }
 
-    const document = {
-      filePath: req.file.path,
-      fileType: fileType,
-    };
+      // Define possible document fields in the schema
+      const documentFields = ['cv', 'relievingLetter', 'bankDetails', 'aadharCard', 'postalAddress', 'permanentAddress'];
+      
+      // Loop through each expected document field and update if a new file is provided
+      documentFields.forEach(field => {
+          if (files[field]) { // Check if the file was uploaded for this field
+              employee[field] = files[field][0].path; // Update the field with the file path
+          }
+      });
 
-    employee.documents.push(document);
-    await employee.save();
-
-    return res
-      .status(201)
-      .json({ message: "File uploaded successfully", employee });
+      await employee.save();
+      return res.status(201).json({ message: "Files uploaded successfully", employee });
   } catch (error) {
-    return res.status(500).json({ message: "Error uploading file", error });
+      return res.status(500).json({ message: "Error uploading files", error });
   }
 };
+
+
+
 
 // Get all employees
 const getAllEmployees = async (req, res) => {

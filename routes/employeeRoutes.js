@@ -30,7 +30,8 @@ router.put('/upload/:id', upload.fields([
     { name: 'bankDetails', maxCount: 1 },
     { name: 'aadharCard', maxCount: 1 },
     { name: 'postalAddress', maxCount: 1 },
-    { name: 'permanentAddress', maxCount: 1 }
+    { name: 'permanentAddress', maxCount: 1 },
+    {name:'photo', maxCount:1}
 ]), employeeController.uploadDocuments);
 
 // View profile of an employee

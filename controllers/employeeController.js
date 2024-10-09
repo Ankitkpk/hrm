@@ -19,7 +19,11 @@ const addNewCandidate = async (req, res) => {
 
   try {
     const { photo } = req.files;
-    const ph = photo[0].originalname;
+    let ph;
+    if(photo){
+
+    ph = photo[0]?.originalname;
+    }
 
     const employee = new Employee({
       fullName,
@@ -43,6 +47,8 @@ const addNewCandidate = async (req, res) => {
     return res.status(500).json({ error: err.message });
   }
 };
+
+
 
 const searchEmployees = async (req, res) => {
     const allowedFields = ['fullName', 'positionApplied', 'department'];
@@ -96,6 +102,9 @@ const viewProfile = async (req, res) => {
 };
 
 
+
+
+
 const uploadDocuments = async (req, res) => {
   const { id } = req.params;
   const files = req.files; // Expecting multiple files with specific field names
@@ -107,7 +116,7 @@ const uploadDocuments = async (req, res) => {
       }
 
       // Define possible document fields in the schema
-      const documentFields = ['cv', 'relievingLetter', 'bankDetails', 'aadharCard', 'postalAddress', 'permanentAddress'];
+      const documentFields = ['cv', 'relievingLetter', 'bankDetails', 'aadharCard', 'postalAddress', 'permanentAddress', "photo"];
       
       // Loop through each expected document field and update if a new file is provided
       documentFields.forEach(field => {
@@ -140,8 +149,10 @@ const getAllEmployees = async (req, res) => {
   }
 };
 
+
+
 module.exports = {
-addNewCandidate,
+  addNewCandidate,
   searchEmployees,
   uploadDocuments,
   getAllEmployees,

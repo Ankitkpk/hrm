@@ -1,57 +1,81 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const employeeSchema = new mongoose.Schema({
   fullName: {
     type: String,
-    required: true
+    required: true,
   },
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   phoneNumber: {
     type: String,
     required: true,
-    unique:true
+    unique: true,
   },
   positionApplied: {
     type: String,
-    required: true
+    required: true,
   },
   department: {
     type: String,
-    required: true
+    required: true,
   },
   dateOfBirth: {
     type: String,
-    required: true
+    required: true,
   },
   joiningDate: {
     type: String,
-    required: true
+    required: true,
   },
   employmentType: {
     type: String,
-    required: true
+    required: true,
   },
   emergencyContact: {
     type: String,
-    required: true
+    required: true,
   },
   residentialAddress: {
     type: String,
-    required: true
+    required: true,
   },
   photo: {
     type: String,
   },
-  cv:{type:String},
-  relievingLetter:{type:String},
-  bankDetails:{type:String},
-  aadharCard:{type:String},
-  postalAddress:{type:String},
-  permanentAddress:{type:String}
+  cv: { type: String },
+  relievingLetter: { type: String },
+  bankDetails: { type: String },
+  aadharCard: { type: String },
+  postalAddress: { type: String },
+  permanentAddress: { type: String },
+  offerAcceptance: {
+    type: Boolean,
+    default: false,
+  },
+  documentSubmission: {
+    type: Boolean,
+    default: false,
+  },
+  backgroundCheck: {
+    type: Boolean,
+    default: false,
+  },
+  trainingSchedule: {
+    type: Boolean,
+    default: false,
+  },
+  itSetup: {
+    type: Boolean,
+    default: false,
+  },
+  finalReview: {
+    type: Boolean,
+    default: false,
+  }
 });
 
-module.exports = mongoose.model('Employee2', employeeSchema);
+module.exports = mongoose.model("Employee", employeeSchema);

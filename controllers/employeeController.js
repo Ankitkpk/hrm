@@ -144,6 +144,23 @@ const getCandidateName = async (req, res) => {
 };
 
 
+//get candidate data on basis of fullName and department
+const getCandidate = async (req, res) => {
+  const { fullName, department } = req.params;   
+  try {
+    const employee = await Employee.findOne({ fullName, department });
+   
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+    res.status(200).json(employee);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
+
 // Get all employees
 const getAllEmployees = async (req, res) => {
   try {
@@ -167,4 +184,5 @@ module.exports = {
   uploadDocuments,
   getAllEmployees,
   viewProfile,
+  getCandidate
 };

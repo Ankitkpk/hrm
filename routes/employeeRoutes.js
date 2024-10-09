@@ -40,6 +40,9 @@ router.get('/profile/:id', employeeController.viewProfile);
 //Get Candidate Name
 router.get('/getCandidateName',employeeController.getCandidateName)
 
+//get candidate data on basis of fullName and department 
+router.get('/viewcandidate/:fullName/:department', employeeController.getCandidate); 
+
 // Get all employees
 router.get('/', employeeController.getAllEmployees); 
 

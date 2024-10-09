@@ -5,7 +5,7 @@ const notificationRoutes = require("./routes/notification.route")
 const companyRoutes = require("./routes/company.route")
 const dashboardRoutes = require("./routes/dashboard.route")
 const userRoutes = require("./routes/user.route")
-
+const cors = require('cors'); 
 const User = require('./models/user.model');
 // Connect to MongoDB
 connectDB();
@@ -13,6 +13,10 @@ connectDB();
 const app = express();
 app.use(express.json()); // Handles JSON payloads
 
+app.use(cors({
+  origin: "*",
+  optionsSuccessStatus: 200, // Allow all origins (for development purposes; adjust for production)
+}));
 
 //data 
 const usersData = [

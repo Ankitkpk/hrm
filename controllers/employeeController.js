@@ -35,7 +35,10 @@ const addNewCandidate = async (req, res) => {
       employmentType,
       emergencyContact,
       residentialAddress,
-      photo: ph,
+      photo:{
+        data:ph,
+        date: new Date(),
+      },
     });
 
     await employee.save();
@@ -123,10 +126,19 @@ const uploadDocuments = async (req, res) => {
     ];
 
     // Loop through each expected document field and update if a new file is provided
+    // documentFields.forEach((field) => {
+    //   if (files[field]) {
+    //     // Check if the file was uploaded for this field
+    //     employee[field] = files[field][0].path; // Update the field with the file path
+    //   }
+    // });
     documentFields.forEach((field) => {
       if (files[field]) {
         // Check if the file was uploaded for this field
-        employee[field] = files[field][0].path; // Update the field with the file path
+        employee[field] = {
+          data: files[field][0].path,   // Set the file path
+          date: new Date(),             // Set the current date as the upload date
+        };
       }
     });
 
@@ -196,13 +208,13 @@ const checkAllFields = async (req, res) => {
 
     // Check if all required fields are available
     const allFieldsAvailable =
-      user.photo &&
-      user.cv &&
-      user.relievingLetter &&
-      user.bankDetails &&
-      user.aadharCard &&
-      user.postalAddress &&
-      user.permanentAddress;
+      user.photo.data &&
+      user.cv.data &&
+      user.relievingLetter.data &&
+      user.bankDetails.data &&
+      user.aadharCard.data &&
+      user.postalAddress.data &&
+      user.permanentAddress.data;
 
     return res.status(200).json({ allFieldsAvailable: !!allFieldsAvailable });
   } catch (error) {

@@ -43,15 +43,44 @@ const employeeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  // photo: {
+  //   type: String,
+  // },
+  // cv: { type: String },
+  // relievingLetter: { type: String },
+  // bankDetails: { type: String },
+  // aadharCard: { type: String },
+  // postalAddress: { type: String },
+  // permanentAddress: { type: String },
+
   photo: {
-    type: String,
+    data: { type: String },
+    date: { type: Date  },
   },
-  cv: { type: String },
-  relievingLetter: { type: String },
-  bankDetails: { type: String },
-  aadharCard: { type: String },
-  postalAddress: { type: String },
-  permanentAddress: { type: String },
+  cv: {
+    data: { type: String },
+    date: { type: Date },
+  },
+  relievingLetter: {
+    data: { type: String },
+    date: { type: Date },
+  },
+  bankDetails: {
+    data: { type: String },
+    date: { type: Date },
+  },
+  aadharCard: {
+    data: { type: String },
+    date: { type: Date },
+  },
+  postalAddress: {
+    data: { type: String },
+    date: { type: Date },
+  },
+  permanentAddress: {
+    data: { type: String },
+    date: { type: Date },
+  },  
   offerAcceptance: {
     type: Boolean,
     default: false,

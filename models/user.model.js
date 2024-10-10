@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'superadmin', 'mainadmin', 'hr', 'finance'],
+    enum: ['user', 'superadmin', 'mainadmin', 'hr', 'finance','employee'], // do a create api here
     // required: true,
     trim: true
   },

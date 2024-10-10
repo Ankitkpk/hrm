@@ -2,7 +2,7 @@ const Employee = require("../models/Employee");
 
 // Create new employee
 
-// change name to 
+// change name to
 const addNewCandidate = async (req, res) => {
   const {
     fullName,
@@ -20,9 +20,8 @@ const addNewCandidate = async (req, res) => {
   try {
     const { photo } = req.files;
     let ph;
-    if(photo){
-
-    ph = photo[0]?.originalname;
+    if (photo) {
+      ph = photo[0]?.originalname;
     }
 
     const employee = new Employee({
@@ -48,39 +47,40 @@ const addNewCandidate = async (req, res) => {
   }
 };
 
-
-
 const searchEmployees = async (req, res) => {
-    const allowedFields = ['fullName', 'positionApplied', 'department'];
-    const query = {};
-  
-    // Add only the allowed fields to the query object
-    allowedFields.forEach((field) => {
-      if (req.query[field]) {
-        query[field] = { $regex: new RegExp(req.query[field], 'i') };
-      }
+  const allowedFields = ["fullName", "positionApplied", "department"];
+  const query = {};
+
+  // Add only the allowed fields to the query object
+  allowedFields.forEach((field) => {
+    if (req.query[field]) {
+      query[field] = { $regex: new RegExp(req.query[field], "i") };
+    }
+  });
+
+  // Check if query object is empty (no search criteria)
+  if (Object.keys(query).length === 0) {
+    return res.status(400).json({
+      message:
+        "Please provide at least one search criterion (name, designation, or department)",
     });
-  
-    // Check if query object is empty (no search criteria)
-    if (Object.keys(query).length === 0) {
-      return res.status(400).json({
-        message: 'Please provide at least one search criterion (name, designation, or department)',
-      });
+  }
+
+  try {
+    const employees = await Employee.find(query);
+
+    if (!employees.length) {
+      return res.status(404).json({ message: "No employees found" });
     }
-  
-    try {
-      const employees = await Employee.find(query);
-  
-      if (!employees.length) {
-        return res.status(404).json({ message: 'No employees found' });
-      }
-  
-      return res.status(200).json({ message: 'Found employees', employees });
-    } catch (error) {
-      return res.status(500).json({ message: 'Error searching for employees', error });
-    }
-  };
-  
+
+    return res.status(200).json({ message: "Found employees", employees });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error searching for employees", error });
+  }
+};
+
 // View profile for an employee
 const viewProfile = async (req, res) => {
   const { id } = req.params;
@@ -101,55 +101,65 @@ const viewProfile = async (req, res) => {
   }
 };
 
-
-
-
-
 const uploadDocuments = async (req, res) => {
   const { id } = req.params;
   const files = req.files; // Expecting multiple files with specific field names
 
   try {
-      const employee = await Employee.findById(id);
-      if (!employee) {
-          return res.status(404).json({ message: "Employee not found" });
+    const employee = await Employee.findById(id);
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    // Define possible document fields in the schema
+    const documentFields = [
+      "cv",
+      "relievingLetter",
+      "bankDetails",
+      "aadharCard",
+      "postalAddress",
+      "permanentAddress",
+      "photo",
+    ];
+
+    // Loop through each expected document field and update if a new file is provided
+    documentFields.forEach((field) => {
+      if (files[field]) {
+        // Check if the file was uploaded for this field
+        employee[field] = files[field][0].path; // Update the field with the file path
       }
+    });
 
-      // Define possible document fields in the schema
-      const documentFields = ['cv', 'relievingLetter', 'bankDetails', 'aadharCard', 'postalAddress', 'permanentAddress', "photo"];
-      
-      // Loop through each expected document field and update if a new file is provided
-      documentFields.forEach(field => {
-          if (files[field]) { // Check if the file was uploaded for this field
-              employee[field] = files[field][0].path; // Update the field with the file path
-          }
-      });
-
-      await employee.save();
-      return res.status(201).json({ message: "Files uploaded successfully", employee });
+    await employee.save();
+    return res
+      .status(201)
+      .json({ message: "Files uploaded successfully", employee });
   } catch (error) {
-      return res.status(500).json({ message: "Error uploading files", error });
+    return res.status(500).json({ message: "Error uploading files", error });
   }
 };
-
 
 //get all candidate names
 const getCandidateName = async (req, res) => {
   try {
-    const getName = await Employee.find({}).select('fullName');
+    const getName = await Employee.find({}).select("fullName");
     res.status(200).json(getName);
   } catch (error) {
-    res.status(500).json({ message: 'Error fetching candidate names', error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Error fetching candidate names",
+        error: error.message,
+      });
   }
 };
 
-
 //get candidate data on basis of fullName and department
 const getCandidate = async (req, res) => {
-  const { fullName, department } = req.query;   
+  const { fullName, department } = req.query;
   try {
     const employee = await Employee.findOne({ fullName, department });
-   
+
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
@@ -158,8 +168,6 @@ const getCandidate = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
-
 
 // Get all employees
 const getAllEmployees = async (req, res) => {
@@ -175,7 +183,32 @@ const getAllEmployees = async (req, res) => {
   }
 };
 
+const checkAllFields = async (req, res) => {
+  try {
+    const { id } = req.params; // Use 'id' instead of 'userId'
 
+    // Find user by ID
+    const user = await Employee.findById(id); // Assuming the model is 'Employee' as per your other functions
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if all required fields are available
+    const allFieldsAvailable =
+      user.photo &&
+      user.cv &&
+      user.relievingLetter &&
+      user.bankDetails &&
+      user.aadharCard &&
+      user.postalAddress &&
+      user.permanentAddress;
+
+    return res.status(200).json({ allFieldsAvailable: !!allFieldsAvailable });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error", error });
+  }
+};
 
 module.exports = {
   addNewCandidate,
@@ -184,5 +217,6 @@ module.exports = {
   uploadDocuments,
   getAllEmployees,
   viewProfile,
-  getCandidate
+  getCandidate,
+  checkAllFields,
 };

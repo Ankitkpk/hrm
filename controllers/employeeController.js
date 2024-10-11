@@ -195,6 +195,8 @@ const getAllEmployees = async (req, res) => {
   }
 };
 
+
+// include with 
 const checkAllFields = async (req, res) => {
   try {
     const { id } = req.params; // Use 'id' instead of 'userId'
@@ -221,6 +223,8 @@ const checkAllFields = async (req, res) => {
     return res.status(500).json({ message: "Server error", error });
   }
 };
+
+//pending - view document, onboarding workflow half done
 
 module.exports = {
   addNewCandidate,

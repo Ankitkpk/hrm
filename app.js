@@ -5,6 +5,8 @@ const notificationRoutes = require("./routes/notification.route")
 const companyRoutes = require("./routes/company.route")
 const dashboardRoutes = require("./routes/dashboard.route")
 const userRoutes = require("./routes/user.route")
+const hrmEmployee= require("./routes/HRMEmployeeRoute");
+const leaveRoutes = require('./routes/leaveRoute')
 const cors = require('cors'); 
 const User = require('./models/user.model');
 // Connect to MongoDB
@@ -169,7 +171,8 @@ app.use('/api/employees', employeeRoutes);
 app.use("/api/notification", notificationRoutes)
 app.use("/api/company", companyRoutes)
 app.use('/api/dashboard', dashboardRoutes)
-
+app.use('/api/hrmEmployee',hrmEmployee)
+app.use('/api/leave',leaveRoutes)
 // Error handling
 app.use((err, req, res, next) => {
     res.status(500).json({ error: err.message });

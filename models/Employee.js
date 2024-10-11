@@ -85,10 +85,6 @@ const employeeSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  documentSubmission: {
-    type: Boolean,
-    default: false,
-  },
   backgroundCheck: {
     type: Boolean,
     default: false,
@@ -104,6 +100,10 @@ const employeeSchema = new mongoose.Schema({
   finalReview: {
     type: Boolean,
     default: false,
+  },
+  documentsSubmitted:{
+    type:Boolean,
+    default:false
   }
 });
 

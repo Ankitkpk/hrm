@@ -104,6 +104,54 @@ const viewProfile = async (req, res) => {
   }
 };
 
+// const uploadDocuments = async (req, res) => {
+//   const { id } = req.params;
+//   const files = req.files; // Expecting multiple files with specific field names
+
+//   try {
+//     const employee = await Employee.findById(id);
+//     if (!employee) {
+//       return res.status(404).json({ message: "Employee not found" });
+//     }
+
+//     // Define possible document fields in the schema
+//     const documentFields = [
+//       "cv",
+//       "relievingLetter",
+//       "bankDetails",
+//       "aadharCard",
+//       "postalAddress",
+//       "permanentAddress",
+//       "photo",
+//     ];
+
+//     // Loop through each expected document field and update if a new file is provided
+//     // documentFields.forEach((field) => {
+//     //   if (files[field]) {
+//     //     // Check if the file was uploaded for this field
+//     //     employee[field] = files[field][0].path; // Update the field with the file path
+//     //   }
+//     // });
+//     documentFields.forEach((field) => {
+//       if (files[field]) {
+//         // Check if the file was uploaded for this field
+//         employee[field] = {
+//           data: files[field][0].path,   // Set the file path
+//           date: new Date(),             // Set the current date as the upload date
+//         };
+//       }
+//     });
+
+//     await employee.save();
+//     return res
+//       .status(201)
+//       .json({ message: "Files uploaded successfully", employee });
+//   } catch (error) {
+//     return res.status(500).json({ message: "Error uploading files", error });
+//   }
+// };
+
+
 const uploadDocuments = async (req, res) => {
   const { id } = req.params;
   const files = req.files; // Expecting multiple files with specific field names
@@ -114,7 +162,7 @@ const uploadDocuments = async (req, res) => {
       return res.status(404).json({ message: "Employee not found" });
     }
 
-    // Define possible document fields in the schema
+    // Define the document fields in the schema
     const documentFields = [
       "cv",
       "relievingLetter",
@@ -125,31 +173,37 @@ const uploadDocuments = async (req, res) => {
       "photo",
     ];
 
-    // Loop through each expected document field and update if a new file is provided
-    // documentFields.forEach((field) => {
-    //   if (files[field]) {
-    //     // Check if the file was uploaded for this field
-    //     employee[field] = files[field][0].path; // Update the field with the file path
-    //   }
-    // });
+    // Update document fields if a file is provided for them
     documentFields.forEach((field) => {
       if (files[field]) {
-        // Check if the file was uploaded for this field
         employee[field] = {
-          data: files[field][0].path,   // Set the file path
-          date: new Date(),             // Set the current date as the upload date
+          data: files[field][0].path,  // Set file path
+          date: new Date(),            // Set upload date
         };
       }
     });
 
+    // Check if all required fields are now available
+    const allFieldsAvailable = documentFields.every((field) => employee[field]?.data);
+
+    // Set documentsSubmitted to true if all fields are present
+    if (allFieldsAvailable) {
+      employee.documentsSubmitted = true;
+    }
+
     await employee.save();
-    return res
-      .status(201)
-      .json({ message: "Files uploaded successfully", employee });
+    return res.status(201).json({
+      message: "Files uploaded successfully",
+      documentsSubmitted: employee.documentsSubmitted,
+      employee,
+    });
   } catch (error) {
     return res.status(500).json({ message: "Error uploading files", error });
   }
 };
+
+
+
 
 //get all candidate names
 const getCandidateName = async (req, res) => {

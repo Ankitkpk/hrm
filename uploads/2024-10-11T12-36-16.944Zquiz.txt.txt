@@ -1,0 +1,10 @@
+cloud computing- pay-as-you-go, scalability, const efficiency, reliability, resources over the net 
+
+ec2- elastic compute cloud, system over net, customizable system specs. , quickly scale capacity, both up and down
+
+elastic ip adress- static IPv4 address,  for dynamic cloud computing, mask the failure of an instance or software, rapidly remapping the address to another instance in your account
+
+EBS- Elastic Block Store, automatically replicated within its Availability Zone, Quickly Scale Up, Easily Scale Down , Geographic Flexibility: the ability to copy snapshots across AWS regions,use cases include Big Data analytics engines, relational and NoSQL, EBS volume is designed for 99.999% availability, encryption provided, access control policies allow you to specify who
+can access which EBS volumes
+
+Snapshot - Backup and Recovery, Ease of Use and Automation, Cost-Effective Storage: Snapshots are stored in Amazon S3 and only save the blocks that have changed since the last snapshot, which means they are cost-effective. 

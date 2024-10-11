@@ -48,5 +48,7 @@ router.get('/', employeeController.getAllEmployees);
 
 //get all  in true or false
 router.get('/checkAllFields/:id',employeeController.checkAllFields);
+// get all documents
+router.get('/getallDocument/:id',employeeController.getAllDocuments);
 
 module.exports = router;

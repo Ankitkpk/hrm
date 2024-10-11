@@ -104,52 +104,6 @@ const viewProfile = async (req, res) => {
   }
 };
 
-// const uploadDocuments = async (req, res) => {
-//   const { id } = req.params;
-//   const files = req.files; // Expecting multiple files with specific field names
-
-//   try {
-//     const employee = await Employee.findById(id);
-//     if (!employee) {
-//       return res.status(404).json({ message: "Employee not found" });
-//     }
-
-//     // Define possible document fields in the schema
-//     const documentFields = [
-//       "cv",
-//       "relievingLetter",
-//       "bankDetails",
-//       "aadharCard",
-//       "postalAddress",
-//       "permanentAddress",
-//       "photo",
-//     ];
-
-//     // Loop through each expected document field and update if a new file is provided
-//     // documentFields.forEach((field) => {
-//     //   if (files[field]) {
-//     //     // Check if the file was uploaded for this field
-//     //     employee[field] = files[field][0].path; // Update the field with the file path
-//     //   }
-//     // });
-//     documentFields.forEach((field) => {
-//       if (files[field]) {
-//         // Check if the file was uploaded for this field
-//         employee[field] = {
-//           data: files[field][0].path,   // Set the file path
-//           date: new Date(),             // Set the current date as the upload date
-//         };
-//       }
-//     });
-
-//     await employee.save();
-//     return res
-//       .status(201)
-//       .json({ message: "Files uploaded successfully", employee });
-//   } catch (error) {
-//     return res.status(500).json({ message: "Error uploading files", error });
-//   }
-// };
 
 
 const uploadDocuments = async (req, res) => {
@@ -222,9 +176,9 @@ const getCandidateName = async (req, res) => {
 
 //get candidate data on basis of fullName and department
 const getCandidate = async (req, res) => {
-  const { fullName, department } = req.query;
+  const { fullName,email, department } = req.query;
   try {
-    const employee = await Employee.findOne({ fullName, department });
+    const employee = await Employee.findOne({ fullName, department,email });
 
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
@@ -278,6 +232,58 @@ const checkAllFields = async (req, res) => {
   }
 };
 
+
+const getAllDocuments = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Find the employee by ID
+    const user = await Employee.findById(id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const documentFields = {
+      photo:{
+         photo:user.photo.data,
+         date:user.photo.date
+       },
+       cv:{
+         cv:user.cv.data,
+         date:user.date
+       },
+       relievingLetter:{
+         relievingLetter:user.relievingLetter.data,
+         date:user.relievingLetter.date
+       },
+       bankDetails: {
+         bankDetails:user.bankDetails.data,
+         date:user.bankDetails.date
+       },
+       aadharCard:{
+         aadharCard:user.aadharCard.data,
+         date:user.aadharCard.date
+       },
+        
+       postalAddress:{
+         postalAddress:user.postalAddress.data,
+         date:user.postalAddress.date
+       },
+        
+       permanentAddress:{
+         permanentAddress:user. permanentAddress.data,
+         date: user.permanentAddress.date
+       }
+     };
+  
+  
+    return res.status(200).json({ documents: documentFields });
+  } catch (error) {
+    return res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 //pending - view document, onboarding workflow half done
 
 module.exports = {
@@ -289,4 +295,5 @@ module.exports = {
   viewProfile,
   getCandidate,
   checkAllFields,
+  getAllDocuments
 };

@@ -22,7 +22,19 @@ const employeeSchema = new mongoose.Schema({
   department: {
     type: String,
     required: true,
-  },
+    enum: [
+      "Human Resources",
+      "Finance",
+      "Marketing",
+      "Sales",
+      "Operations",
+      "Information Technology",
+      "Customer Service",
+      "Research and Development (R&D)",
+      "Legal",
+      "Software Development"
+    ],
+  },
   dateOfBirth: {
     type: String,
     required: true,

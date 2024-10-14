@@ -43,16 +43,6 @@ const employeeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  // photo: {
-  //   type: String,
-  // },
-  // cv: { type: String },
-  // relievingLetter: { type: String },
-  // bankDetails: { type: String },
-  // aadharCard: { type: String },
-  // postalAddress: { type: String },
-  // permanentAddress: { type: String },
-
   photo: {
     data: { type: String },
     date: { type: Date  },

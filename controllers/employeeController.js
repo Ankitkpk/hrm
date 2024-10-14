@@ -162,7 +162,7 @@ const uploadDocuments = async (req, res) => {
 //get all candidate names
 const getCandidateName = async (req, res) => {
   try {
-    const getName = await Employee.find({}).select("fullName");
+    const getName = await Employee.distinct("fullName");
     res.status(200).json(getName);
   } catch (error) {
     res
@@ -204,33 +204,6 @@ const getAllEmployees = async (req, res) => {
 };
 
 
-// include with 
-const checkAllFields = async (req, res) => {
-  try {
-    const { id } = req.params; // Use 'id' instead of 'userId'
-
-    // Find user by ID
-    const user = await Employee.findById(id); // Assuming the model is 'Employee' as per your other functions
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // Check if all required fields are available
-    const allFieldsAvailable =
-      user.photo.data &&
-      user.cv.data &&
-      user.relievingLetter.data &&
-      user.bankDetails.data &&
-      user.aadharCard.data &&
-      user.postalAddress.data &&
-      user.permanentAddress.data;
-
-    return res.status(200).json({ allFieldsAvailable: !!allFieldsAvailable });
-  } catch (error) {
-    return res.status(500).json({ message: "Server error", error });
-  }
-};
 
 
 const getAllDocuments = async (req, res) => {
@@ -284,16 +257,73 @@ const getAllDocuments = async (req, res) => {
   }
 };
 
+
+
+
+const updateCandidateData = async (req, res) => {
+  const { id } = req.params;
+  const {
+    offerAcceptance,
+    backgroundCheck,
+    trainingSchedule,
+    itSetup,
+    finalReview,
+    documentsSubmitted,
+  } = req.body;
+
+  try {
+    const employee = await Employee.findById(id);
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    // Toggle fields only if values are provided in req.body
+    if (offerAcceptance !== undefined) employee.offerAcceptance = !employee.offerAcceptance;
+    if (backgroundCheck !== undefined) employee.backgroundCheck = !employee.backgroundCheck;
+    if (trainingSchedule !== undefined) employee.trainingSchedule = !employee.trainingSchedule;
+    if (itSetup !== undefined) employee.itSetup = !employee.itSetup;
+    if (finalReview !== undefined) employee.finalReview = !employee.finalReview;
+    if (documentsSubmitted !== undefined) employee.documentsSubmitted = !employee.documentsSubmitted;
+
+    // Save the updated employee document to the database
+    await employee.save();
+
+    return res.status(200).json({
+      message: "Employee data toggled successfully",
+      employee,
+    });
+  } catch (error) {
+    console.error("Error toggling employee data:", error);
+    return res.status(500).json({
+      message: "An error occurred while toggling employee data",
+    });
+  }
+};
+
+const getCandidateDepartment = async (req, res) => {
+  try {
+    // Using the distinct method to get unique department names
+    const departments = await Employee.distinct("department");
+  return  res.status(200).json(departments);
+  } catch (error) {
+   return res.status(500).json({
+      message: "Error fetching department names",
+      error: error.message,
+    });
+  }
+};
+
 //pending - view document, onboarding workflow half done
 
 module.exports = {
   addNewCandidate,
   getCandidateName,
+  getCandidateDepartment,
   searchEmployees,
   uploadDocuments,
   getAllEmployees,
   viewProfile,
   getCandidate,
-  checkAllFields,
-  getAllDocuments
+  getAllDocuments,
+  updateCandidateData
 };

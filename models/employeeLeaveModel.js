@@ -17,7 +17,7 @@ const LeaveApplicationSchema = new mongoose.Schema({
     type:String,
     required:true
   },
-  reason: {
+  reason: { 
     type: String,
     required: true,
   },

@@ -258,6 +258,19 @@ const getAllDocuments = async (req, res) => {
 };
 
 
+const getCandidateDepartment = async (req, res) => {
+  try {
+    // Using the distinct method to get unique department names
+    const departments = await Employee.distinct("department");
+  return  res.status(200).json(departments);
+  } catch (error) {
+   return res.status(500).json({
+      message: "Error fetching department names",
+      error: error.message,
+    });
+  }
+};
+
 
 
 const updateCandidateData = async (req, res) => {
@@ -277,7 +290,6 @@ const updateCandidateData = async (req, res) => {
       return res.status(404).json({ message: "Employee not found" });
     }
 
-    // Toggle fields only if values are provided in req.body
     if (offerAcceptance !== undefined) employee.offerAcceptance = !employee.offerAcceptance;
     if (backgroundCheck !== undefined) employee.backgroundCheck = !employee.backgroundCheck;
     if (trainingSchedule !== undefined) employee.trainingSchedule = !employee.trainingSchedule;
@@ -289,28 +301,15 @@ const updateCandidateData = async (req, res) => {
     await employee.save();
 
     return res.status(200).json({
-      message: "Employee data toggled successfully",
+      message: "Employee data updated successfully",
       employee,
     });
   } catch (error) {
-    console.error("Error toggling employee data:", error);
     return res.status(500).json({
-      message: "An error occurred while toggling employee data",
+      status:false,
+      message:error.message
     });
   }
-};
-
-const getCandidateDepartment = async (req, res) => {
-  try {
-    // Using the distinct method to get unique department names
-    const departments = await Employee.distinct("department");
-  return  res.status(200).json(departments);
-  } catch (error) {
-   return res.status(500).json({
-      message: "Error fetching department names",
-      error: error.message,
-    });
-  }
 };
 
 //pending - view document, onboarding workflow half done

@@ -13,6 +13,10 @@ const LeaveApplicationSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  leaveType:{
+    type:String,
+    required:true
+  },
   reason: {
     type: String,
     required: true,

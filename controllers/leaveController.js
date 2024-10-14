@@ -51,6 +51,7 @@ const uploadLeaveData = async (req, res) => {
     appliedDate,
     fromDate,
     toDate,
+    leaveType,
     reason, 
     applyTo,
     employee,
@@ -63,10 +64,17 @@ const uploadLeaveData = async (req, res) => {
       document = document[0]?.originalname;
     }
 
+    const startDate = new Date(fromDate);
+    const endDate = new Date(toDate);
+    const diffTime = endDate - startDate;
+    const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
     const add = new addLeave({
       appliedDate,
       fromDate,
       toDate,
+      totalDays,
+      leaveType,
       reason,
       applyTo,
       documents,
@@ -99,10 +107,23 @@ const getLeaveWithEmployeeData = async (req, res) => {
   }
 };
 
+const getAllEmployeeLeaves = async (req,res)=>{
+ try{
+  const data = await addLeave.find().populate('employee')
+  if(!data){
+    return res.status(404).json({message:"No leaves found"})
+  }
+  res.status(200).json({data})
+ }catch(error){
+  res.status(500).json({message:'Error fetching leaves'})
+ }
+}
+
 module.exports = {
   totalLeaves,
   pendingLeaves,
   leavesTaken,
   uploadLeaveData,
-  getLeaveWithEmployeeData
+  getLeaveWithEmployeeData,
+  getAllEmployeeLeaves
 };

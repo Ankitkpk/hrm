@@ -13,11 +13,15 @@ const LeaveApplicationSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
-  leaveType:{
-    type:String,
-    required:true
+  leaveType: {
+    type: String,
+    required: true,
   },
-  reason: { 
+  totalDays: {
+    type: String,
+    required: true,
+  },
+  reason: {
     type: String,
     required: true,
   },
@@ -26,13 +30,13 @@ const LeaveApplicationSchema = new mongoose.Schema({
     required: true,
   },
   documents: {
-    data: { type: String }
+    data: { type: String },
   },
   employee: {
-    type: mongoose.Schema.Types.ObjectId,  // Reference to HRMEmployee's _id
-    ref: "HRMEmployee",  // Reference the HRMEmployee model
-    required: true, 
-  } 
+    type: mongoose.Schema.Types.ObjectId, // Reference to HRMEmployee's _id
+    ref: "HRMEmployee", // Reference the HRMEmployee model
+    required: true,
+  },
 });
 
 module.exports = mongoose.model("LeaveApplication", LeaveApplicationSchema);

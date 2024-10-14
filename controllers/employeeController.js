@@ -23,7 +23,7 @@ const addNewCandidate = async (req, res) => {
     if (photo) {
       ph = photo[0]?.originalname;
     }
-
+    
     const employee = new Employee({
       fullName,
       email,

@@ -35,8 +35,8 @@ const addNewCandidate = async (req, res) => {
       employmentType,
       emergencyContact,
       residentialAddress,
-      photo:{
-        data:ph,
+      photo: {
+        data: ph,
         date: new Date(),
       },
     });
@@ -104,8 +104,6 @@ const viewProfile = async (req, res) => {
   }
 };
 
-
-
 const uploadDocuments = async (req, res) => {
   const { id } = req.params;
   const files = req.files; // Expecting multiple files with specific field names
@@ -131,14 +129,16 @@ const uploadDocuments = async (req, res) => {
     documentFields.forEach((field) => {
       if (files[field]) {
         employee[field] = {
-          data: files[field][0].path,  // Set file path
-          date: new Date(),            // Set upload date
+          data: files[field][0].path, // Set file path
+          date: new Date(), // Set upload date
         };
       }
     });
 
     // Check if all required fields are now available
-    const allFieldsAvailable = documentFields.every((field) => employee[field]?.data);
+    const allFieldsAvailable = documentFields.every(
+      (field) => employee[field]?.data
+    );
 
     // Set documentsSubmitted to true if all fields are present
     if (allFieldsAvailable) {
@@ -156,29 +156,24 @@ const uploadDocuments = async (req, res) => {
   }
 };
 
-
-
-
 //get all candidate names
 const getCandidateName = async (req, res) => {
   try {
     const getName = await Employee.distinct("fullName");
     res.status(200).json(getName);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error fetching candidate names",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error fetching candidate names",
+      error: error.message,
+    });
   }
 };
 
 //get candidate data on basis of fullName and department
 const getCandidate = async (req, res) => {
-  const { fullName,email, department } = req.query;
+  const { fullName, email, department } = req.query;
   try {
-    const employee = await Employee.findOne({ fullName, department,email });
+    const employee = await Employee.findOne({ fullName, department, email });
 
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
@@ -203,9 +198,6 @@ const getAllEmployees = async (req, res) => {
   }
 };
 
-
-
-
 const getAllDocuments = async (req, res) => {
   try {
     const { id } = req.params;
@@ -218,60 +210,58 @@ const getAllDocuments = async (req, res) => {
     }
 
     const documentFields = {
-      photo:{
-         photo:user.photo.data,
-         date:user.photo.date
-       },
-       cv:{
-         cv:user.cv.data,
-         date:user.date
-       },
-       relievingLetter:{
-         relievingLetter:user.relievingLetter.data,
-         date:user.relievingLetter.date
-       },
-       bankDetails: {
-         bankDetails:user.bankDetails.data,
-         date:user.bankDetails.date
-       },
-       aadharCard:{
-         aadharCard:user.aadharCard.data,
-         date:user.aadharCard.date
-       },
-        
-       postalAddress:{
-         postalAddress:user.postalAddress.data,
-         date:user.postalAddress.date
-       },
-        
-       permanentAddress:{
-         permanentAddress:user. permanentAddress.data,
-         date: user.permanentAddress.date
-       }
-     };
-  
-  
+      photo: {
+        photo: user.photo.data,
+        date: user.photo.date,
+      },
+      cv: {
+        cv: user.cv.data,
+        date: user.date,
+      },
+      relievingLetter: {
+        relievingLetter: user.relievingLetter.data,
+        date: user.relievingLetter.date,
+      },
+      bankDetails: {
+        bankDetails: user.bankDetails.data,
+        date: user.bankDetails.date,
+      },
+      aadharCard: {
+        aadharCard: user.aadharCard.data,
+        date: user.aadharCard.date,
+      },
+
+      postalAddress: {
+        postalAddress: user.postalAddress.data,
+        date: user.postalAddress.date,
+      },
+
+      permanentAddress: {
+        permanentAddress: user.permanentAddress.data,
+        date: user.permanentAddress.date,
+      },
+    };
+
     return res.status(200).json({ documents: documentFields });
   } catch (error) {
-    return res.status(500).json({ message: "Server error", error: error.message });
-  }
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
+  }
 };
-
 
 const getCandidateDepartment = async (req, res) => {
   try {
     // Using the distinct method to get unique department names
     const departments = await Employee.distinct("department");
-  return  res.status(200).json(departments);
+    return res.status(200).json(departments);
   } catch (error) {
-   return res.status(500).json({
+    return res.status(500).json({
       message: "Error fetching department names",
       error: error.message,
-    });
-  }
+    });
+  }
 };
-
-
 
 const updateCandidateData = async (req, res) => {
   const { id } = req.params;
@@ -290,12 +280,16 @@ const updateCandidateData = async (req, res) => {
       return res.status(404).json({ message: "Employee not found" });
     }
 
-    if (offerAcceptance !== undefined) employee.offerAcceptance = !employee.offerAcceptance;
-    if (backgroundCheck !== undefined) employee.backgroundCheck = !employee.backgroundCheck;
-    if (trainingSchedule !== undefined) employee.trainingSchedule = !employee.trainingSchedule;
+    if (offerAcceptance !== undefined)
+      employee.offerAcceptance = !employee.offerAcceptance;
+    if (backgroundCheck !== undefined)
+      employee.backgroundCheck = !employee.backgroundCheck;
+    if (trainingSchedule !== undefined)
+      employee.trainingSchedule = !employee.trainingSchedule;
     if (itSetup !== undefined) employee.itSetup = !employee.itSetup;
     if (finalReview !== undefined) employee.finalReview = !employee.finalReview;
-    if (documentsSubmitted !== undefined) employee.documentsSubmitted = !employee.documentsSubmitted;
+    if (documentsSubmitted !== undefined)
+      employee.documentsSubmitted = !employee.documentsSubmitted;
 
     // Save the updated employee document to the database
     await employee.save();
@@ -306,8 +300,8 @@ const updateCandidateData = async (req, res) => {
     });
   } catch (error) {
     return res.status(500).json({
-      status:false,
-      message:error.message
+      status: false,
+      message: error.message,
     });
   }
 };
@@ -324,5 +318,5 @@ module.exports = {
   viewProfile,
   getCandidate,
   getAllDocuments,
-  updateCandidateData
+  updateCandidateData,
 };

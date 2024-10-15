@@ -6,7 +6,7 @@ const HRMEmployeeSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  password:{
+  empPassword:{
     type:String,
   },
   employeeName: {

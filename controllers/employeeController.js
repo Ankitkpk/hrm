@@ -370,6 +370,7 @@ const getPositiontype = async (req, res) => {
 };
 
 
+
 //pending - view document, onboarding workflow half done
 
 module.exports = {

@@ -63,4 +63,10 @@ router.put("/changedata/:id", employeeController.updateCandidateData);
 
 router.get("/getDepartment", employeeController.getCandidateDepartment);
 
+router.get("/allDepartments", employeeController.getAllDepartment);
+
+router.get("/employeeType", employeeController.getEmployeetype);
+
+router.get("/positiontype", employeeController.getPositiontype);
+
 module.exports = router;

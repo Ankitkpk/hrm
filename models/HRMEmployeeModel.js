@@ -4,6 +4,10 @@ const HRMEmployeeSchema = new mongoose.Schema({
   empId: {
     type: String,
     required: true,
+    unique: true,
+  },
+  password:{
+    type:String,
   },
   employeeName: {
     type: String,
@@ -52,14 +56,17 @@ const HRMEmployeeSchema = new mongoose.Schema({
   phoneNumber: {
     type: String,
     required: true,
+    unique: true,
   },
   alternatePhoneNumber: {
     type: String,
     required: true,
+    unique: true,
   },
   emergencyNumber: {
     type: String,
     required: true,
+    unique: true,
   },
   relationWithPerson: {
     type: String,
@@ -119,19 +126,19 @@ const HRMEmployeeSchema = new mongoose.Schema({
   },
   totalLeave: {
     casualLeaves: { type: Number, default: 15 },
-    festivals:{type:Number,default:30},
-    sickLeaves:{type:Number,default:12}
+    festivals: { type: Number, default: 30 },
+    sickLeaves: { type: Number, default: 12 },
   },
-  pendingLeaves:{
-    casualLeaves: { type: Number ,default: 15 },
-    festivals:{type:Number,default:30},
-    sickLeaves:{type:Number,default:12}
+  pendingLeaves: {
+    casualLeaves: { type: Number, default: 15 },
+    festivals: { type: Number, default: 30 },
+    sickLeaves: { type: Number, default: 12 },
   },
-  leavesTaken:{
-    casualLeaves: { type: Number,default:0  },
-    festivals:{type:Number,default:0},
-    sickLeaves:{type:Number, default:0}
-  }
+  leavesTaken: {
+    casualLeaves: { type: Number, default: 0 },
+    festivals: { type: Number, default: 0 },
+    sickLeaves: { type: Number, default: 0 },
+  },
 });
 
 module.exports = mongoose.model("HRMEmployee", HRMEmployeeSchema);

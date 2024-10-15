@@ -306,6 +306,70 @@ const updateCandidateData = async (req, res) => {
   }
 };
 
+
+const getAllDepartment = async (req, res) => {
+  try {
+    // Use distinct method to get unique department names from Employee collection
+    const departments = [
+      "Human Resources",
+      "Finance",
+      "Marketing",
+      "Sales",
+      "Operations",
+      "Information Technology",
+      "Customer Service",
+      "Research and Development (R&D)",
+      "Legal",
+      "Software Development"
+    ];
+    return res.status(200).json({ departments: departments });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error fetching department names",
+      error: error.message,
+    });
+  }
+};
+
+
+const getEmployeetype = async (req, res) => {
+  try {
+    // Use distinct method to get unique department names from Employee collection
+    const employeetype = [
+      "internship",
+      "contract",
+      "full time",
+      "part time"
+    ]
+    return res.status(200).json({ employeetype: employeetype });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error fetching employee types",
+      error: error.message,
+    });
+  }
+};
+
+const getPositiontype = async (req, res) => {
+  try {
+    // Hardcoded array of position types
+    const positiontypes = [
+      "Software Developer",
+      "Research and Development (R&D)",
+      "Human Resources"
+    ];
+
+    // Return the position types as a JSON response
+    return res.status(200).json({ positiontypes });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error fetching employee types",
+      error: error.message,
+    });
+  }
+};
+
+
 //pending - view document, onboarding workflow half done
 
 module.exports = {
@@ -319,4 +383,7 @@ module.exports = {
   getCandidate,
   getAllDocuments,
   updateCandidateData,
+  getAllDepartment,
+  getEmployeetype,
+  getPositiontype
 };

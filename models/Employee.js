@@ -18,6 +18,11 @@ const employeeSchema = new mongoose.Schema({
   positionApplied: {
     type: String,
     required: true,
+    enum: [
+      "Software Developer",
+      "Research and Development (R&D)",
+      "Human Resources",
+    ],
   },
   department: {
     type: String,
@@ -32,9 +37,9 @@ const employeeSchema = new mongoose.Schema({
       "Customer Service",
       "Research and Development (R&D)",
       "Legal",
-      "Software Development"
-    ],
-  },
+      "Software Development",
+    ],
+  },
   dateOfBirth: {
     type: String,
     required: true,
@@ -46,6 +51,7 @@ const employeeSchema = new mongoose.Schema({
   employmentType: {
     type: String,
     required: true,
+    enum: ["Internship", "contract", "full time", "part time"],
   },
   emergencyContact: {
     type: String,
@@ -57,7 +63,7 @@ const employeeSchema = new mongoose.Schema({
   },
   photo: {
     data: { type: String },
-    date: { type: Date  },
+    date: { type: Date },
   },
   cv: {
     data: { type: String },
@@ -82,7 +88,7 @@ const employeeSchema = new mongoose.Schema({
   permanentAddress: {
     data: { type: String },
     date: { type: Date },
-  },  
+  },
   offerAcceptance: {
     type: Boolean,
     default: false,
@@ -103,10 +109,10 @@ const employeeSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  documentsSubmitted:{
-    type:Boolean,
-    default:false
-  }
+  documentsSubmitted: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 module.exports = mongoose.model("Employee", employeeSchema);

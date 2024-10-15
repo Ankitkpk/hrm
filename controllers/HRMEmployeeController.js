@@ -84,8 +84,23 @@ const loginEmployee = async (req, res) => {
   }
 };
 
+const getAllEmployeeDetails = async (req, res) => {
+  try {
+    // Fetch all employee details
+    const getData = await HRMEmployee.find();
+    
+    // Send a successful response with the employee data
+    res.status(200).json(getData);
+  } catch (error) {
+    // Log the error and send an error response
+    console.error('Error fetching employee details:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
 module.exports = {
   createEmployee,
   updatePassword,
-  loginEmployee
+  loginEmployee,
+  getAllEmployeeDetails
 };

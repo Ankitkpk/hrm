@@ -69,4 +69,7 @@ router.get("/employeeType", employeeController.getEmployeetype);
 
 router.get("/positiontype", employeeController.getPositiontype);
 
+//send mail
+router.post("/sendMail", employeeController.sendMail);
+
 module.exports = router;

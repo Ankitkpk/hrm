@@ -1,5 +1,5 @@
 const Employee = require("../models/Employee");
-
+const nodemailer = require('nodemailer')
 // Create new employee
 
 // change name to
@@ -23,7 +23,7 @@ const addNewCandidate = async (req, res) => {
     if (photo) {
       ph = photo[0]?.originalname;
     }
-    
+
     const employee = new Employee({
       fullName,
       email,
@@ -306,7 +306,6 @@ const updateCandidateData = async (req, res) => {
   }
 };
 
-
 const getAllDepartment = async (req, res) => {
   try {
     // Use distinct method to get unique department names from Employee collection
@@ -320,7 +319,7 @@ const getAllDepartment = async (req, res) => {
       "Customer Service",
       "Research and Development (R&D)",
       "Legal",
-      "Software Development"
+      "Software Development",
     ];
     return res.status(200).json({ departments: departments });
   } catch (error) {
@@ -331,23 +330,17 @@ const getAllDepartment = async (req, res) => {
   }
 };
 
-
 const getEmployeetype = async (req, res) => {
   try {
     // Use distinct method to get unique department names from Employee collection
-    const employeetype = [
-      "internship",
-      "contract",
-      "full time",
-      "part time"
-    ]
+    const employeetype = ["internship", "contract", "full time", "part time"];
     return res.status(200).json({ employeetype: employeetype });
   } catch (error) {
     return res.status(500).json({
       message: "Error fetching employee types",
       error: error.message,
-    });
-  }
+    });
+  }
 };
 
 const getPositiontype = async (req, res) => {
@@ -356,7 +349,7 @@ const getPositiontype = async (req, res) => {
     const positiontypes = [
       "Software Developer",
       "Research and Development (R&D)",
-      "Human Resources"
+      "Human Resources",
     ];
 
     // Return the position types as a JSON response
@@ -369,9 +362,51 @@ const getPositiontype = async (req, res) => {
   }
 };
 
+const sendMail = async (req, res) => {
+  try {
+    const { email, emailBody, subject } = req.body;
 
+    // Validate the email
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
 
-//pending - view document, onboarding workflow half done
+    // Find the employee with the given email
+    const employee = await Employee.findOne({ email });
+
+    if (!employee) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Set up the email transport
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER, // Environment variable for email
+        pass: process.env.EMAIL_PASSWORD, // Environment variable for password or app password
+      },
+    });
+
+    // Mail options
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: subject,
+      text: emailBody,
+    };
+
+    // Send the email
+    await transporter.sendMail(mailOptions);
+    return res
+      .status(200)
+      .json({ message: "Email has been sent successfully" });
+  } catch (err) {
+    console.error("Error sending email:", err.message);
+    return res
+      .status(500)
+      .json({ message: "Server error", error: err.message });
+  }
+};
 
 module.exports = {
   addNewCandidate,
@@ -386,5 +421,6 @@ module.exports = {
   updateCandidateData,
   getAllDepartment,
   getEmployeetype,
-  getPositiontype
+  getPositiontype,
+  sendMail,
 };

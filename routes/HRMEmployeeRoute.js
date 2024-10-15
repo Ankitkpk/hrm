@@ -10,6 +10,6 @@ router.post('/employee', HRMEmployeeController.createEmployee);
 router.post('/updatePassword', HRMEmployeeController.updatePassword);
 
 
-// router.post('/employeeLogin', HRMEmployeeController.loginEmployee);
+ router.post('/employeeLogin', HRMEmployeeController.loginEmployee);
  
 module.exports = router; 

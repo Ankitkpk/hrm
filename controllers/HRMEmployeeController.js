@@ -51,9 +51,41 @@ const updatePassword = async (req, res) => {
   }
 };
 
+const loginEmployee = async (req, res) => {
+  const { officialEmailId, empPassword } = req.body;
+  
+  try {
+    
+    
+    // Find the employee by email
+    const employee = await HRMEmployee.findOne({ officialEmailId });
+    if (!employee) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
 
+    // Check if the employee has a stored password
+    if (!employee.empPassword) {
+      return res.status(400).json({ message: "Password not set for this employee" });
+    }
+
+    // Check if the password is valid
+    const isMatch = await bcrypt.compare(empPassword, employee.empPassword);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid email or password" });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign({ empId: employee.empId }, process.env.JWT_SECRET, { expiresIn: "1h" });
+
+    // Send token back to client
+    res.json({ message: "Login successful", token });
+  } catch (err) {
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
 
 module.exports = {
   createEmployee,
   updatePassword,
+  loginEmployee
 };

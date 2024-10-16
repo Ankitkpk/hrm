@@ -265,16 +265,25 @@ const sendMessage = async (req, res) => {
 async function viewProfile(req, res) {
   try {
     const { id } = req.params;
-    const user = await User.findById(id);
+    
+    // Fetch user and exclude sensitive fields
+    const user = await User.findById(id).select('-password');
+
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
-    res.json(user);
+
+    // Standardized success response
+    res.status(200).json({ success: true, data: user });
+    
   } catch (error) {
-    console.error('Error viewing user profile:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error(`Error viewing user profile for ID ${req.params.id}:`, error);
+
+    // Standardized error response
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 }
+
 
 //edit profile
 const editProfile = async (req, res) => {

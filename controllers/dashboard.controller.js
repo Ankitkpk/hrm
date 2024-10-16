@@ -121,59 +121,55 @@ const getMonthlyCalendarEvents = async (req, res) => {
 };
 
 
-const getSpecialDaysEvents = async (req, res) => {
+const getspecialDays = async (req, res) => {
   try {
-    // Get the current month (0-indexed)
-    const currentMonth = moment().month(); // 0 = January, 11 = December
+    
+    const currentMonth = moment().month() + 1;
 
-    // Use aggregation to find users with either a birthdate or anniversary date that matches the current month
-    const upcomingBirthdays = await User.aggregate([
+   
+    const upcomingSpecialDays = await User.aggregate([
       {
         $project: {
-          name: 1, // Include the name in the result
+          name: 1,
           birthdate: 1,
-          birthMonth: { $month: "$birthdate" }, // Extract birth month
+          anniversary_date: 1,
+          birthMonth: { $month: "$birthdate" },
+          anniversaryMonth: { $month: "$anniversary_date" }
         }
       },
       {
         $match: {
-          birthMonth: currentMonth + 1 // Match birth month (1-indexed)
+          $or: [
+            { birthMonth: currentMonth },          // Match users with birth month in the current month
+            { anniversaryMonth: currentMonth }     // Match users with anniversary month in the current month
+          ]
         }
-      }
-    ]);
-
-    const upcomingAnniversaries = await User.aggregate([
+      },
       {
         $project: {
-          name: 1, // Include the name in the result
-          anniversary_date: 1,
-          anniversaryMonth: { $month: "$anniversary_date" } // Extract anniversary month
-        }
-      },
-      {
-        $match: {
-          anniversaryMonth: currentMonth + 1 // Match anniversary month (1-indexed)
+          name: 1,                        // Include the name in the final output
+          event: {
+            $cond: [
+              { $eq: ["$birthMonth", currentMonth] },
+              "Birthday",
+              "Anniversary"
+            ]
+          }                               // Label the event as either 'Birthday' or 'Anniversary'
         }
       }
     ]);
 
-    // Combine results while ensuring no duplicates
-    const uniqueUpcomingSpecialDays = [...upcomingBirthdays, ...upcomingAnniversaries].reduce((acc, curr) => {
-      if (!acc.find(item => item._id.equals(curr._id))) {
-        acc.push(curr);
-      }
-      return acc;
-    }, []);
-
-    // Check if any special days were found
-    if (uniqueUpcomingSpecialDays.length === 0) {
-      return res.status(404).json({ message: "No special days found for this month." });
-    }
+    // Separate the results into birthdays and anniversaries
+    const birthdays = upcomingSpecialDays.filter(day => day.event === "Birthday");
+    const anniversaries = upcomingSpecialDays.filter(day => day.event === "Anniversary");
 
     // Return the special days as a structured response
     res.status(200).json({
       success: true,
-      upcomingSpecialDays: uniqueUpcomingSpecialDays
+      upcomingSpecialDays: {
+        birthdays,    // Array of users with upcoming birthdays
+        anniversaries // Array of users with upcoming anniversaries
+      }
     });
   } catch (error) {
     console.error("Error fetching special days:", error);
@@ -229,6 +225,6 @@ module.exports = {
   getWeeklyAttendanceById,
   getWeeklyAttendanceByDepartment,
   getMonthlyCalendarEvents,
-  getSpecialDaysEvents,
+  getspecialDays,
   createMeeting,
 };

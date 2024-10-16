@@ -21,7 +21,7 @@ router.post('/verify-otp', userController.verifyOtp);
 router.post('/reset-password', userController.resetPassword);
 
 //search_user
-router.post("/search-user", userController.searchUser)
+router.get("/search-user", userController.searchUser)
 
 router.post("/send-message", checkCompanyId, userController.sendMessage)
 

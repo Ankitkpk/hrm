@@ -226,18 +226,23 @@ async function searchUser(req, res) {
 const sendMessage = async (req, res) => {
   try {
     const { email, subject, message } = req.body;
+
+    // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: 'User not found with this email' });
     }
+
+    // Configure the transporter
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
+        pass: process.env.EMAIL_PASSWORD
       }
     });
 
+    // Configure mail options
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
@@ -245,17 +250,15 @@ const sendMessage = async (req, res) => {
       text: message
     };
 
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.log(error);
-        return res.status(500).json({ message: 'Error sending email' });
-      }
-    })
-  } catch(err){
-    console.log(err);
-    res.status(500).json({ message: 'Server error' });
+    // Send the email
+    await transporter.sendMail(mailOptions);
+    return res.status(200).json({ message: 'Email sent successfully' });
+
+  } catch (error) {
+    console.error('Error sending email:', error);
+    return res.status(500).json({ message: 'Server error' });
   }
-}
+};
 
 //view user profile
 

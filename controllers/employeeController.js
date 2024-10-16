@@ -216,7 +216,7 @@ const getAllDocuments = async (req, res) => {
       },
       cv: {
         cv: user.cv.data,
-        date: user.date,
+        date: user.cv.date,
       },
       relievingLetter: {
         relievingLetter: user.relievingLetter.data,

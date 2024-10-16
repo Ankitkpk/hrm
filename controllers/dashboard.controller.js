@@ -146,7 +146,7 @@ const getspecialDays = async (req, res) => {
 
 const createMeeting = async (req, res) => {
   try {
-    const { title, participants, startTime, endTime, location, agenda } = req.body;
+    const { title, participants, startTime, endTime, location, agenda,companyId } = req.body;
 
     // Validate required fields
     if (!title || !participants || !startTime || !endTime) {
@@ -160,7 +160,8 @@ const createMeeting = async (req, res) => {
       startTime,
       endTime,
       location,
-      agenda
+      agenda,
+      companyId
     });
 
     // Save the meeting to the database

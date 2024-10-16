@@ -125,7 +125,8 @@ const resetPassword = async (req, res) => {
 // Create a new user
 const createUser = async (req, res) => {
   try {
-    const { name, qualification, email, grade, birthdate, address, marital_status, city, state, zip_code, anniversary_date, role, password, companyId,department } = req.body;
+    const { name, qualification, email, grade, birthdate, address, 
+      marital_status, city, state, zip_code, anniversary_date, role, password, companyId,department } = req.body;
     
     // Hash the password before saving
     const saltRounds = 10;
@@ -267,7 +268,7 @@ async function viewProfile(req, res) {
     const { id } = req.params;
     
     // Fetch user and exclude sensitive fields
-    const user = await User.findById(id).select('-password');
+    const user = await User.findById(id).select('-password -resetPasswordToken -resetPasswordExpires');
 
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
@@ -324,7 +325,7 @@ const editProfile = async (req, res) => {
     // Save the updated user
     await user.save();
 
-    res.json({ message: 'User profile updated successfully' });
+    res.json({ message: 'User profile updated successfully',data:user });
   } catch (error) {
     console.error('Error editing user profile:', error);
     res.status(500).json({ message: 'Server error' });
@@ -344,5 +345,4 @@ module.exports = {
   sendMessage,
   viewProfile,
   editProfile
-  
 };

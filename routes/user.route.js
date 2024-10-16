@@ -29,7 +29,7 @@ router.post("/send-message", checkCompanyId, userController.sendMessage)
 
 router.post("/view-profile/:id", checkCompanyId, userController.viewProfile)
 
-router.post("/edit-profile", checkCompanyId, userController.editProfile)
+router.post("/edit-profile/:id", checkCompanyId, userController.editProfile)
 
 // Protected routes - Apply access control middleware
 // router.get('/dashboard', verifyToken, checkAccess, (req, res) => res.send('Dashboard Page'));

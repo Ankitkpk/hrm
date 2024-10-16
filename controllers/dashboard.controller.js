@@ -1,10 +1,8 @@
-const User = require("../models/user.model")
-const Attendance = require("../models/attendance.model")
-const moment = require('moment');
-const Calendar = require('../models/calender.model')
-const Meeting = require("../models/meeting.model")
-
-
+const User = require("../models/user.model");
+const Attendance = require("../models/attendance.model");
+const moment = require("moment");
+const Calendar = require("../models/calender.model");
+const Meeting = require("../models/meeting.model");
 
 // Endpoint to get weekly attendance record
 
@@ -16,13 +14,13 @@ const getWeeklyAttendanceById = async (req, res) => {
     const user = await User.findById(userId);
 
     // Get the current week's date range
-    const startDate = moment().startOf('week').toDate();
-    const endDate = moment().endOf('week').toDate();
+    const startDate = moment().startOf("week").toDate();
+    const endDate = moment().endOf("week").toDate();
 
     // Find all attendance records within the specified date range
     const attendanceRecords = await Attendance.find({
       user: userId,
-      date: { $gte: startDate, $lte: endDate }
+      date: { $gte: startDate, $lte: endDate },
     });
 
     // Calculate the total number of days worked and the total hours worked
@@ -32,14 +30,13 @@ const getWeeklyAttendanceById = async (req, res) => {
     attendanceRecords.forEach((record) => {
       totalDaysWorked += record.daysWorked;
       totalHoursWorked += record.hoursWorked;
-    })
-    
+    });
+
     res.json({ totalDaysWorked, totalHoursWorked, user });
-    
   } catch (error) {
-    res.status(500).json({message : error.message})
+    res.status(500).json({ message: error.message });
   }
-}
+};
 
 const getWeeklyAttendanceByDepartment = async (weekStart, weekEnd) => {
   try {
@@ -47,29 +44,32 @@ const getWeeklyAttendanceByDepartment = async (weekStart, weekEnd) => {
     const attendanceRecords = await Attendance.find({
       date: {
         $gte: weekStart.toDate(),
-        $lte: weekEnd.toDate()
-      }
+        $lte: weekEnd.toDate(),
+      },
     })
-      .populate('userId')
+      .populate("userId")
       .lean();
 
     // Group attendance records by employee and department
-    const employeeAttendanceByDepartment = attendanceRecords.reduce((acc, attendance) => {
-      const department = attendance.userId.department;
-      const employeeId = attendance.userId._id;
-      if (!acc[department]) {
-        acc[department] = {};
-      }
-      if (!acc[department][employeeId]) {
-        acc[department][employeeId] = {
-          name: attendance.userId.name,
-          totalAttendance: 1
-        };
-      } else {
-        acc[department][employeeId].totalAttendance++;
-      }
-      return acc;
-    }, {});
+    const employeeAttendanceByDepartment = attendanceRecords.reduce(
+      (acc, attendance) => {
+        const department = attendance.userId.department;
+        const employeeId = attendance.userId._id;
+        if (!acc[department]) {
+          acc[department] = {};
+        }
+        if (!acc[department][employeeId]) {
+          acc[department][employeeId] = {
+            name: attendance.userId.name,
+            totalAttendance: 1,
+          };
+        } else {
+          acc[department][employeeId].totalAttendance++;
+        }
+        return acc;
+      },
+      {}
+    );
 
     return employeeAttendanceByDepartment;
   } catch (err) {
@@ -88,7 +88,7 @@ const getMonthlyCalendarEvents = async (req, res) => {
     const yearNum = parseInt(year, 10);
 
     if (isNaN(monthNum) || isNaN(yearNum)) {
-      return res.status(400).json({ error: 'Invalid month or year provided.' });
+      return res.status(400).json({ error: "Invalid month or year provided." });
     }
 
     // Create start and end dates for the month
@@ -99,58 +99,109 @@ const getMonthlyCalendarEvents = async (req, res) => {
     const calendarEvents = await Calendar.find({
       date: {
         $gte: startDate,
-        $lte: endDate
-      }
+        $lte: endDate,
+      },
     })
-      .populate('holidays')
-      .populate('leaves')
+      .populate("holidays")
+      .populate("leaves")
       .populate({
-        path: 'meetings',
-        populate: { path: 'participants' } // Populate meeting participants
+        path: "meetings",
+        populate: { path: "participants" }, // Populate meeting participants
       })
       .lean();
 
     // Respond with the fetched events
     res.status(200).json(calendarEvents);
   } catch (err) {
-    console.error('Error fetching monthly calendar events:', err);
-    res.status(500).json({ error: 'An error occurred while fetching calendar events.' });
+    console.error("Error fetching monthly calendar events:", err);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching calendar events." });
   }
 };
 
 
-const getspecialDays = async (req, res) => {
+const getSpecialDaysEvents = async (req, res) => {
   try {
-      // Get the current months' date range
-      const startDate = moment().startOf('month').toDate();
-      const endDate = moment().endOf('month').toDate();
-      const upcomingSpecialDays = await User.find({
-        birthdate: {
-          $gte: startDate,
-          $lte: endDate
-        },
-        anniversary_date : {
-          $gte: startDate,
-          $lte: endDate
+    // Get the current month (0-indexed)
+    const currentMonth = moment().month(); // 0 = January, 11 = December
+
+    // Use aggregation to find users with either a birthdate or anniversary date that matches the current month
+    const upcomingBirthdays = await User.aggregate([
+      {
+        $project: {
+          name: 1, // Include the name in the result
+          birthdate: 1,
+          birthMonth: { $month: "$birthdate" }, // Extract birth month
         }
-      })
-      res.status(200).json(upcomingSpecialDays)
+      },
+      {
+        $match: {
+          birthMonth: currentMonth + 1 // Match birth month (1-indexed)
+        }
+      }
+    ]);
 
+    const upcomingAnniversaries = await User.aggregate([
+      {
+        $project: {
+          name: 1, // Include the name in the result
+          anniversary_date: 1,
+          anniversaryMonth: { $month: "$anniversary_date" } // Extract anniversary month
+        }
+      },
+      {
+        $match: {
+          anniversaryMonth: currentMonth + 1 // Match anniversary month (1-indexed)
+        }
+      }
+    ]);
+
+    // Combine results while ensuring no duplicates
+    const uniqueUpcomingSpecialDays = [...upcomingBirthdays, ...upcomingAnniversaries].reduce((acc, curr) => {
+      if (!acc.find(item => item._id.equals(curr._id))) {
+        acc.push(curr);
+      }
+      return acc;
+    }, []);
+
+    // Check if any special days were found
+    if (uniqueUpcomingSpecialDays.length === 0) {
+      return res.status(404).json({ message: "No special days found for this month." });
+    }
+
+    // Return the special days as a structured response
+    res.status(200).json({
+      success: true,
+      upcomingSpecialDays: uniqueUpcomingSpecialDays
+    });
   } catch (error) {
-    res.status(500).json({message : error.message})
+    console.error("Error fetching special days:", error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching special days."
+    });
   }
-
-}
+};
+ 
 
 
 
 const createMeeting = async (req, res) => {
   try {
-    const { title, participants, startTime, endTime, location, agenda,companyId } = req.body;
+    const {
+      title,
+      participants,
+      startTime,
+      endTime,
+      location,
+      agenda,
+      companyId,
+    } = req.body;
 
     // Validate required fields
     if (!title || !participants || !startTime || !endTime) {
-      return res.status(400).json({ message: 'Required fields are missing' });
+      return res.status(400).json({ message: "Required fields are missing" });
     }
 
     // Create a new meeting object
@@ -161,7 +212,7 @@ const createMeeting = async (req, res) => {
       endTime,
       location,
       agenda,
-      companyId
+      companyId,
     });
 
     // Save the meeting to the database
@@ -170,20 +221,14 @@ const createMeeting = async (req, res) => {
     res.status(201).json(savedMeeting);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Error creating meeting' });
+    res.status(500).json({ message: "Error creating meeting" });
   }
 };
 
-
-
-
-
-
-
 module.exports = {
-    getWeeklyAttendanceById,
-    getWeeklyAttendanceByDepartment,
-    getMonthlyCalendarEvents,
-    getspecialDays,
-    createMeeting
-}
+  getWeeklyAttendanceById,
+  getWeeklyAttendanceByDepartment,
+  getMonthlyCalendarEvents,
+  getSpecialDaysEvents,
+  createMeeting,
+};

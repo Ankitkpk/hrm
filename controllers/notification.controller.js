@@ -3,7 +3,12 @@ const { Notification } = require("../models/notifications.model");
 // Controller to create a notification
 const createNotification = async (req, res) => {
   try {
-    const { title, message, user, type } = req.body;
+    const { title, message, user, type, companyId } = req.body; // Extract companyId from the request body
+
+    // Validate required fields
+    if (!title || !message || !user || !companyId) {
+      return res.status(400).json({ message: "Title, message, user, and companyId are required." });
+    }
 
     // Create a new notification document
     const newNotification = new Notification({
@@ -11,6 +16,7 @@ const createNotification = async (req, res) => {
       message,
       user,
       type,
+      companyId, // Include companyId in the notification document
       isRead: false, // New notifications are initially marked as unread
     });
 
@@ -23,7 +29,7 @@ const createNotification = async (req, res) => {
       notification: newNotification,
     });
   } catch (error) {
-    console.error("Error creating notification:", error);
+    console.error("Error creating notification:", error); // Log error for debugging
     res.status(500).json({ message: "Server error" });
   }
 };

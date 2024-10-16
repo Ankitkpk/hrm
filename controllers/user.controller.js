@@ -10,10 +10,10 @@ const AccessTable = require('../models/accessTable.model');
 
 // Nodemailer setup for sending emails
 const transporter = nodemailer.createTransport({
-  service: 'Gmail', // You can use any email service
+  service: 'gmail', // You can use any email service
   auth: {
     user: process.env.EMAIL_USER, // Your email address
-    pass: process.env.EMAIL_PASS  // Your email password or app-specific password
+    pass: process.env.EMAIL_PASSWORD  // Your email password or app-specific password
   }
 });
 
@@ -33,27 +33,16 @@ const forgotPassword = async (req, res) => {
 
     // Find user by email
     const user = await User.findOne({ email });
-    console.log(user)
     if (!user) {
-      console.log(user)
       return res.status(404).json({ message: 'User not found with this email' });
     }
 
     const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // OTP valid for 10 minutes
 
-    // Generate a unique reset token
-    // const resetToken = crypto.randomBytes(32).toString('hex');
-    // const hashedToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-
-    // // Set the reset token and expiration on the user model
-    // user.resetPasswordToken = hashedToken;
-    // user.resetPasswordExpires = Date.now() + 3600000; // Token valid for 1 hour
-    // Update user with OTP and its expiration time
     user.otp = otp;
     user.forgotPassword = otpExpiry;
     await user.save();
-
 
 
     // Email message
@@ -66,13 +55,13 @@ const forgotPassword = async (req, res) => {
     `;
 
     // Send email with reset link
-    // await transporter.sendMail({
-    //   from: process.env.EMAIL_USER,
-    //   // to: user.email,
-    //   to : "dnyaneshkamthe6@gmail.com",
-    //   subject: 'Password Reset Request',
-    //   html: message
-    // });
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      // to: user.email,
+      to : "dnyaneshkamthe6@gmail.com",
+      subject: 'Password Reset Request',
+      html: message
+    });
 
     res.status(200).json({ message: 'Password reset OTP sent to email' });
   } catch (error) {
@@ -138,14 +127,14 @@ const createUser = async (req, res) => {
       qualification,
       email,
       grade,
-      birthdate,
+      birthdate:new Date(birthdate),
       address,
       marital_status,
       city,
       state,
       zip_code,
       department,
-      anniversary_date,
+      anniversary_date:new Date(anniversary_date),
       role,
       password:password_hash,
       companyId

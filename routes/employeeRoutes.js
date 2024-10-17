@@ -23,7 +23,7 @@ router.post(
 );
 
 // Search employees
-router.get("/search", employeeController.searchEmployees);
+router.get("/search", employeeController.searchEmployees);//d
 
 // Upload documents for employees
 //router.post('/upload/:id', upload.single('file'), employeeController.uploadDocuments);
@@ -43,33 +43,33 @@ router.put(
 );
 
 // View profile of an employee
-router.get("/profile/:id", employeeController.viewProfile);
+router.get("/profile/:id", employeeController.viewProfile);//d
 
 //Get Candidate Name
-router.get("/getCandidateNameByDepartment", employeeController.getCandidateName);
+router.get("/getCandidateNameByDepartment", employeeController.getCandidateName);//d
 
 //get candidate data on basis of fullName and department
-router.get("/viewcandidate", employeeController.getCandidate);
+router.get("/viewcandidate", employeeController.getCandidate);//d
 
 // Get all employees
-router.get("/", employeeController.getAllEmployees);
+router.get("/", employeeController.getAllEmployees);//d
 
 //get all  in true or false
 //router.get('/checkAllFields/:id',employeeController.checkAllFields);
 // get all documents
-router.get("/getallDocument/:id", employeeController.getAllDocuments);
+router.get("/getallDocument/:id", employeeController.getAllDocuments);//d
 
-router.put("/changedata/:id", employeeController.updateCandidateData);
+router.put("/changedata/:id", employeeController.updateCandidateData);// d
 
-router.get("/getDepartment", employeeController.getCandidateDepartment);
+router.get("/getDepartment", employeeController.getCandidateDepartment);//d
 
-router.get("/allDepartments", employeeController.getAllDepartment);
+router.get("/allDepartments", employeeController.getAllDepartment);//d
 
-router.get("/employeeType", employeeController.getEmployeetype);
+router.get("/employeeType", employeeController.getEmployeetype);//d
 
-router.get("/positiontype", employeeController.getPositiontype);
+router.get("/positiontype", employeeController.getPositiontype);//done
 
 //send mail
-router.post("/sendMail", employeeController.sendMail);
+router.post("/sendMail", employeeController.sendMail); //done
 
 module.exports = router;

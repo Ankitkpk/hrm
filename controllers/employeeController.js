@@ -1,5 +1,5 @@
 const Employee = require("../models/Employee");
-const nodemailer = require('nodemailer')
+const nodemailer = require("nodemailer");
 // Create new employee
 
 // change name to
@@ -158,12 +158,22 @@ const uploadDocuments = async (req, res) => {
 
 //get all candidate names
 const getCandidateName = async (req, res) => {
+  const { department } = req.params;
   try {
-    const getName = await Employee.distinct("fullName");
-    res.status(200).json(getName);
+    const employees = await Employee.find(
+      { department: department },
+      { fullName: 1, _id: 0 }
+    );
+    if (employees.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No employees found in this department" });
+    }
+
+    return res.status(200).json(employees);
   } catch (error) {
-    res.status(500).json({
-      message: "Error fetching candidate names",
+    return res.status(500).json({
+      message: "Error fetching employees",
       error: error.message,
     });
   }

@@ -46,7 +46,7 @@ router.put(
 router.get("/profile/:id", employeeController.viewProfile);
 
 //Get Candidate Name
-router.get("/getCandidateName", employeeController.getCandidateName);
+router.get("/getCandidateName/:department", employeeController.getCandidateName);
 
 //get candidate data on basis of fullName and department
 router.get("/viewcandidate", employeeController.getCandidate);

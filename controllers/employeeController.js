@@ -157,8 +157,9 @@ const uploadDocuments = async (req, res) => {
 };
 
 //get all candidate names
+//change to query
 const getCandidateName = async (req, res) => {
-  const { department } = req.params;
+  const { department } = req.query;
   try {
     const employees = await Employee.find(
       { department: department },
@@ -181,9 +182,8 @@ const getCandidateName = async (req, res) => {
 
 //get candidate data on basis of fullName and department
 const getCandidate = async (req, res) => {
-  const { fullName, email, department } = req.query;
   try {
-    const employee = await Employee.findOne({ fullName, department, email });
+    const employee = await Employee.findOne(req.query);
 
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });

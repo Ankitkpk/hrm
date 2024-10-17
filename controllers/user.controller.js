@@ -88,25 +88,30 @@ const verifyOtp = async (req, res) => {
 // Reset Password Controller
 const resetPassword = async (req, res) => {
   try {
-    const { email, password_hash } = req.body;
+    const { email, password } = req.body;
 
-    // Find user by token and check if the token has expired
+    // Check if the email and password are provided
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
+    // Find user by email
     const user = await User.findOne({ email });
-
     if (!user) {
-      return res.status(400).json({ message: 'No user found with this mail' });
+      return res.status(404).json({ message: 'No user found with this email' });
     }
 
     // Hash the new password
     const saltRounds = 10;
-    const passwordHash = await bcrypt.hash(password_hash, saltRounds);
+    const passwordHash = await bcrypt.hash(password, saltRounds);
 
-    // Update user's password and clear reset token fields
-    user.password_hash = passwordHash;
+    // Update user's password and save
+    user.password = passwordHash;
     await user.save();
 
     res.status(200).json({ message: 'Password has been reset successfully' });
   } catch (error) {
+    console.error("Error resetting password:", error);
     res.status(500).json({ message: 'Error resetting password', error: error.message });
   }
 };

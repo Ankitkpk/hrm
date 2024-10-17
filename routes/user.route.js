@@ -27,7 +27,7 @@ router.post("/send-message", checkCompanyId, userController.sendMessage)
 
 //view-profile
 
-router.post("/view-profile/:id", checkCompanyId, userController.viewProfile)
+router.get("/view-profile/:id", checkCompanyId, userController.viewProfile)
 
 router.post("/edit-profile/:id", checkCompanyId, userController.editProfile)
 

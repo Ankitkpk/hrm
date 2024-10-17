@@ -10,7 +10,7 @@ router.get("/weeklyAttendance/:id", checkCompanyId, dashboardController.getWeekl
 router.get("/getMonthlyCalendarEvents", checkCompanyId, dashboardController.getMonthlyCalendarEvents);
 router.get("/getspecialDays", checkCompanyId, dashboardController.getspecialDays)
 router.post("/createMeeting", checkCompanyId, dashboardController.createMeeting)
-
+router.post('/calendar', dashboardController.createCalendarEntry);
 
 
 module.exports = router ;

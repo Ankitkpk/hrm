@@ -6,6 +6,45 @@ const Meeting = require("../models/meeting.model");
 
 // Endpoint to get weekly attendance record
 
+
+
+const createCalendarEntry = async (req, res) => {
+  try {
+    const { date, holidays, leaves, meetings, companyId } = req.body;
+
+    // Check if a calendar entry already exists for the given date and company
+    const existingEntry = await Calendar.findOne({ date, companyId });
+    if (existingEntry) {
+      return res.status(400).json({ message: "Calendar entry already exists for this date and company." });
+    }
+
+    // Create a new calendar entry
+    const newCalendarEntry = new Calendar({
+      date,
+      holidays,
+      leaves,
+      meetings,
+      companyId,
+    });
+
+    // Save the calendar entry to the database
+    await newCalendarEntry.save();
+
+    // Respond with a success message and the newly created entry
+    res.status(201).json({
+      message: "Calendar entry created successfully",
+      calendarEntry: newCalendarEntry,
+    });
+  } catch (error) {
+    console.error("Error creating calendar entry:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = { createCalendarEntry };
+
+
+
 const getWeeklyAttendanceById = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -181,8 +220,6 @@ const getspecialDays = async (req, res) => {
 };
  
 
-
-
 const createMeeting = async (req, res) => {
   try {
     const {
@@ -222,6 +259,7 @@ const createMeeting = async (req, res) => {
 };
 
 module.exports = {
+  createCalendarEntry,
   getWeeklyAttendanceById,
   getWeeklyAttendanceByDepartment,
   getMonthlyCalendarEvents,

@@ -48,7 +48,7 @@ const companiesData = [
 
 async function getAllCompanies(req, res){
     try {
-        const companies = await Company.find();
+        const companies = await Company.find({},'_id name');
         if(companies.length === 0){
             return res.status(400).json({message : "Failed to fetch companies"})
         }

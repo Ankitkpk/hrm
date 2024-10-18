@@ -72,17 +72,17 @@ const markAttendance = async (req, res) => {
   }
 };
 
-// const getTwoMonthAttendance = async (req, res) => {
-//   const { employeeId } = req.params;
-//   try {
-//     const data = await Attendance.find({ employee: employeeId })
-//       .sort({ createdAt: -1 })
-//       .limit(2);
-//     res.status(200).json(data);
-//   } catch (error) {
-//     res.status(500).json({ message: "Error fetching data", error });
-//   }
-// };
+const getTwoMonthAttendance = async (req, res) => {
+  const { employeeId } = req.params;
+  try {
+    const data = await Attendance.find({ employee: employeeId })
+      .sort({ createdAt: -1 })
+      .limit(2);
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching data", error });
+  }
+};
 
 // Get weekly attendance
 // const getWeeklyAttendance = async (req, res) => {

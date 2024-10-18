@@ -230,6 +230,7 @@ const createMeeting = async (req, res) => {
       location,
       agenda,
       companyId,
+      reminder
     } = req.body;
 
     // Validate required fields
@@ -242,10 +243,10 @@ const createMeeting = async (req, res) => {
       title,
       participants,
       startTime,
-      endTime,
       location,
       agenda,
       companyId,
+      reminder
     });
 
     // Save the meeting to the database
@@ -266,3 +267,5 @@ module.exports = {
   getspecialDays,
   createMeeting,
 };
+
+

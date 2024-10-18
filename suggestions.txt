@@ -1,0 +1,16 @@
+# add email validation in creating new meet
+
+
+reminder - 15mint before
+
+data.now()
+
+meeting time -> 2:30
+time of setTimeout =>meetingTime - data.now()
+
+setTimeout(()=>{
+    exec
+},time)
+
+
+//getemployeebyidforattendance

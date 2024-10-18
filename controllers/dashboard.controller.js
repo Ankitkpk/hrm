@@ -6,8 +6,6 @@ const Meeting = require("../models/meeting.model");
 
 // Endpoint to get weekly attendance record
 
-
-
 const createCalendarEntry = async (req, res) => {
   try {
     const { date, holidays, leaves, meetings, companyId } = req.body;
@@ -15,7 +13,11 @@ const createCalendarEntry = async (req, res) => {
     // Check if a calendar entry already exists for the given date and company
     const existingEntry = await Calendar.findOne({ date, companyId });
     if (existingEntry) {
-      return res.status(400).json({ message: "Calendar entry already exists for this date and company." });
+      return res
+        .status(400)
+        .json({
+          message: "Calendar entry already exists for this date and company.",
+        });
     }
 
     // Create a new calendar entry
@@ -42,8 +44,6 @@ const createCalendarEntry = async (req, res) => {
 };
 
 module.exports = { createCalendarEntry };
-
-
 
 const getWeeklyAttendanceById = async (req, res) => {
   try {
@@ -159,66 +159,68 @@ const getMonthlyCalendarEvents = async (req, res) => {
   }
 };
 
-
-const getspecialDays = async (req, res) => {
+const todaySpecialDays = async (req, res) => {
   try {
-    
-    const currentMonth = moment().month() + 1;
+    const currentMonthDay = moment().format("MM-DD"); // Get current month and day in MM-DD format
 
-   
-    const upcomingSpecialDays = await User.aggregate([
-      {
-        $project: {
-          name: 1,
-          birthdate: 1,
-          anniversary_date: 1,
-          birthMonth: { $month: "$birthdate" },
-          anniversaryMonth: { $month: "$anniversary_date" }
-        }
-      },
-      {
-        $match: {
-          $or: [
-            { birthMonth: currentMonth },          // Match users with birth month in the current month
-            { anniversaryMonth: currentMonth }     // Match users with anniversary month in the current month
-          ]
-        }
-      },
-      {
-        $project: {
-          name: 1,                        // Include the name in the final output
-          event: {
-            $cond: [
-              { $eq: ["$birthMonth", currentMonth] },
-              "Birthday",
-              "Anniversary"
-            ]
-          }                               // Label the event as either 'Birthday' or 'Anniversary'
-        }
+    // Find users with either a matching birthdate or anniversary_date
+    const todaySpecialEvents = await User.find({
+      $or: [
+        {
+          $expr: {
+            $eq: [
+              { $dateToString: { format: "%m-%d", date: "$birthdate" } },
+              currentMonthDay,
+            ], // Match month and day for birthdate
+          },
+        },
+        {
+          $expr: {
+            $eq: [
+              { $dateToString: { format: "%m-%d", date: "$anniversary_date" } },
+              currentMonthDay,
+            ], // Match month and day for anniversary_date
+          },
+        },
+      ],
+    });
+
+    // Modify the results to include the "eventCelebration" field
+    const modifiedEvents = todaySpecialEvents.map((event) => {
+      let eventCelebration = '';
+
+      // Determine if the event is a birthdate or anniversary based on matching field
+      const isBirthdayMatch = moment(event.birthdate).format("MM-DD") === currentMonthDay;
+      const isAnniversaryMatch = moment(event.anniversary_date).format("MM-DD") === currentMonthDay;
+
+      if (isBirthdayMatch) {
+        eventCelebration = 'Birthday';
+      } else if (isAnniversaryMatch) {
+        eventCelebration = 'Anniversary';
       }
-    ]);
 
-    // Separate the results into birthdays and anniversaries
-    const birthdays = upcomingSpecialDays.filter(day => day.event === "Birthday");
-    const anniversaries = upcomingSpecialDays.filter(day => day.event === "Anniversary");
+      // Return the original event data along with the eventCelebration field
+      return {
+        name: event.name, // Include the name field properly
+        eventCelebration, // Add eventCelebration field
+      };
+    });
 
     // Return the special days as a structured response
     res.status(200).json({
       success: true,
-      upcomingSpecialDays: {
-        birthdays,    // Array of users with upcoming birthdays
-        anniversaries // Array of users with upcoming anniversaries
-      }
+      todaySpecialEvents: modifiedEvents, // Send modified events with eventCelebration field
     });
   } catch (error) {
     console.error("Error fetching special days:", error);
     res.status(500).json({
       success: false,
-      message: "An error occurred while fetching special days."
+      message: "An error occurred while fetching special days.",
     });
   }
 };
- 
+
+
 
 const createMeeting = async (req, res) => {
   try {
@@ -230,7 +232,7 @@ const createMeeting = async (req, res) => {
       location,
       agenda,
       companyId,
-      reminder
+      reminder,
     } = req.body;
 
     // Validate required fields
@@ -246,7 +248,7 @@ const createMeeting = async (req, res) => {
       location,
       agenda,
       companyId,
-      reminder
+      reminder,
     });
 
     // Save the meeting to the database
@@ -264,8 +266,6 @@ module.exports = {
   getWeeklyAttendanceById,
   getWeeklyAttendanceByDepartment,
   getMonthlyCalendarEvents,
-  getspecialDays,
+  todaySpecialDays,
   createMeeting,
 };
-
-

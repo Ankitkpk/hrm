@@ -1,7 +1,7 @@
 const HRMEmployee = require("../models/HRMEmployeeModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const moment = require('moment');
+const moment = require('moment-timezone');
 
 const createEmployee = async (req, res) => {
   try {
@@ -54,10 +54,8 @@ const updatePassword = async (req, res) => {
 
 const loginEmployee = async (req, res) => {
   const { officialEmailId, empPassword } = req.body;
-  
+
   try {
-    
-    
     // Find the employee by email
     const employee = await HRMEmployee.findOne({ officialEmailId });
     if (!employee) {
@@ -66,7 +64,9 @@ const loginEmployee = async (req, res) => {
 
     // Check if the employee has a stored password
     if (!employee.empPassword) {
-      return res.status(400).json({ message: "Password not set for this employee" });
+      return res
+        .status(400)
+        .json({ message: "Password not set for this employee" });
     }
 
     // Check if the password is valid
@@ -76,7 +76,9 @@ const loginEmployee = async (req, res) => {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ empId: employee.empId }, process.env.JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ empId: employee.empId }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
 
     // Send token back to client
     res.json({ message: "Login successful", token });
@@ -89,39 +91,66 @@ const getAllEmployeeDetails = async (req, res) => {
   try {
     // Fetch all employee details
     const getData = await HRMEmployee.find();
-    
+
     // Send a successful response with the employee data
     res.status(200).json(getData);
   } catch (error) {
     // Log the error and send an error response
-    console.error('Error fetching employee details:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
+    console.error("Error fetching employee details:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
 };
 
 const getEmployeeById = async (req, res) => {
   const { id } = req.params;
   try {
-
     // Get current date and time using moment
-    const currentDate = moment().format('DD MMM YYYY'); // e.g., "18 Oct 2024"
-    const currentTime = moment().format('h:mm A'); // e.g., "10:11 AM"
-    
-   
+    const currentDate = moment().format("DD MMM YYYY"); // e.g., "18 Oct 2024"
+    const currentTime = moment().format("h:mm A"); // e.g., "10:11 AM"
 
     // Fetch employee details from the database
-    const data = await HRMEmployee.findById(id).select('empId department jobTitle');
-    
+    const data = await HRMEmployee.findById(id).select(
+      "empId department jobTitle"
+    );
+
     // Send both employee data and date/time in the response
     res.status(200).json({
       employeeDetails: data,
       currentDate,
-      currentTime
+      currentTime,
     });
-  } 
-  catch (error) { 
-    console.error('Error fetching employee details:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+  } catch (error) {
+    console.error("Error fetching employee details:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+const getEmployeeByIdForAttendance = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const employee = await HRMEmployee.findById(id).select(
+      "empId employeeName jobTitle"
+    );
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    const current_date = moment().format("YYYY-MM-DD");
+    const indiaTime = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
+
+    const data = {
+      employee: employee,
+      current_date: current_date,
+      indiaTime: indiaTime,
+    };
+
+    return res.status(200).json({ data: data });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
   }
 };
 
@@ -130,6 +159,6 @@ module.exports = {
   updatePassword,
   loginEmployee,
   getAllEmployeeDetails,
-  getEmployeeById
+  getEmployeeById,
+  getEmployeeByIdForAttendance
 };
- 

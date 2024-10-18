@@ -4,12 +4,12 @@ const Company = require('../models/company.model');
 const checkCompanyId = async (req, res, next) => {
   try {
     // Get companyId from request body, query, or headers
-    const companyId = req.body.companyId || req.query.companyId || req.headers['company-id'];
+    const companyId = req.body.companyId || req.query.companyId || req.headers['companyid'];
 
     // Check if companyId is provided
     if (!companyId) {
       return res.status(400).json({ error: 'Company ID is required.' });
-    } 
+    }
 
     // Find the company by ID
     const company = await Company.findById(companyId);

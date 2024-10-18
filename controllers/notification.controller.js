@@ -1,38 +1,22 @@
 const { Notification } = require("../models/notifications.model");
+const createNotificationUtil = require("../utils/notification");
 
 // Controller to create a notification
 const createNotification = async (req, res) => {
   try {
-    const { title, message, user, type, companyId } = req.body; // Extract companyId from the request body
-
-    // Validate required fields
-    if (!title || !message || !user || !companyId) {
-      return res.status(400).json({ message: "Title, message, user, and companyId are required." });
-    }
-
-    // Create a new notification document
-    const newNotification = new Notification({
-      title,
-      message,
-      user,
-      type,
-      companyId, // Include companyId in the notification document
-      isRead: false, // New notifications are initially marked as unread
+    const response = await createNotificationUtil(req.body); // Call the utility function with req.body
+    // Send the response back to the client
+    return res.status(response.status).json({
+      message: response.message,
+      notification: response.notification || null,
     });
-
-    // Save the notification to the database
-    await newNotification.save();
-
-    // Respond with a success message
-    res.status(201).json({
-      message: "Notification created successfully",
-      notification: newNotification,
-    });
+    
   } catch (error) {
-    console.error("Error creating notification:", error); // Log error for debugging
-    res.status(500).json({ message: "Server error" });
+    console.error("Error in controller:", error); // Log error for debugging
+    return res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // Controller to get notifications for a user
 const getNotificationsForUser = async (req, res) => {

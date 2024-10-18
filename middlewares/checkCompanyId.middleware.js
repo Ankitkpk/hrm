@@ -9,7 +9,7 @@ const checkCompanyId = async (req, res, next) => {
     // Check if companyId is provided
     if (!companyId) {
       return res.status(400).json({ error: 'Company ID is required.' });
-    } 
+    }
 
     // Find the company by ID
     const company = await Company.findById(companyId);

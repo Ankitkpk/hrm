@@ -85,47 +85,47 @@ const getTwoMonthAttendance = async (req, res) => {
 };
 
 // Get weekly attendance
-// const getWeeklyAttendance = async (req, res) => {
-//   const { employeeId } = req.params;
+const getWeeklyAttendance = async (req, res) => {
+  const { employeeId } = req.params;
 
-//   try {
+  try {
     
-//     const currentMonthData = await Attendance.find(
-//       { employee: employeeId },
-//       "dailyAttendance"
-//     )
-//       .sort({ createdAt: -1 })
-//       .limit(1);
-//       let weekData = [...currentMonthData[0].dailyAttendance.reverse().flat(1)]
-//       // console.log('week data',weekData);
+    const currentMonthData = await Attendance.find(
+      { employee: employeeId },
+      "dailyAttendance"
+    )
+      .sort({ createdAt: -1 })
+      .limit(1);
+      let weekData = [...currentMonthData[0].dailyAttendance.reverse().flat(1)]
+      // console.log('week data',weekData);
       
-//     if (
-//       currentMonthData[0].dailyAttendance.length < 7 ||
-//       currentMonthData[0].dailyAttendance.length === 0
-//     ) {
-//       const limit = 7 - currentMonthData[0].dailyAttendance.length;
-//       // console.log(currentMonthData[0].dailyAttendance.length);
+    if (
+      currentMonthData[0].dailyAttendance.length < 7 ||
+      currentMonthData[0].dailyAttendance.length === 0
+    ) {
+      const limit = 7 - currentMonthData[0].dailyAttendance.length;
+      // console.log(currentMonthData[0].dailyAttendance.length);
 
-//       // console.log(limit);
+      // console.log(limit);
 
-//       const lastMonthData = await Attendance.find(
-//         { employee: employeeId },
-//         "dailyAttendance"
-//       )
-//         .sort({ createdAt: -1 })
-//         .skip(1)
-//         .limit(limit);
-//       // console.log(lastMonthData[0].dailyAttendance);
-//       weekData = [...weekData,...lastMonthData[0].dailyAttendance.reverse()]
-//     }
+      const lastMonthData = await Attendance.find(
+        { employee: employeeId },
+        "dailyAttendance"
+      )
+        .sort({ createdAt: -1 })
+        .skip(1)
+        .limit(limit);
+      // console.log(lastMonthData[0].dailyAttendance);
+      weekData = [...weekData,...lastMonthData[0].dailyAttendance.reverse()]
+    }
 
-//     res.json(weekData);
-//   } catch (error) {
-//     res
-//       .status(500)
-//       .json({ message: "Error fetching weekly attendance", error });
-//   }
-// };
+    res.json(weekData);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching weekly attendance", error });
+  }
+};
 
 module.exports = {
   getWeeklyAttendance,

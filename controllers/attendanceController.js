@@ -32,6 +32,9 @@ const markAttendance = async (req, res) => {
   const { employeeId, date, status } = req.body;
 
   try {
+    if(!employeeId){
+      return res.status(404).json({message:'Employee not found'})
+    }
     // Determine the current month (Month Year format)
     //const currentMonth = new Date().toLocaleString('default', { month: 'long' }) + ' ' + new Date().getFullYear();
     const currentMonth = "December 2025";
@@ -75,10 +78,16 @@ const markAttendance = async (req, res) => {
 const getTwoMonthAttendance = async (req, res) => {
   const { employeeId } = req.params;
   try {
-    const data = await Attendance.find({ employee: employeeId })
+    const data = await Attendance.find(
+      { employee: employeeId },
+      "month totalLeavesTaken totalPresent"
+    )
       .sort({ createdAt: -1 })
       .limit(2);
-    res.status(200).json(data);
+    if (!data) {
+     return res.status(404).json({ message: "Data not found" });
+    }
+   return res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ message: "Error fetching data", error });
   }
@@ -89,16 +98,20 @@ const getWeeklyAttendance = async (req, res) => {
   const { employeeId } = req.params;
 
   try {
-    
     const currentMonthData = await Attendance.find(
       { employee: employeeId },
       "dailyAttendance"
     )
       .sort({ createdAt: -1 })
       .limit(1);
-      let weekData = [...currentMonthData[0].dailyAttendance.reverse().flat(1)]
-      // console.log('week data',weekData);
-      
+
+      if(!currentMonthData){
+        return res.status(404).json({message:'Employee not fount'})
+      }
+
+    let weekData = [...currentMonthData[0].dailyAttendance.reverse().flat(1)];
+    // console.log('week data',weekData);
+
     if (
       currentMonthData[0].dailyAttendance.length < 7 ||
       currentMonthData[0].dailyAttendance.length === 0
@@ -116,10 +129,10 @@ const getWeeklyAttendance = async (req, res) => {
         .skip(1)
         .limit(limit);
       // console.log(lastMonthData[0].dailyAttendance);
-      weekData = [...weekData,...lastMonthData[0].dailyAttendance.reverse()]
+      weekData = [...weekData, ...lastMonthData[0].dailyAttendance.reverse()];
     }
 
-    res.json(weekData);
+    return res.status(200).json(weekData);
   } catch (error) {
     res
       .status(500)

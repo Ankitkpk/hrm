@@ -183,11 +183,11 @@ const loginUser = async (req, res) => {
         secure: true,          // Ensures the cookie is sent over HTTPS only
         sameSite: 'Strict',    // Ensures the cookie is not sent with cross-site requests
         maxAge: 3600000        // Cookie expiration time (1 hour in milliseconds)
-      },id: user._id );
+      });
   
       // Send a response with user details or redirect URL
       // const redirectUrl = accessRecord.allowedPages.length ? accessRecord.allowedPages[0] : '/default'; // Default or first allowed page
-      res.status(200).json({ message: 'Login successful',token });
+      res.status(200).json({ message: 'Login successful',token,id: user._id });
     } catch (error) {
       res.status(500).json({ message: 'Error logging in', error: error.message });
     }

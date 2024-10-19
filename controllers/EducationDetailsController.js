@@ -91,7 +91,7 @@ const deleteEducationDetails = async(req,res)=>{
         const result = await EducationDetails.findByIdAndDelete(id);
         
       if (!result) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ message: 'Education Details not found' });
       }
   
       // Respond with a success message

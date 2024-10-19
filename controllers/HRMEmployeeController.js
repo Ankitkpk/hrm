@@ -82,7 +82,7 @@ const loginEmployee = async (req, res) => {
     });
 
     // Send token back to client
-    res.json({ message: "Login successful", token });
+    res.json({ message: "Login successful", token,id:employee._id });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }

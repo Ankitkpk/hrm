@@ -104,21 +104,15 @@ const getAllEmployeeDetails = async (req, res) => {
 const getEmployeeById = async (req, res) => {
   const { id } = req.params;
   try {
-    // Get current date and time using moment
-    const currentDate = moment().format("DD MMM YYYY"); // e.g., "18 Oct 2024"
-    const currentTime = moment().format("h:mm A"); // e.g., "10:11 AM"
-
+   
     // Fetch employee details from the database
     const data = await HRMEmployee.findById(id).select(
       "empId department employeeName jobTitle"
     );
 
     // Send both employee data and date/time in the response
-    res.status(200).json({
-      employeeDetails: data,
-      currentDate,
-      currentTime,
-    });
+    res.status(200).json({data});
+  
   } catch (error) {
     console.error("Error fetching employee details:", error);
     res.status(500).json({ message: "Server error", error: error.message });

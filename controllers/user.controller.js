@@ -183,7 +183,7 @@ const loginUser = async (req, res) => {
         secure: true,          // Ensures the cookie is sent over HTTPS only
         sameSite: 'Strict',    // Ensures the cookie is not sent with cross-site requests
         maxAge: 3600000        // Cookie expiration time (1 hour in milliseconds)
-      });
+      },id: user._id );
   
       // Send a response with user details or redirect URL
       // const redirectUrl = accessRecord.allowedPages.length ? accessRecord.allowedPages[0] : '/default'; // Default or first allowed page

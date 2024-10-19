@@ -229,7 +229,7 @@ const createMeeting = async (req, res) => {
       title,
       participants,
       startTime,
-      endTime,
+      startDate,
       location,
       agenda,
       companyId,
@@ -237,7 +237,7 @@ const createMeeting = async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!title || !participants || !startTime || !endTime) {
+    if (!title || !participants || !startTime) {
       return res.status(400).json({ message: "Required fields are missing" });
     }
 
@@ -245,6 +245,7 @@ const createMeeting = async (req, res) => {
     const newMeeting = new Meeting({
       title,
       participants,
+      startDate,
       startTime,
       location,
       agenda,
@@ -254,7 +255,7 @@ const createMeeting = async (req, res) => {
 
     // Save the meeting to the database
     const savedMeeting = await newMeeting.save();
-    setReminder(newMeeting)
+    // setReminder(newMeeting)
     res.status(201).json(savedMeeting);
   } catch (error) {
     console.error(error);

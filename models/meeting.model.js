@@ -9,12 +9,12 @@ const meetingSchema = new mongoose.Schema({
     },
     participants: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // Reference to the User model
+        type: String,
         required: true
       }
     ],
-    startTime: { type: Date, required: true },
+    startDate: { type: Date, required: true },
+    startTime:{type:String,required:true},
     location: { type: String },
     agenda: { type: String, trim: true },
     companyId: {

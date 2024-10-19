@@ -147,18 +147,16 @@ const getEmployeeByIdForAttendance = async (req, res) => {
   }
 };
 
+//change it for email
 const upcomingMeeting = async (req, res) => {
   const { id } = req.params; 
- 
   try {
-  
-
+    const emp = await HRMEmployee.findById(id)
     // Find meetings where the participant's ID exists in the participants array
-    const upcomingMeetings = await Meeting.find({ participants: { $in: [id] } })
+    const upcomingMeetings = await Meeting.find({ participants: { $in: [emp.officialEmailId] } }).lean();
     if (!upcomingMeetings || upcomingMeetings.length === 0) {
       return res.status(404).json({ message: "No meetings found for this user" });
     }
-
     // Send the found meetings as a response
     res.status(200).json(upcomingMeetings);
   } catch (error) {

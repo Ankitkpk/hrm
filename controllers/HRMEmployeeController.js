@@ -110,7 +110,7 @@ const getEmployeeById = async (req, res) => {
 
     // Fetch employee details from the database
     const data = await HRMEmployee.findById(id).select(
-      "empId department jobTitle"
+      "empId department employeeName jobTitle"
     );
 
     // Send both employee data and date/time in the response
@@ -129,28 +129,26 @@ const getEmployeeByIdForAttendance = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const employee = await HRMEmployee.findById(id).select(
-      "empId employeeName jobTitle"
-    );
+
+    const employee = await HRMEmployee.findById( id )
+    .select('empId employeeName jobTitle -_id')
+  
+ 
 
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
 
-    const current_date = moment().format("YYYY-MM-DD");
-    const indiaTime = moment().tz("Asia/Kolkata").format("YYYY-MM-DD HH:mm:ss");
-
-    const data = {
-      employee: employee,
+  
+    const current_date = moment().format('MMMM DD, YYYY');
+    const indiaTime = moment().tz("Asia/Kolkata").format('YYYY-MM-DD HH:mm:ss'); 
+   
+    return res.status(200).json({...employee.toObject(),
       current_date: current_date,
-      indiaTime: indiaTime,
-    };
-
-    return res.status(200).json({ data: data });
+      indiaTime: indiaTime});
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Server error", error: error.message });
+
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 

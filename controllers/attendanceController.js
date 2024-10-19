@@ -82,8 +82,8 @@ const getTwoMonthAttendance = async (req, res) => {
       { employee: employeeId },
       "month totalLeavesTaken totalPresent"
     )
-      .sort({ createdAt: -1 })
-      .limit(2);
+      .sort({ createdAt: -1 });
+      // .limit(2);
     if (!data) {
      return res.status(404).json({ message: "Data not found" });
     }

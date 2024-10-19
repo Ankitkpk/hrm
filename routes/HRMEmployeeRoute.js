@@ -16,4 +16,6 @@ router.post('/updatePassword', HRMEmployeeController.updatePassword);
  
  router.get('/getEmployeeById/:id',HRMEmployeeController.getEmployeeById);
  router.get("/getEmployeeByIdForAttendance/:id", HRMEmployeeController.getEmployeeByIdForAttendance);
+
+ router.get('/getUpcomingMeet/:id',HRMEmployeeController.upcomingMeeting)
 module.exports = router; 

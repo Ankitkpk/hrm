@@ -3,6 +3,7 @@ const Attendance = require("../models/attendance.model");
 const moment = require("moment");
 const Calendar = require("../models/calender.model");
 const Meeting = require("../models/meeting.model");
+const setReminder = require("../utils/meetingReminder");
 
 // Endpoint to get weekly attendance record
 
@@ -253,7 +254,7 @@ const createMeeting = async (req, res) => {
 
     // Save the meeting to the database
     const savedMeeting = await newMeeting.save();
-
+    setReminder(newMeeting)
     res.status(201).json(savedMeeting);
   } catch (error) {
     console.error(error);

@@ -1,4 +1,5 @@
 const HRMEmployee = require("../models/HRMEmployeeModel");
+const Meeting = require("../models/meeting.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const moment = require('moment-timezone');
@@ -146,11 +147,31 @@ const getEmployeeByIdForAttendance = async (req, res) => {
   }
 };
 
+const upcomingMeeting = async (req, res) => {
+  const { id } = req.params; 
+ 
+  try {
+  
+
+    // Find meetings where the participant's ID exists in the participants array
+    const upcomingMeetings = await Meeting.find({ participants: { $in: [id] } })
+    if (!upcomingMeetings || upcomingMeetings.length === 0) {
+      return res.status(404).json({ message: "No meetings found for this user" });
+    }
+
+    // Send the found meetings as a response
+    res.status(200).json(upcomingMeetings);
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
 module.exports = {
   createEmployee,
   updatePassword,
   loginEmployee,
   getAllEmployeeDetails,
   getEmployeeById,
-  getEmployeeByIdForAttendance
+  getEmployeeByIdForAttendance,
+  upcomingMeeting
 };

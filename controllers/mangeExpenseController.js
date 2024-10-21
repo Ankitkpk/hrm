@@ -21,7 +21,13 @@ const createExpenseForSales = async (req, res) => {
       modeOfTransport,
       workingRemark,
     } = req.body;
-
+    if (!hq || !name || !dateOfJoining || !totalNoOfWorkingDays || !totalHQWorkingDays || 
+      !totalNoOfOutstationDays || !day || !date || 
+      !customerHospitalNameVisited || !city || !fromTo || 
+      !fromAreaName || !modeOfTransport || !workingRemark) {
+    return res.status(400).json({
+      message: "All required fields must be provided"})
+    }
     // Get the uploaded file's path
     const attachReceipt = req.file ? req.file.path : null;
 
@@ -65,11 +71,15 @@ const createExpenseForScreening = async (req, res) => {
       dateOfSubmission,
       lastDateOfSubmission,
       location,
-      departmant,
+      department,
       manager,
       payPeriodFrom,
     } = req.body;
 
+
+    if (!name || !purpose || !dateOfSubmission || !lastDateOfSubmission || !location || !department || !manager || !payPeriodFrom) {
+      return res.status(400).json({message: "All required fields must be provided"});
+    }
     // Get the uploaded file's path
     const attachReceipt = req.file ? req.file.path : null;
 
@@ -81,7 +91,7 @@ const createExpenseForScreening = async (req, res) => {
       dateOfSubmission,
       lastDateOfSubmission,
       location,
-      departmant,
+      department,
       manager,
       payPeriodFrom,
       attachReceipt, // Save the uploaded file's path

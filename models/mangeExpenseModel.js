@@ -11,7 +11,7 @@ const expenseSchema = new mongoose.Schema({
   dateOfSubmission: Date,
   lastDateOfSubmission: Date,
   location: String,
-  departmant: String,
+  department: String,
   manager: String,
   payPeriodFrom: String,
   dateOfJoining: Date,

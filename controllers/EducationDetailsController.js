@@ -70,14 +70,14 @@ const saveEducationDetails = async (req, res) => {
 };
 
 const getEducationDetails = async (req, res) => {
+  const id = req.params.id
   try {
-    const getData = await EducationDetails.find().select(
+    const getData = await EducationDetails.find({hrmEmployeeId:id}).select(
       "degree year institute grade"
     );
     if(!getData){
       return res.status(404).json({ message: "Education Details not found" });
     }
-
    return res.status(200).json(getData);
   } catch (error) {
     res.status(500).json({

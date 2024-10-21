@@ -19,7 +19,7 @@ const upload = multer({ storage: storage });
 
 // Route for saving education details with document upload
 router.post("/saveEducationDetails", upload.single("document"), EducationDetailsController.saveEducationDetails);
-router.get("/showEducationDetails",  EducationDetailsController.getEducationDetails);
+router.get("/showEducationDetails/:id",  EducationDetailsController.getEducationDetails);
 router.delete("/deleteEducationDetails/:id",  EducationDetailsController.deleteEducationDetails);
 router.put("/updateEducationDetails/:id", upload.single("document"), EducationDetailsController.updateEducationDetails);
 router.get("/documentDetails/:id",  EducationDetailsController.documentDetails);

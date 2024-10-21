@@ -162,10 +162,21 @@ const documentDetails = async(req,res)=>{
     
 }}
 
+const getDataForUpdate= async(req,res)=>{
+  const id = req.params.id;
+  try{
+    const data = await EducationDetails.findById(id).select('degree year grade institute')
+    res.status(200).json(data)
+  }catch(error){
+    res.status(500).json({message:'Server error',error:error.message})
+  }
+}
+
 module.exports = {
   saveEducationDetails,
   getEducationDetails,
   deleteEducationDetails,
   updateEducationDetails,
-  documentDetails
+  documentDetails,
+  getDataForUpdate
 };

@@ -151,7 +151,8 @@ const getEmployeeByIdForAttendance = async (req, res) => {
 const upcomingMeeting = async (req, res) => {
   const { id } = req.params; 
   try {
-    const now = new Date();
+    const today = new Date();
+  const now = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const emp = await HRMEmployee.findById(id)
     // Find meetings where the participant's ID exists in the participants array
     const upcomingMeetings = await Meeting.find({ participants: { $in: [emp.officialEmailId] },startDate:{$gte:now} }).sort({startDate:1, startTime:1}).lean();

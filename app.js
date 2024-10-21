@@ -9,6 +9,7 @@ const hrmEmployee = require("./routes/HRMEmployeeRoute");
 const leaveRoutes = require("./routes/leaveRoute");
 const attendance = require("./routes/attendanceRoute");
 const EducationDetailsRoutes = require("./routes/EducationDetailsRoute");
+const event = require('./routes/eventRoute')
 const cors = require("cors");
 const User = require("./models/user.model");
 // Connect to MongoDB
@@ -176,6 +177,7 @@ app.use("/api/hrmEmployee", hrmEmployee);
 app.use("/api/leave", leaveRoutes);
 app.use("/api/attendance", attendance);
 app.use('/api/eductionDetails',EducationDetailsRoutes)
+app.use('/api/event',event)
 // Error handling
 app.use((err, req, res, next) => {
   res.status(500).json({ error: err.message });

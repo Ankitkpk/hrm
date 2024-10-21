@@ -110,7 +110,7 @@ const updateEducationDetails = async (req, res) => {
     const { id } = req.params; // Get the ID from the route parameters
     const { grade, degree, institute, year } = req.body; // Destructure the fields from the request body
 
-    if (!grade || !degree || !institute || !year) {
+    if (!grade && !degree && !institute && !year) {
      return res.status(400).json({ message: "Enter fields first"});
     }
     // Find the record by ID

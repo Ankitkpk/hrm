@@ -240,12 +240,10 @@ const getAllDocuments = async (req, res) => {
         aadharCard: user.aadharCard.data,
         date: user.aadharCard.date,
       },
-
       postalAddress: {
         postalAddress: user.postalAddress.data,
         date: user.postalAddress.date,
       },
-
       permanentAddress: {
         permanentAddress: user.permanentAddress.data,
         date: user.permanentAddress.date,

@@ -165,6 +165,48 @@ const upcomingMeeting = async (req, res) => {
   }
 };
 
+
+const getNextMeet = async (req, res) => {
+  const { id } = req.params; 
+  const today = new Date();
+  const now = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const indiaTime = moment().tz("Asia/Kolkata").format('HH:mm:ss'); 
+  console.log("Current Time:", indiaTime);
+
+  try {
+    // Find the employee by ID
+    const emp = await HRMEmployee.findById(id);
+    if (!emp) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+    
+    console.log("Current Timestamp:", now.getTime());
+    console.log("Employee Email:", emp.officialEmailId);
+    
+    // Find upcoming meetings where the employee is a participant
+    const upcomingMeeting = await Meeting.find({
+      participants: { $in: [emp.officialEmailId] }, 
+      startDate: { $gte: now },
+      startTime:{$gte:indiaTime}
+    }).sort({startTime:1}).limit(1);
+    
+    console.log("Upcoming Meetings:", upcomingMeeting);
+    
+    // Check if any meeting was found
+    if (upcomingMeeting.length === 0) {
+      return res.status(404).json({ message: "No upcoming meetings found for this user" });
+    }
+    
+    // Return the list of meetings
+    return res.status(200).json(upcomingMeeting);
+    
+  } catch (error) {
+    console.error("Error occurred:", error);
+    return res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
+
 module.exports = {
   createEmployee,
   updatePassword,
@@ -172,5 +214,6 @@ module.exports = {
   getAllEmployeeDetails,
   getEmployeeById,
   getEmployeeByIdForAttendance,
-  upcomingMeeting
+  upcomingMeeting,
+  getNextMeet
 };

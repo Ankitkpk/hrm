@@ -15,4 +15,4 @@ setTimeout(()=>{
 
 //getemployeebyidforattendance
 
-2 apis for same thing need to change if more data is allowed to send
+discuss organizer for upcoming meet

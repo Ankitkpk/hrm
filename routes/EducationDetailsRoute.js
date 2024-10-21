@@ -22,5 +22,6 @@ router.post("/saveEducationDetails", upload.single("document"), EducationDetails
 router.get("/showEducationDetails",  EducationDetailsController.getEducationDetails);
 router.delete("/deleteEducationDetails/:id",  EducationDetailsController.deleteEducationDetails);
 router.put("/updateEducationDetails/:id", upload.single("document"), EducationDetailsController.updateEducationDetails);
+router.get("/documentDetails/:id",  EducationDetailsController.documentDetails);
 
 module.exports = router;

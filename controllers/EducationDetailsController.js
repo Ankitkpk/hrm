@@ -74,7 +74,11 @@ const getEducationDetails = async (req, res) => {
     const getData = await EducationDetails.find().select(
       "degree year institute grade"
     );
-    res.status(200).json(getData);
+    if(!getData){
+      return res.status(404).json({ message: "Education Details not found" });
+    }
+
+   return res.status(200).json(getData);
   } catch (error) {
     res.status(500).json({
       message: "Error showing education details",
@@ -107,7 +111,7 @@ const updateEducationDetails = async (req, res) => {
     const { grade, degree, institute, year } = req.body; // Destructure the fields from the request body
 
     if (!grade || !degree || !institute || !year) {
-      res.status(400).json({ message: "Enter fields first"});
+     return res.status(400).json({ message: "Enter fields first"});
     }
     // Find the record by ID
     const educationDetails = await EducationDetails.findById(id);
@@ -141,9 +145,27 @@ const updateEducationDetails = async (req, res) => {
   }
 };
 
+const documentDetails = async(req,res)=>{
+  const id = req.params.id;
+ 
+  try{
+    const data = await EducationDetails.findById(id).select('fullName programSelection updatedAt document');
+    if(!data){
+    return  res.json({message:"User not Exist"});
+    }
+
+    res.status(200).json(data);
+  }catch(error){
+    res.status(500).json({
+      message: "Server error"
+    })
+    
+}}
+
 module.exports = {
   saveEducationDetails,
   getEducationDetails,
   deleteEducationDetails,
   updateEducationDetails,
+  documentDetails
 };

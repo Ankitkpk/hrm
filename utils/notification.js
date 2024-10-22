@@ -26,8 +26,11 @@ const createNotification = async (body) => {
 
   } catch (error) {
     // Handle error case
+    console.log(error);
+    
     return { status: 500, message: "Error creating notification", error: error.message };
   }
 };
+
 
 module.exports = createNotification;

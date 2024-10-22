@@ -16,6 +16,10 @@ const meetingSchema = new mongoose.Schema({
     startDate: { type: Date, required: true },
     startTime:{type:String,required:true},
     location: { type: String },
+    status:{type:String,
+      enum:['Pending','Completed',"Canceled"],
+      default:'Pending'
+    },
     agenda: { type: String, trim: true },
     companyId: {
       type: mongoose.Schema.Types.ObjectId,

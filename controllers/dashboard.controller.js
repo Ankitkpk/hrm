@@ -4,6 +4,7 @@ const moment = require("moment");
 const Calendar = require("../models/calender.model");
 const Meeting = require("../models/meeting.model");
 const setReminder = require("../utils/meetingReminder");
+const HRMEmployee = require('../models/HRMEmployeeModel')
 
 // Endpoint to get weekly attendance record
 
@@ -231,6 +232,7 @@ const createMeeting = async (req, res) => {
       startTime,
       startDate,
       location,
+      status,
       agenda,
       companyId,
       reminder,
@@ -249,6 +251,7 @@ const createMeeting = async (req, res) => {
       startTime,
       location,
       agenda,
+      status,
       companyId,
       reminder,
     });
@@ -256,10 +259,63 @@ const createMeeting = async (req, res) => {
     // Save the meeting to the database
     const savedMeeting = await newMeeting.save();
     setReminder(newMeeting)
-    res.status(201).json(savedMeeting);
+    return res.status(201).json(savedMeeting);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error creating meeting" });
+    return res.status(500).json({ message: "Error creating meeting",error:error.message });
+  }
+};
+
+const getUpcomingMeets = async (req, res) => {
+  const { id } = req.params;
+ 
+  const currentDateTime = moment().tz("Asia/Kolkata").format();
+  const sevenDaysAgo = moment().tz("Asia/Kolkata").subtract(7, 'days').format();
+  
+  try {
+   
+    const emp = await HRMEmployee.findById(id);
+    if (!emp) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+
+    const nextMeeting = await Meeting.find({
+      startDate: { $gte: currentDateTime },
+    }).sort({ startDateTime: 1 }).select('title startDate -_id').limit(1);
+
+
+    
+    const lastMeeting = await Meeting.find({
+      startDate: { $gte: sevenDaysAgo, $lte: currentDateTime },
+     status: { $eq: 'Completed' }
+    }).sort({ startDate: -1, startTime: -1 }).select('title startDate -_id').limit(1);
+   
+
+    const totalscheduleMeetings = await Meeting.countDocuments({
+      startDate: { $gte: sevenDaysAgo, $lte: currentDateTime },
+      status: { $eq: 'Completed' }
+    });
+    
+    const completedMettings = await Meeting.countDocuments({startDate: { $gte: sevenDaysAgo, $lte: currentDateTime }, status: 'Completed' });
+    const canceledMettings = await Meeting.countDocuments({startDate: { $gte: sevenDaysAgo, $lte: currentDateTime }, status: 'Canceled' });
+    const pendingMettings = await Meeting.countDocuments({startDate: { $gte: sevenDaysAgo, $lte: currentDateTime }, status: 'Pending' });
+    
+    const response = {
+      nextMeeting,
+      lastMeeting, 
+      totalscheduleMeetings,
+      completedMettings,
+      canceledMettings,
+      pendingMettings
+    };
+
+   
+    return res.status(200).json(response);
+
+  } catch (error) {
+    console.error("Error occurred:", error);
+    return res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
 
@@ -270,4 +326,5 @@ module.exports = {
   getMonthlyCalendarEvents,
   todaySpecialDays,
   createMeeting,
+  getUpcomingMeets
 };

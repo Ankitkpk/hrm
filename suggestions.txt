@@ -16,3 +16,6 @@ setTimeout(()=>{
 //getemployeebyidforattendance
 
 discuss organizer for upcoming meet
+
+
+for view exp - daily , weekly and montly -> combine on basis of purpose and period

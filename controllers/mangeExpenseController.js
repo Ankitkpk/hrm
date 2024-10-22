@@ -54,9 +54,9 @@ const createExpenseForSales = async (req, res) => {
 
     // Save to the database
     const savedExpense = await newExpense.save();
-    res.status(201).json(savedExpense);
+    return res.status(201).json(savedExpense);
   } catch (error) {
-    res.status(400).json({ message: "Error saving expense", error });
+    return res.status(500).json({ message: "Error saving expense", error });
   }
 };
 
@@ -100,9 +100,9 @@ const createExpenseForScreening = async (req, res) => {
 
     // Save to the database
     const savedExpense = await newExpense.save();
-    res.status(201).json(savedExpense);
+    return res.status(201).json(savedExpense);
   } catch (error) {
-    res.status(400).json({ message: "Error saving expense", error });
+    return res.status(500).json({ message: "Error saving expense", error });
   }
 };
 

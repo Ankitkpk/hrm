@@ -19,3 +19,6 @@ discuss organizer for upcoming meet
 
 
 for view exp - daily , weekly and montly -> combine on basis of purpose and period
+
+
+date ->  date,time(cT) 02:24   meeting time 2:30 --- ct-> 2:24   ->  reminder - 4mint  

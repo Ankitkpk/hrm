@@ -30,8 +30,13 @@ const expenseSchema = new mongoose.Schema({
   amount:String,
   status:{
     type:String,
-    enum:['Approved','Pending']
+    enum:['Approved','Pending','Rejected'],
+    default:"Pending"
   },
+  isDeleted:{
+    type:Boolean,
+    default:false
+  } ,
   emp:{
     type:mongoose.Schema.Types.ObjectId,
     ref: 'HRMEmployee',

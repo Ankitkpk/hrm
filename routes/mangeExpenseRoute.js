@@ -27,4 +27,20 @@ router.post(
   manageExpense.createExpenseForScreening
 );
 
+
+router.get('/getExpense',manageExpense.getExpense)
+router.get('/getExpenseDetails/:id',manageExpense.getExpenseDetails)
+router.delete('/deleteExpense/:id',manageExpense.deleteExpense)
+
+router.put(
+  "/updateExpenseForSales/:id",
+  upload.single("attachReceipt"),
+  manageExpense.updateExpenseForSales
+);
+router.put(
+  "/updateExpenseForScreening/:id",
+  upload.single("attachReceipt"),
+  manageExpense.updateExpenseForScreening
+);
+
 module.exports = router;

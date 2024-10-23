@@ -1,3 +1,4 @@
 node_modules
-suggestions.txt
-.vscode
+package-lock.json
+
+.env

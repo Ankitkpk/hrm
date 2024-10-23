@@ -28,7 +28,7 @@ router.post(
 );
 
 
-router.get('/getExpense',manageExpense.getExpense)
+router.get('/getExpensesByQuery',manageExpense.getExpensesByQuery)
 router.get('/getExpenseDetails/:id',manageExpense.getExpenseDetails)
 router.delete('/deleteExpense/:id',manageExpense.deleteExpense)
 

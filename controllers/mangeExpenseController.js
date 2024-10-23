@@ -129,29 +129,22 @@ const createExpenseForScreening = async (req, res) => {
 
 
 
-const getExpense = async (req, res) => {
+const getExpensesByQuery = async (req, res) => {
   try {
-    const  data  = req.query;
+    const {status} = req.query;
 
-    // Validate status query parameter
-    // if (status && !['Pending', 'Approved', 'Rejected'].includes(status)) {
-    //   return res.status(400).json({ error: "Invalid status value" });
-    // }
-
-    // Create a filter object based on status
-    // const filter = { isDeleted: false };
-    // if (status) filter.status = status;
-console.log(status,"Line 144");
     // Find expenses based on the filter
-    const expenses = await Expense.find({$or:[
-      {status:data.status},
+    const expenses = await Expense.find({$and:[
+      req.query,
       {isDeleted:false}
     ]}).select('date purpose amount status');
+
+    // const expenses = await Expense.find(req.query,{ isDeleted: false })
 
     // Return the filtered expenses
     return res.status(200).json(expenses);
   } catch (error) {
-    return res.status(500).json({ error: "Server error" });
+    return res.status(500).json({ error: "Server error", message: error.message });
   }
 };
 
@@ -250,7 +243,7 @@ const updateExpenseForScreening = async (req, res) => {
 module.exports = {
   createExpenseForSales,
   createExpenseForScreening,
-  getExpense,
+  getExpensesByQuery,
   getExpenseDetails,
   deleteExpense,
   updateExpenseForSales,

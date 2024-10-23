@@ -140,9 +140,49 @@ const getWeeklyAttendance = async (req, res) => {
   }
 };
 
+const getEmployeeList = async (req, res) => {
+  try {
+   
+    const currentMonthDay = Moment().format("YYYY-MM-DD");
+    // const month = req.query.month;
+    const currentMonth = Moment().format("MMMM YYYY");
+    // Find attendance where both month and dailyAttendance.date match
+    const employeeList = await Attendance.find({
+      month: currentMonth,  // Match the month
+      dailyAttendance: {
+        $elemMatch: { date: currentMonthDay }  // Match the date in the dailyAttendance array
+      }
+    })
+    .populate({
+      path: 'employee',  // Populate employee details from HRMEmployee collection
+      select: 'employeeName employeeType jobTitle'  // Select specific employee fields
+    });
+
+    // Map the results to only include the employee details and the matched attendance status
+    const result = employeeList.map(attendance => {
+      const matchedAttendance = attendance.dailyAttendance.find(day =>  
+          (day.date).format("YYYY-MM-DD") === currentMonthDay
+      );
+    })
+
+      // return {
+      //   employee: employeeList,
+      //   // status: matchedAttendance ? matchedAttendance.status : null // Get the status or null if not found
+      // };
+  
+
+    // Send the result as a JSON response
+    return res.json(result);
+  } catch (err) {
+    console.error(err);
+  return  res.status(500).json({ message:err.message });
+  }
+};
+
 module.exports = {
   getWeeklyAttendance,
   markAttendance,
   getAttendanceSummaryByMonth,
   getTwoMonthAttendance,
+  getEmployeeList
 };

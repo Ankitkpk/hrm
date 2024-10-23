@@ -7,6 +7,7 @@ const meetingSchema = new mongoose.Schema({
       type: Number,
       required: true, // Use Date type, but we will only manipulate minutes
     },
+    organizer:String,
     participants: [
       {
         type: String,

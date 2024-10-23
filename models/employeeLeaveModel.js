@@ -29,6 +29,7 @@ const LeaveApplicationSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  status: { type: String, enum: ['Approve', 'Reject'], default: 'Reject'},
   documents: {
     data: { type: String },
   },
@@ -37,6 +38,6 @@ const LeaveApplicationSchema = new mongoose.Schema({
     ref: "HRMEmployee", // Reference the HRMEmployee model
     required: true,
   },
-});
+},{timestamps:true});
 
 module.exports = mongoose.model("LeaveApplication", LeaveApplicationSchema);

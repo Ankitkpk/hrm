@@ -72,4 +72,6 @@ router.get("/positiontype", employeeController.getPositiontype);//done
 //send mail
 router.post("/sendMail", employeeController.sendMail); //done
 
+router.get("/viewNotUploadedDocuments/:id",employeeController.viewNotUploadedDocuments)
+
 module.exports = router;

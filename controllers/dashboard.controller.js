@@ -35,13 +35,13 @@ const createCalendarEntry = async (req, res) => {
     await newCalendarEntry.save();
 
     // Respond with a success message and the newly created entry
-    res.status(201).json({
+    return res.status(201).json({
       message: "Calendar entry created successfully",
       calendarEntry: newCalendarEntry,
     });
   } catch (error) {
     console.error("Error creating calendar entry:", error);
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -75,7 +75,7 @@ const getWeeklyAttendanceById = async (req, res) => {
 
     res.json({ totalDaysWorked, totalHoursWorked, user });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 };
 
@@ -152,7 +152,7 @@ const getMonthlyCalendarEvents = async (req, res) => {
       .lean();
 
     // Respond with the fetched events
-    res.status(200).json(calendarEvents);
+    return res.status(200).json(calendarEvents);
   } catch (err) {
     console.error("Error fetching monthly calendar events:", err);
     res
@@ -209,13 +209,13 @@ const todaySpecialDays = async (req, res) => {
     });
 
     // Return the special days as a structured response
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       todaySpecialEvents: modifiedEvents, // Send modified events with eventCelebration field
     });
   } catch (error) {
     console.error("Error fetching special days:", error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "An error occurred while fetching special days.",
     });

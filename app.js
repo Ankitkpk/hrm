@@ -157,9 +157,9 @@ app.post("/seed_data", async (req, res) => {
     // Insert the users with hashed passwords into the database
     let result = await User.insertMany(hashedUsersData);
 
-    res.status(201).json({ message: "Data seeding successful", data: result });
+    return res.status(201).json({ message: "Data seeding successful", data: result });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 });
 
@@ -182,7 +182,7 @@ app.use('/api/event',event)
 app.use('/api/manageExpense',mangeExpenseRoute)
 // Error handling
 app.use((err, req, res, next) => {
-  res.status(500).json({ error: err.message });
+  return res.status(500).json({ error: err.message });
 });
 
 // Start server

@@ -57,12 +57,12 @@ const saveEducationDetails = async (req, res) => {
     // Save to database
     await newEducationDetails.save();
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "Education details saved successfully",
       data: newEducationDetails,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: "Error saving education details",
       error: error.message,
     });
@@ -80,7 +80,7 @@ const getEducationDetails = async (req, res) => {
     }
    return res.status(200).json(getData);
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: "Error showing education details",
       error: error.message,
     });
@@ -97,10 +97,10 @@ const deleteEducationDetails = async (req, res) => {
     }
 
     // Respond with a success message
-    res.status(200).json({ message: "EducationDetails deleted successfully" });
+    return res.status(200).json({ message: "EducationDetails deleted successfully" });
   } catch (error) {
     console.error("Error deleting EducationDetails:", error);
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -132,13 +132,13 @@ const updateEducationDetails = async (req, res) => {
     // Save the updated document to the database
     await educationDetails.save();
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "EducationDetails updated successfully",
       data: educationDetails,
     });
   } catch (error) {
     console.error("Error updating EducationDetails:", error);
-    res.status(500).json({
+    return res.status(500).json({
       message: "Server error",
       error: error.message,
     });
@@ -154,9 +154,9 @@ const documentDetails = async(req,res)=>{
     return  res.json({message:"User not Exist"});
     }
 
-    res.status(200).json(data);
+    return res.status(200).json(data);
   }catch(error){
-    res.status(500).json({
+    return res.status(500).json({
       message: "Server error"
     })    
 }}
@@ -165,9 +165,9 @@ const getDataForUpdate= async(req,res)=>{
   const id = req.params.id;
   try{
     const data = await EducationDetails.findById(id)
-    res.status(200).json(data)
+    return res.status(200).json(data)
   }catch(error){
-    res.status(500).json({message:'Server error',error:error.message})
+    return res.status(500).json({message:'Server error',error:error.message})
   }
 }
 

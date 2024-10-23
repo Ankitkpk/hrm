@@ -40,9 +40,9 @@ const companiesData = [
   async function seedCompanies(req, res) {
     try {
       const result = await Company.insertMany(companiesData);
-      res.status(200).json({message : "company seeding successfull"})
+      return res.status(200).json({message : "company seeding successfull"})
     } catch (error) {
-        res.status(500).json({message : error.message})
+        return res.status(500).json({message : error.message})
     }
 }
 
@@ -52,9 +52,9 @@ async function getAllCompanies(req, res){
         if(companies.length === 0){
             return res.status(400).json({message : "Failed to fetch companies"})
         }
-        res.status(200).json(companies);
+        return res.status(200).json(companies);
       } catch (error) {
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
       }
 }
 
@@ -64,9 +64,9 @@ async function selectCompany(req, res){
         if (!company) {
           return res.status(404).json({ message: 'Company not found' });
         }
-        res.status(200).json(company);
+        return res.status(200).json(company);
       } catch (error) {
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
       }
 }
 
@@ -82,10 +82,10 @@ async function getUsersByCompany(req, res){
       return res.status(404).json({ message: 'No users found for this company' });
     }
 
-    res.status(200).json(users);
+    return res.status(200).json(users);
   } catch (error) {
     console.error('Error fetching users:', error);
-    res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: 'Server error' });
   }
 
 };

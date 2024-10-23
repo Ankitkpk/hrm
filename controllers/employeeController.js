@@ -188,9 +188,9 @@ const getCandidate = async (req, res) => {
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
-    res.status(200).json(employee);
+    return res.status(200).json(employee);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 

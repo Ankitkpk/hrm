@@ -10,9 +10,9 @@ const totalLeaves = async (req, res) => {
       return res.status(404).json({ message: "Employee not found" });
     }
     const totalleaves = employee.totalLeave;
-    res.status(200).json(totalleaves);
+    return res.status(200).json(totalleaves);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -25,9 +25,9 @@ const pendingLeaves = async (req, res) => {
       return res.status(404).json({ message: "Employee not found" });
     }
     const pendingleaves = employee.pendingLeaves;
-    res.status(200).json(pendingleaves);
+    return res.status(200).json(pendingleaves);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -40,9 +40,9 @@ const leavesTaken = async (req, res) => {
       return res.status(404).json({ message: "Employee not found" });
     }
     const leavestaken = employee.leavesTaken;
-    res.status(200).json(leavestaken);
+    return res.status(200).json(leavestaken);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -101,9 +101,9 @@ const getLeaveWithEmployeeData = async (req, res) => {
     if (!leave) {
       return res.status(404).json({ message: "Leave application not found" });
     }
-    res.status(200).json({ leave });
+    return res.status(200).json({ leave });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching leave application", error });
+    return res.status(500).json({ message: "Error fetching leave application", error });
   }
 };
 
@@ -113,9 +113,9 @@ const getAllEmployeeLeaves = async (req,res)=>{
   if(!data){
     return res.status(404).json({message:"No leaves found"})
   }
-  res.status(200).json({data})
+  return res.status(200).json({data})
  }catch(error){
-  res.status(500).json({message:'Error fetching leaves'})
+  return res.status(500).json({message:'Error fetching leaves'})
  }
 }
 

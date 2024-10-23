@@ -62,9 +62,9 @@ const forgotPassword = async (req, res) => {
       html: message
     });
 
-    res.status(200).json({ message: 'Password reset OTP sent to email' });
+    return res.status(200).json({ message: 'Password reset OTP sent to email' });
   } catch (error) {
-    res.status(500).json({ message: 'Error sending password reset email', error: error.message });
+    return res.status(500).json({ message: 'Error sending password reset email', error: error.message });
   }
 };
 
@@ -78,9 +78,9 @@ const verifyOtp = async (req, res) => {
     if(otp !== userDetails.otp){
       return res.status(400).json({ message: 'Invalid OTP' });
     }
-    res.status(200).json({ message : 'OTP matched successfull' })
+    return res.status(200).json({ message : 'OTP matched successfull' })
   } catch (error) {
-    res.status(500).json({ message : error.message })
+    return res.status(500).json({ message : error.message })
   }
 }
 
@@ -108,10 +108,10 @@ const resetPassword = async (req, res) => {
     user.password = passwordHash;
     await user.save();
 
-    res.status(200).json({ message: 'Password has been reset successfully' });
+    return res.status(200).json({ message: 'Password has been reset successfully' });
   } catch (error) {
     console.error("Error resetting password:", error);
-    res.status(500).json({ message: 'Error resetting password', error: error.message });
+    return res.status(500).json({ message: 'Error resetting password', error: error.message });
   }
 };
 
@@ -146,9 +146,9 @@ const createUser = async (req, res) => {
 
     // Save the user to the database
     await newUser.save();
-    res.status(201).json({ message: 'User created successfully', user: newUser });
+    return res.status(201).json({ message: 'User created successfully', user: newUser });
   } catch (error) {
-    res.status(500).json({ message: 'Error creating user', error: error.message });
+    return res.status(500).json({ message: 'Error creating user', error: error.message });
   }
 };
 
@@ -187,9 +187,9 @@ const loginUser = async (req, res) => {
   
       // Send a response with user details or redirect URL
       // const redirectUrl = accessRecord.allowedPages.length ? accessRecord.allowedPages[0] : '/default'; // Default or first allowed page
-      res.status(200).json({ message: 'Login successful',token,id: user._id });
+      return res.status(200).json({ message: 'Login successful',token,id: user._id });
     } catch (error) {
-      res.status(500).json({ message: 'Error logging in', error: error.message });
+      return res.status(500).json({ message: 'Error logging in', error: error.message });
     }
 };
 
@@ -211,7 +211,7 @@ async function searchUser(req, res) {
     return res.json(users);
   } catch (error) {
     console.error('Error searching users:', error);
-    res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: 'Server error' });
   }
 }
 
@@ -268,13 +268,13 @@ async function viewProfile(req, res) {
     }
 
     // Standardized success response
-    res.status(200).json({ success: true, data: user });
+    return res.status(200).json({ success: true, data: user });
     
   } catch (error) {
     console.error(`Error viewing user profile for ID ${req.params.id}:`, error);
 
     // Standardized error response
-    res.status(500).json({ success: false, message: 'Server error' });
+    return res.status(500).json({ success: false, message: 'Server error' });
   }
 }
 
@@ -321,7 +321,7 @@ const editProfile = async (req, res) => {
     res.json({ message: 'User profile updated successfully',data:user });
   } catch (error) {
     console.error('Error editing user profile:', error);
-    res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 

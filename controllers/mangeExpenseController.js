@@ -76,9 +76,9 @@ const createExpenseForSales = async (req, res) => {
 
     // Save to the database
     const savedExpense = await newExpense.save();
-    res.status(201).json(savedExpense);
+    return res.status(201).json(savedExpense);
   } catch (error) {
-    res.status(500).json({ message: "Error saving expense", error });
+    return res.status(500).json({ message: "Error saving expense", error });
   }
 };
 // Controller to handle POST request and save the expense with manageExpenseFor fixed as 'Screening'
@@ -121,9 +121,9 @@ const createExpenseForScreening = async (req, res) => {
 
     // Save to the database
     const savedExpense = await newExpense.save();
-    res.status(201).json(savedExpense);
+    return res.status(201).json(savedExpense);
   } catch (error) {
-    res.status(400).json({ message: "Error saving expense", error });
+    return res.status(400).json({ message: "Error saving expense", error });
   }
 };
 
@@ -149,9 +149,9 @@ console.log(status,"Line 144");
     ]}).select('date purpose amount status');
 
     // Return the filtered expenses
-    res.status(200).json(expenses);
+    return res.status(200).json(expenses);
   } catch (error) {
-    res.status(500).json({ error: "Server error" });
+    return res.status(500).json({ error: "Server error" });
   }
 };
 
@@ -165,9 +165,9 @@ const getExpenseDetails = async (req, res) => {
       return res.status(404).json({ message: "Id not found" });
     }
 
-    res.status(200).json(data);
+    return res.status(200).json(data);
   } catch (error) {
-    res.status(500).json({ error: "Server error" });
+    return res.status(500).json({ error: "Server error" });
   }
 };
 
@@ -180,9 +180,9 @@ if(!deleteExpense){
   res.json({message:"Id not found"});
 
 }
-res.status(200).json({message:"Expense Deleted Successfully"})
+return res.status(200).json({message:"Expense Deleted Successfully"})
   }catch(error){
-    res.status(500).json({ error: "Server error" });
+    return res.status(500).json({ error: "Server error" });
   }
 }
 
@@ -210,9 +210,9 @@ const updateExpenseForSales = async (req, res) => {
     if (!updatedExpense) return res.status(404).json({ message: "Expense not found" });
 
     // Return the updated expense
-    res.status(200).json(updatedExpense);
+    return res.status(200).json(updatedExpense);
   } catch (error) {
-    res.status(500).json({ message: "Error updating expense", error });
+    return res.status(500).json({ message: "Error updating expense", error });
   }
 };
 
@@ -239,9 +239,9 @@ const updateExpenseForScreening = async (req, res) => {
     if (!updatedExpense) return res.status(404).json({ message: "Expense not found" });
 
     // Return the updated expense
-    res.status(200).json(updatedExpense);
+    return res.status(200).json(updatedExpense);
   } catch (error) {
-    res.status(500).json({ message: "Error updating expense", error });
+    return res.status(500).json({ message: "Error updating expense", error });
   }
 };
 

@@ -22,9 +22,9 @@ const createEvent= async (req, res) => {
       // Save the event to the database
       const savedEvent = await event.save();
   
-      res.status(201).json(savedEvent);
+      return res.status(201).json(savedEvent);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      return res.status(500).json({ message: error.message });
     }
   };
   
@@ -32,9 +32,9 @@ const createEvent= async (req, res) => {
   const getEvent= async (req, res) => {
     try {
       const events = await Event.find();
-      res.status(200).json(events);
+      return res.status(200).json(events);
     } catch (error) {
-      res.status(500).json({ message: error.message });
+      return res.status(500).json({ message: error.message });
     }
   };
 

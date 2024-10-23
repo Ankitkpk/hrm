@@ -18,7 +18,7 @@ const getAttendanceSummaryByMonth = async (req, res) => {
         .json({ message: "Attendance not found for this month" });
     }
 
-    res.status(200).json(attendance);
+    return res.status(200).json(attendance);
   } catch (error) {
     res
       .status(500)
@@ -71,7 +71,7 @@ const markAttendance = async (req, res) => {
       .status(200)
       .json({ message: "Attendance marked successfully", attendance });
   } catch (error) {
-    res.status(500).json({ message: "Error marking attendance", error });
+    return res.status(500).json({ message: "Error marking attendance", error });
   }
 };
 
@@ -89,7 +89,7 @@ const getTwoMonthAttendance = async (req, res) => {
     }
    return res.status(200).json(data);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching data", error });
+    return res.status(500).json({ message: "Error fetching data", error });
   }
 };
 

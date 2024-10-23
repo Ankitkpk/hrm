@@ -15,12 +15,12 @@ const createEmployee = async (req, res) => {
     await newEmployee.save();
 
     // Sending a success response
-    res.status(201).json({
+    return res.status(201).json({
       message: "Employee created successfully",
       data: newEmployee,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: "Error creating employee",
       error: error.message,
     });
@@ -45,9 +45,9 @@ const updatePassword = async (req, res) => {
     employee.empPassword = hashedPassword;
     await employee.save();
 
-    res.status(200).json({ message: "Password updated successfully" });
+    return res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
-    res
+    return res
       .status(500)
       .json({ message: "Error updating password", error: error.message });
   }
@@ -82,9 +82,9 @@ const loginEmployee = async (req, res) => {
     });
 
     // Send token back to client
-    res.json({ message: "Login successful", token,id:employee._id });
+    return res.json({ message: "Login successful", token,id:employee._id });
   } catch (err) {
-    res.status(500).json({ message: "Server error", error: err.message });
+    return res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
@@ -94,11 +94,11 @@ const getAllEmployeeDetails = async (req, res) => {
     const getData = await HRMEmployee.find();
 
     // Send a successful response with the employee data
-    res.status(200).json(getData);
+    return res.status(200).json(getData);
   } catch (error) {
     // Log the error and send an error response
     console.error("Error fetching employee details:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -112,11 +112,11 @@ const getEmployeeById = async (req, res) => {
     );
 
     // Send both employee data and date/time in the response
-    res.status(200).json({data});
+    return res.status(200).json({data});
   
   } catch (error) {
     console.error("Error fetching employee details:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
@@ -160,9 +160,9 @@ const upcomingMeeting = async (req, res) => {
       return res.status(404).json({ message: "No meetings found for this user" });
     }
     // Send the found meetings as a response
-    res.status(200).json(upcomingMeetings);
+    return res.status(200).json(upcomingMeetings);
   } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
+    return res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
 

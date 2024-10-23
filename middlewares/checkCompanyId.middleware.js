@@ -26,7 +26,7 @@ const checkCompanyId = async (req, res, next) => {
     next();
   } catch (err) {
     console.error('Error checking company ID:', err);
-    res.status(500).json({ error: 'An error occurred while checking the company ID.' });
+    return res.status(500).json({ error: 'An error occurred while checking the company ID.' });
   }
 };
 

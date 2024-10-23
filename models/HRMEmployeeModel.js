@@ -6,8 +6,8 @@ const HRMEmployeeSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  empPassword:{
-    type:String,
+  empPassword: {
+    type: String,
   },
   employeeName: {
     type: String,
@@ -113,6 +113,10 @@ const HRMEmployeeSchema = new mongoose.Schema({
     required: true,
   },
   bankName: {
+    type: String,
+    required: true,
+  },
+  employeeType: {
     type: String,
     required: true,
   },

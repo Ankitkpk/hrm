@@ -4,7 +4,7 @@ const moment = require("moment");
 const Calendar = require("../models/calender.model");
 const Meeting = require("../models/meeting.model");
 const setReminder = require("../utils/meetingReminder");
-const HRMEmployee = require('../models/HRMEmployeeModel')
+const HRMEmployee = require("../models/HRMEmployeeModel");
 
 // Endpoint to get weekly attendance record
 
@@ -15,11 +15,9 @@ const createCalendarEntry = async (req, res) => {
     // Check if a calendar entry already exists for the given date and company
     const existingEntry = await Calendar.findOne({ date, companyId });
     if (existingEntry) {
-      return res
-        .status(400)
-        .json({
-          message: "Calendar entry already exists for this date and company.",
-        });
+      return res.status(400).json({
+        message: "Calendar entry already exists for this date and company.",
+      });
     }
 
     // Create a new calendar entry
@@ -189,16 +187,18 @@ const todaySpecialDays = async (req, res) => {
 
     // Modify the results to include the "eventCelebration" field
     const modifiedEvents = todaySpecialEvents.map((event) => {
-      let eventCelebration = '';
+      let eventCelebration = "";
 
       // Determine if the event is a birthdate or anniversary based on matching field
-      const isBirthdayMatch = moment(event.birthdate).format("MM-DD") === currentMonthDay;
-      const isAnniversaryMatch = moment(event.anniversary_date).format("MM-DD") === currentMonthDay;
+      const isBirthdayMatch =
+        moment(event.birthdate).format("MM-DD") === currentMonthDay;
+      const isAnniversaryMatch =
+        moment(event.anniversary_date).format("MM-DD") === currentMonthDay;
 
       if (isBirthdayMatch) {
-        eventCelebration = 'Birthday';
+        eventCelebration = "Birthday";
       } else if (isAnniversaryMatch) {
-        eventCelebration = 'Anniversary';
+        eventCelebration = "Anniversary";
       }
 
       // Return the original event data along with the eventCelebration field
@@ -222,8 +222,6 @@ const todaySpecialDays = async (req, res) => {
   }
 };
 
-
-
 const createMeeting = async (req, res) => {
   try {
     const {
@@ -236,8 +234,9 @@ const createMeeting = async (req, res) => {
       agenda,
       companyId,
       reminder,
+      userID,
     } = req.body;
-
+    // const name = await
     // Validate required fields
     if (!title || !participants || !startTime) {
       return res.status(400).json({ message: "Required fields are missing" });
@@ -254,68 +253,93 @@ const createMeeting = async (req, res) => {
       status,
       companyId,
       reminder,
+      organizer: userID,
     });
 
     // Save the meeting to the database
     const savedMeeting = await newMeeting.save();
-    setReminder(newMeeting)
+    setReminder(newMeeting);
     return res.status(201).json(savedMeeting);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Error creating meeting",error:error.message });
+    return res
+      .status(500)
+      .json({ message: "Error creating meeting", error: error.message });
+  }
+};
+
+const getEmailAndName = async (req, res) => {
+  try {
+    const attendeesdata = await HRMEmployee.find().select(
+      "employeeName officialEmailId -_id"
+    );
+    return res.status(200).json(attendeesdata);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error getting attendees data" });
   }
 };
 
 const getUpcomingMeets = async (req, res) => {
   const { id } = req.params;
- 
+
   const currentDateTime = moment().tz("Asia/Kolkata").format();
-  const sevenDaysAgo = moment().tz("Asia/Kolkata").subtract(7, 'days').format();
-  
+  const sevenDaysAgo = moment().tz("Asia/Kolkata").subtract(7, "days").format();
+
   try {
-   
     const emp = await HRMEmployee.findById(id);
     if (!emp) {
       return res.status(404).json({ message: "Employee not found" });
     }
 
-
     const nextMeeting = await Meeting.find({
       startDate: { $gte: currentDateTime },
-    }).sort({ startDateTime: 1 }).select('title startDate -_id').limit(1);
+    })
+      .sort({ startDateTime: 1 })
+      .select("title startDate -_id")
+      .limit(1);
 
-
-    
     const lastMeeting = await Meeting.find({
       startDate: { $gte: sevenDaysAgo, $lte: currentDateTime },
-     status: { $eq: 'Completed' }
-    }).sort({ startDate: -1, startTime: -1 }).select('title startDate -_id').limit(1);
-   
+      status: { $eq: "Completed" },
+    })
+      .sort({ startDate: -1, startTime: -1 })
+      .select("title startDate -_id")
+      .limit(1);
 
     const totalscheduleMeetings = await Meeting.countDocuments({
       startDate: { $gte: sevenDaysAgo, $lte: currentDateTime },
-      status: { $eq: 'Completed' }
+      status: { $eq: "Completed" },
     });
-    
-    const completedMettings = await Meeting.countDocuments({startDate: { $gte: sevenDaysAgo, $lte: currentDateTime }, status: 'Completed' });
-    const canceledMettings = await Meeting.countDocuments({startDate: { $gte: sevenDaysAgo, $lte: currentDateTime }, status: 'Canceled' });
-    const pendingMettings = await Meeting.countDocuments({startDate: { $gte: sevenDaysAgo, $lte: currentDateTime }, status: 'Pending' });
-    
+
+    const completedMettings = await Meeting.countDocuments({
+      startDate: { $gte: sevenDaysAgo, $lte: currentDateTime },
+      status: "Completed",
+    });
+    const canceledMettings = await Meeting.countDocuments({
+      startDate: { $gte: sevenDaysAgo, $lte: currentDateTime },
+      status: "Canceled",
+    });
+    const pendingMettings = await Meeting.countDocuments({
+      startDate: { $gte: sevenDaysAgo, $lte: currentDateTime },
+      status: "Pending",
+    });
+
     const response = {
       nextMeeting,
-      lastMeeting, 
+      lastMeeting,
       totalscheduleMeetings,
       completedMettings,
       canceledMettings,
-      pendingMettings
+      pendingMettings,
     };
 
-   
     return res.status(200).json(response);
-
   } catch (error) {
     console.error("Error occurred:", error);
-    return res.status(500).json({ message: "Server Error", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Server Error", error: error.message });
   }
 };
 
@@ -326,5 +350,6 @@ module.exports = {
   getMonthlyCalendarEvents,
   todaySpecialDays,
   createMeeting,
-  getUpcomingMeets
+  getUpcomingMeets,
+  getEmailAndName,
 };

@@ -190,7 +190,9 @@ const getCandidate = async (req, res) => {
     }
     return res.status(200).json(employee);
   } catch (error) {
-    return res.status(500).json({ message: "Server error", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
   }
 };
 
@@ -416,6 +418,41 @@ const sendMail = async (req, res) => {
   }
 };
 
+const viewNotUploadedDocuments = async (req, res) => {
+  try {
+    const employeeId = req.params.id;
+    const employee = await Employee.findById(employeeId);
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found." });
+    }
+
+    const missingDocuments = [];
+
+    // Check for missing documents
+    if (!employee.photo.data) missingDocuments.push("Photo");
+    if (!employee.cv.data) missingDocuments.push("CV");
+    if (!employee.relievingLetter.data)
+      missingDocuments.push("Relieving Letter");
+    if (!employee.bankDetails.data) missingDocuments.push("Bank Details");
+    if (!employee.aadharCard.data) missingDocuments.push("Aadhar Card");
+    if (!employee.postalAddress.data) missingDocuments.push("Postal Address");
+    if (!employee.permanentAddress.data)
+      missingDocuments.push("Permanent Address");
+
+    if (missingDocuments.length > 0) {
+      return res.status(200).json({
+        missingDocuments
+      });
+    }
+
+    return res.status(200).json({ message: "All documents are available." });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: error.message});
+  }
+};
+
 module.exports = {
   addNewCandidate,
   getCandidateName,
@@ -431,4 +468,5 @@ module.exports = {
   getEmployeetype,
   getPositiontype,
   sendMail,
+  viewNotUploadedDocuments
 };

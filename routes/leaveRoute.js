@@ -25,5 +25,6 @@ router.post(
   leaveController.uploadLeaveData
 );
 router.get("/allLeaveData/:leaveId", leaveController.getLeaveWithEmployeeData);
+router.get("/getEmployeeLeave",leaveController.getEmployeeLeave);
 
 module.exports = router;

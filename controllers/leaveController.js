@@ -119,11 +119,33 @@ const getAllEmployeeLeaves = async (req,res)=>{
  }
 }
 
+const getEmployeeLeave=async(req,res)=>{
+  try{
+    const data = await addLeave.find().populate('employee')
+    if(!data){
+      return res.status(404).json({message:"No employee leaves found"})
+    }
+    const result = data.map((leave) => ({
+      employeeName: leave.employee.employeeName,
+      leaveType: leave.leaveType,
+      startDate: leave.fromDate,
+      endDate: leave.toDate,
+      status: leave.status,
+      totalDays: leave.totalDays,
+    }));
+
+    return res.status(200).json(result)
+   }catch(error){
+    return res.status(500).json({message:error.message})
+   }
+}
+
 module.exports = {
   totalLeaves,
   pendingLeaves,
   leavesTaken,
   uploadLeaveData,
   getLeaveWithEmployeeData,
-  getAllEmployeeLeaves
+  getAllEmployeeLeaves,
+  getEmployeeLeave
 };

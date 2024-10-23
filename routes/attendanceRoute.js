@@ -12,4 +12,4 @@ router.get('/weeklyAttendance/:employeeId', attendanceController.getWeeklyAttend
 
 router.get('/getTwoMonthAttendance/:employeeId',attendanceController.getTwoMonthAttendance)
 
-module.exports = router;
+module.exports = router;

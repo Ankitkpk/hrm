@@ -36,8 +36,8 @@ const markAttendance = async (req, res) => {
       return res.status(404).json({message:'Employee not found'})
     }
     // Determine the current month (Month Year format)
-    //const currentMonth = new Date().toLocaleString('default', { month: 'long' }) + ' ' + new Date().getFullYear();
-    const currentMonth = "December 2025";
+    const currentMonth = new Date().toLocaleString('default', { month: 'long' }) + ' ' + new Date().getFullYear();
+    // const currentMonth = "December 2025";
     // Find the attendance record for the employee in the current month
     let attendance = await Attendance.findOne({
       employee: employeeId,

@@ -4,7 +4,7 @@ const HRMEmployeeController = require('../controllers/HRMEmployeeController');
 
 
 // POST route to create a new employee
-router.post('/employee', HRMEmployeeController.createEmployee);
+router.post('/createEmployee', HRMEmployeeController.createEmployee);
 
 // Route to update password
 router.post('/updatePassword', HRMEmployeeController.updatePassword);

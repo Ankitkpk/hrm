@@ -2,11 +2,18 @@ const express = require("express");
 const router = express.Router();
 const employeeController = require("../controllers/employeeController");
 const multer = require("multer");
+const fs = require('fs');
 
 // Set up storage engine for photo uploads
+const uploadDir = 'uploads/';
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads/");
+    cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
     cb(null, new Date().toISOString().replace(/:/g, "-") + file.originalname);
@@ -73,5 +80,7 @@ router.get("/positiontype", employeeController.getPositiontype);//done
 router.post("/sendMail", employeeController.sendMail); //done
 
 router.get("/viewNotUploadedDocuments/:id",employeeController.viewNotUploadedDocuments)
+
+
 
 module.exports = router;

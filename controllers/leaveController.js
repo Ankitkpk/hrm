@@ -193,6 +193,37 @@ const getEmployeeLeaveSummary = async (req, res) => {
   }
 };
 
+const getEmployeeLeaveStatusAndApproval = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const leaveDetails = await addLeave.find({ employee: id })
+    .populate({
+      path: 'employee', 
+      select: 'employeeName' 
+    })
+    .limit(1) 
+    .select('leaveType fromDate toDate  updatedAt reason appliedDate');
+
+    if (!leaveDetails) {
+      return res.status(404).json({ message: 'No leave records found for this employee.' });
+    }
+    const response = leaveDetails.map((leave) => ({
+      employeeName: leave.employee.employeeName,
+      leaveType: leave.leaveType,
+      startDate: leave.fromDate,
+      endDate: leave.toDate,
+      reason:leave.reason,
+      appliedDate:leave.appliedDate,
+      lastupdated: leave.updatedAt
+    }));
+    return res.status(200).json(response);
+
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
 module.exports = {
   totalLeaves,
   pendingLeaves,
@@ -201,5 +232,6 @@ module.exports = {
   getLeaveWithEmployeeData,
   getAllEmployeeLeaves,
   getEmployeeLeave,
-  getEmployeeLeaveSummary
+  getEmployeeLeaveSummary,
+  getEmployeeLeaveStatusAndApproval
 };

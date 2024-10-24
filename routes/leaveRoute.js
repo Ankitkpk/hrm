@@ -27,5 +27,6 @@ router.post(
 router.get("/allLeaveData/:leaveId", leaveController.getLeaveWithEmployeeData);
 router.get("/getEmployeeLeave",leaveController.getEmployeeLeave);
 router.get("/getEmployeeLeaveSummary/:id",leaveController.getEmployeeLeaveSummary);
+router.get("/getEmployeeLeaveStatusAndApproval/:id",leaveController.getEmployeeLeaveStatusAndApproval);
 
 module.exports = router;

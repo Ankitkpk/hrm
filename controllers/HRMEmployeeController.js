@@ -239,6 +239,33 @@ const HrmEmployeeSearching = async (req, res) => {
   }
 };
 
+const HrmEmployeeUpdate = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { department, manager, officeLocation } = req.body;
+
+   
+    if (!department && !manager && !officeLocation) {
+      return res.status(400).json({ message: "At least one field is required to update: department, manager, or officeLocation." });
+    }
+
+    const update = await HRMEmployee.findByIdAndUpdate(
+      id,
+      { department, manager, officeLocation },
+      { new: true } //will return updated value
+    );
+
+    if (!update) {
+      return res.status(404).json({ message: "Employee with this ID not found." });
+    }
+
+    return res.status(200).json({message:'Updated Successfully',update});
+  } catch (error) {
+    console.error("Error occurred:", error);
+    return res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
 module.exports = {
   createEmployee,
   updatePassword,
@@ -248,5 +275,6 @@ module.exports = {
   getEmployeeByIdForAttendance,
   upcomingMeeting,
   getNextMeet,
-  HrmEmployeeSearching
+  HrmEmployeeSearching,
+  HrmEmployeeUpdate
 };

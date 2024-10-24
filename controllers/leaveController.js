@@ -140,6 +140,59 @@ const getEmployeeLeave=async(req,res)=>{
    }
 }
 
+const getEmployeeLeaveSummary = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const leaveDetails = await addLeave.find({ employee: id }).populate('employee').populate({
+      path: 'employee', 
+      select: 'leavesTaken totalLeave',
+    });
+
+    if (!leaveDetails || leaveDetails.length === 0) {
+      return res.status(404).json({ message: 'No leave records found for this employee.' });
+    }
+
+    const leaveSummary = leaveDetails.reduce((acc, leave) => {      
+      acc.casualLeavesTaken += leave.employee.leavesTaken.casualLeaves || 0;
+      acc.sickLeavesTaken += leave.employee.leavesTaken.sickLeaves || 0;
+      acc.festivalsTaken += leave.employee.leavesTaken.festivals || 0;
+      acc.totalCasualLeaves = leave.employee.totalLeave.casualLeaves || acc.totalCasualLeaves;
+      acc.totalSickLeaves = leave.employee.totalLeave.sickLeaves || acc.totalSickLeaves;
+      acc.totalFestivalLeaves = leave.employee.totalLeave.festivals || acc.totalFestivalLeaves;    
+      acc.leaveTypeSet.add(leave.leaveType);
+
+      return acc;
+    }, {
+      casualLeavesTaken: 0,
+      sickLeavesTaken: 0,
+      festivalsTaken: 0,
+      totalCasualLeaves: 0,
+      totalSickLeaves: 0,
+      totalFestivalLeaves: 0,
+      leaveTypeSet: new Set() 
+    });
+    
+    const totalLeavesTaken =
+      leaveSummary.casualLeavesTaken + leaveSummary.sickLeavesTaken + leaveSummary.festivalsTaken;
+    const leaveBalance =
+      leaveSummary.totalCasualLeaves + leaveSummary.totalSickLeaves + leaveSummary.totalFestivalLeaves - totalLeavesTaken;
+
+    const leaveType = Array.from(leaveSummary.leaveTypeSet).join(', ');
+    
+    const response = {
+      totalLeavesTaken,
+      leaveBalance,
+      leaveType,
+    };
+
+    return res.status(200).json(response);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
 module.exports = {
   totalLeaves,
   pendingLeaves,
@@ -147,5 +200,6 @@ module.exports = {
   uploadLeaveData,
   getLeaveWithEmployeeData,
   getAllEmployeeLeaves,
-  getEmployeeLeave
+  getEmployeeLeave,
+  getEmployeeLeaveSummary
 };

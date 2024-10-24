@@ -3,14 +3,23 @@ const Meeting = require("../models/meeting.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const moment = require('moment-timezone');
+const Company = require("../models/company.model");
+
 
 const createEmployee = async (req, res) => {
   try {
     const employeeData = req.body;
+    const company= await Company.findOne({name: employeeData.company}).select('_id')
+    employeeData["companyId"] = company._id
 
+    const hashedPassword = await bcrypt.hash(employeeData.empPassword, 10);
+
+    employeeData.empPassword = hashedPassword;
     // Creating a new employee instance
     const newEmployee = new HRMEmployee(employeeData);
 
+
+    // Update the employee's password
     // Saving the employee to the database
     await newEmployee.save();
 
@@ -207,6 +216,28 @@ const getNextMeet = async (req, res) => {
   }
 };
 
+const HrmEmployeeSearching = async (req, res) => {
+  try {
+    const { empId, employeeName, jobTitle } = req.body; 
+
+    // Check if all required fields are provided
+    if (!empId || !employeeName || !jobTitle) {  // check this 
+      return res.status(400).json({ message: "All fields are required: empId, employeeName, jobTItile." });
+    }
+
+    const data = await HRMEmployee.find({ empId, employeeName, jobTitle }) 
+      .select('empId employeeName jobTItile department officialEmailId phoneNumber startDate manager officeLocation');
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({ message: "Employee Not Found." });
+    }
+
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error("Error occurred:", error);
+    return res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
 
 module.exports = {
   createEmployee,
@@ -216,5 +247,6 @@ module.exports = {
   getEmployeeById,
   getEmployeeByIdForAttendance,
   upcomingMeeting,
-  getNextMeet
+  getNextMeet,
+  HrmEmployeeSearching
 };

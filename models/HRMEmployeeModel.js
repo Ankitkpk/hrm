@@ -9,6 +9,10 @@ const HRMEmployeeSchema = new mongoose.Schema({
   empPassword: {
     type: String,
   },
+  companyId:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"Company"
+  },
   employeeName: {
     type: String,
     required: true,
@@ -110,11 +114,9 @@ const HRMEmployeeSchema = new mongoose.Schema({
   },
   manager: {
     type: String,
-    required: true,
   },
   officeLocation: {
     type: String,
-    required: true,
   },
   accountNumber: {
     type: String,

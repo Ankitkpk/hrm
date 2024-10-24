@@ -13,6 +13,6 @@ router.post("/createMeeting", checkCompanyId, dashboardController.createMeeting)
 router.post('/calendar', dashboardController.createCalendarEntry);
 router.get('/getUpcomingMeets/:id',dashboardController.getUpcomingMeets)
 router.get('/getEmailAndName',dashboardController.getEmailAndName)
-
+router.get("/getDepartmentChart",dashboardController.getDepartmentChart)
 
 module.exports = router ;

@@ -220,7 +220,7 @@ const getEmployeeLeaveStatusAndApproval = async (req, res) => {
     return res.status(200).json(response);
 
   } catch (error) {
-    res.status(500).json({ message: "Server Error", error: error.message });
+     return res.status(500).json({ message: "Server Error", error: error.message});
   }
 };
 

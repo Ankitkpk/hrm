@@ -341,6 +341,55 @@ const getUpcomingMeets = async (req, res) => {
   }
 };
 
+const getDepartmentChart = async(req,res)=>{
+  try {
+    const result = await HRMEmployee.aggregate([
+      {
+        $group: {
+          _id: "$department", 
+          count: { $sum: 1 }, // Count the number of employees in each department
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$count" }, // Calculate the total number of employees
+          departments: {
+            $push: {
+              department: "$_id",
+              count: "$count",
+            },
+          },
+        },
+      },
+      {
+        $unwind: "$departments", // Unwind to access each department
+      },
+      {
+        $project: {
+          _id: 0,
+          department: "$departments.department",
+          percentage: {
+            $round:[
+              {
+              $multiply: [
+                { $divide: ["$departments.count", "$total"] }, // Calculate percentage
+                100,
+              ]},
+              2
+            ]
+          },
+        },
+      },
+    ]);
+
+    console.log(result);
+    return res.status(200).json(result)
+  } catch (error) {
+    return res.status(500).json("Error calculating department percentage:", error.message);
+  }
+}
+
 module.exports = {
   createCalendarEntry,
   getWeeklyAttendanceById,
@@ -350,4 +399,5 @@ module.exports = {
   createMeeting,
   getUpcomingMeets,
   getEmailAndName,
+  getDepartmentChart
 };

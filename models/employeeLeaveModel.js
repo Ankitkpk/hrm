@@ -29,7 +29,7 @@ const LeaveApplicationSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  status: { type: String, enum: ['Approve', 'Reject'], default: 'Reject'},
+  status: { type: String, enum: ['Approve','Pending', 'Reject'], default: 'Pending'},
   documents: {
     data: { type: String },
   },

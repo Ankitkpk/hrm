@@ -14,5 +14,6 @@ router.post('/calendar', dashboardController.createCalendarEntry);
 router.get('/getUpcomingMeets/:id',dashboardController.getUpcomingMeets)
 router.get('/getEmailAndName',dashboardController.getEmailAndName)
 router.get("/getDepartmentChart",dashboardController.getDepartmentChart)
+router.get('/getTotalNumOfEmp',dashboardController.totalEmployees)
 
 module.exports = router ;

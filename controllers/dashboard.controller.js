@@ -390,6 +390,17 @@ const getDepartmentChart = async(req,res)=>{
   }
 }
 
+const totalEmployees= async(req,res)=>{
+  try {
+    // Fetch total number of employees from the database
+    const total = await HRMEmployee.countDocuments({});
+    res.status(200).json({ totalEmployees: total });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Error retrieving employee data', error:err.message});
+  }
+}
+
 module.exports = {
   createCalendarEntry,
   getWeeklyAttendanceById,
@@ -399,5 +410,6 @@ module.exports = {
   createMeeting,
   getUpcomingMeets,
   getEmailAndName,
-  getDepartmentChart
+  getDepartmentChart,
+  totalEmployees
 };

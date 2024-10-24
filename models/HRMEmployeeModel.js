@@ -108,6 +108,14 @@ const HRMEmployeeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  manager: {
+    type: String,
+    required: true,
+  },
+  officeLocation: {
+    type: String,
+    required: true,
+  },
   accountNumber: {
     type: String,
     required: true,

@@ -343,7 +343,7 @@ const getAllDepartment = async (req, res) => {
 const getEmployeetype = async (req, res) => {
   try {
     // Use distinct method to get unique department names from Employee collection
-    const employeetype = ["internship", "contract", "full time", "part time"];
+    const employeetype = ["Internship", "Contract", "Full time", "Part time"];
     return res.status(200).json({ employeetype: employeetype });
   } catch (error) {
     return res.status(500).json({

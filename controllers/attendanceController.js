@@ -179,10 +179,29 @@ const getEmployeeList = async (req, res) => {
   }
 };
 
+
+const getAllEmployeeAttendanceDetails = async (req, res) => {
+  try {
+    const employeeRecords = await Attendance.find({}, 'attendanceDate  dailyAttendance.date dailyAttendance.status') // Specify only fields needed from Attendance
+      .populate({
+        path: 'employee',
+        select: 'empId employeeName jobTitle department' // Select necessary fields from Employee
+      });
+    
+    return res.status(200).json(employeeRecords);
+  } catch (error) {
+    console.error('Error fetching employee details:', error);
+    return res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
+
+
+
 module.exports = {
   getWeeklyAttendance,
   markAttendance,
   getAttendanceSummaryByMonth,
   getTwoMonthAttendance,
-  getEmployeeList
+  getEmployeeList,
+  getAllEmployeeAttendanceDetails
 };

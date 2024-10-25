@@ -14,4 +14,6 @@ router.get('/getTwoMonthAttendance/:employeeId',attendanceController.getTwoMonth
 
 router.get('/getEmployeeList',attendanceController.getEmployeeList)
 
+router.get('/getAllEmployeeAttendanceDetails',attendanceController.getAllEmployeeAttendanceDetails)
+
 module.exports = router;

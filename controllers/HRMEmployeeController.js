@@ -164,7 +164,7 @@ const upcomingMeeting = async (req, res) => {
   const now = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const emp = await HRMEmployee.findById(id)
     // Find meetings where the participant's ID exists in the participants array
-    const upcomingMeetings = await Meeting.find({ participants: { $in: [emp.officialEmailId] },startDate:{$gte:now} }).sort({startDate:1, startTime:1}).lean();
+    const upcomingMeetings = await Meeting.find({ participants: { $in: [emp.officialEmailId] },date:{$gte:now} }).sort({date:1, time:1}).lean();
     if (!upcomingMeetings || upcomingMeetings.length === 0) {
       return res.status(404).json({ message: "No meetings found for this user" });
     }
@@ -196,9 +196,9 @@ const getNextMeet = async (req, res) => {
     // Find upcoming meetings where the employee is a participant
     const upcomingMeeting = await Meeting.find({
       participants: { $in: [emp.officialEmailId] }, 
-      startDate: { $gte: now },
-      startTime:{$gte:indiaTime}
-    }).sort({startTime:1}).limit(1);
+      date: { $gte: now },
+      time:{$gte:indiaTime}
+    }).sort({time:1}).limit(1);
     
     console.log("Upcoming Meetings:", upcomingMeeting);
     

@@ -279,6 +279,18 @@ const getPayslipGenerationStatus = async (req, res) => {
   }
 };
 
+const getEmployeePaySlipList = async (req, res) => {
+  try {
+      const data = await HRMEmployee.find().select("empId salary employeeName jobTitle -_id");
+      if(!data.length === 0){
+        return res.status(404).json({ message: "No employee data found" });
+      }
+      return res.status(200).json(data);
+  } catch (error) {
+      return res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
 module.exports = {
   createEmployee,
   updatePassword,
@@ -290,5 +302,6 @@ module.exports = {
   getNextMeet,
   HrmEmployeeSearching,
   HrmEmployeeUpdate,
-  getPayslipGenerationStatus
+  getPayslipGenerationStatus,
+  getEmployeePaySlipList
 };

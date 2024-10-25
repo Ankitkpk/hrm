@@ -9,7 +9,7 @@ const setReminder = async (data) => {
     startDate,
     startTime,
     location,
-    agenda,
+    description,
     companyId,
     reminder,
   } = data;
@@ -64,7 +64,7 @@ const setReminder = async (data) => {
 
     const body = {
       title: `Reminder for ${title}`,
-      message: `Meeting in ${reminderMinutes} minutes. Location: ${location}. Agenda: ${agenda}`,
+      message: `Meeting in ${reminderMinutes} minutes. Location: ${location}. description: ${description}`,
       type: "reminder",
       user: id, // Use the participant's email as the user
       companyId: companyId,

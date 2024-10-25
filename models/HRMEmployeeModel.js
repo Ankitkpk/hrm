@@ -138,6 +138,11 @@ const HRMEmployeeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  paySlipStatus: {
+    type: String,
+    enum: ['Generated', 'Pending'],
+    default: 'Pending',
+  },
   totalLeave: {
     casualLeaves: { type: Number, default: 15 },
     festivals: { type: Number, default: 30 },

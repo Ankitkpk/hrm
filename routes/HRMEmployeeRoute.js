@@ -21,5 +21,6 @@ router.post('/updatePassword', HRMEmployeeController.updatePassword);
  router.get('/closeMeeting/:id',HRMEmployeeController.getNextMeet)
  router.get('/HrmEmployeeSearching',HRMEmployeeController.HrmEmployeeSearching) //for searching
  router.put('/HrmEmployeeUpdate/:id',HRMEmployeeController.HrmEmployeeUpdate)
+ router.get('/getPayslipGenerationStatus',HRMEmployeeController.getPayslipGenerationStatus)
 
 module.exports = router; 

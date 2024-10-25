@@ -227,28 +227,28 @@ const createMeeting = async (req, res) => {
     const {
       title,
       participants,
-      startTime,
-      startDate,
+      time,
+      date,
       location,
-      agenda,
-      companyId,
+      description,
       reminder,
       userID,
     } = req.body;
     // const name = await
     // Validate required fields
-    if (!title || !participants || !startTime) {
+    if (!title || !participants || !time) {
       return res.status(400).json({ message: "Required fields are missing" });
     }
+    const companyId = req.headers['companyid']
 
     // Create a new meeting object
     const newMeeting = new Meeting({
       title,
       participants,
-      startDate,
-      startTime,
+      date,
+      time,
       location,
-      agenda,
+      description,
       companyId,
       reminder,
       organizer: userID,
@@ -301,7 +301,7 @@ const getUpcomingMeets = async (req, res) => {
       startDate: { $gte: sevenDaysAgo, $lte: currentDateTime },
       status: { $eq: "Completed" },
     })
-      .sort({ startDate: -1, startTime: -1 })
+      .sort({ date: -1, time: -1 })
       .select("title startDate -_id")
       .limit(1);
 

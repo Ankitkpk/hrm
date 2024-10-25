@@ -401,6 +401,36 @@ const totalEmployees= async(req,res)=>{
   }
 }
 
+
+const getTotalAttendanceDashboard = async (req, res) => {
+  try {
+
+   
+    const currentDay = moment().startOf('day').format('YYYY-MM-DD');
+   
+    const todayAttendance = await Attendance.find({
+      'dailyAttendance.date':currentDay,
+      'dailyAttendance.status':"Present"
+     
+    });  
+
+   
+    const presentCount = todayAttendance.length;
+    const totalEmployees = await HRMEmployee.countDocuments();
+    const attendancePercentage = totalEmployees > 0 ? (presentCount / totalEmployees) * 100 : 0;
+
+    res.status(200).json({
+      totalEmployees,
+      presentCount,
+      attendancePercentage: attendancePercentage.toFixed(2) + '%'
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server Error", error: error.message });
+    
+  }
+};
+
 module.exports = {
   createCalendarEntry,
   getWeeklyAttendanceById,
@@ -411,5 +441,6 @@ module.exports = {
   getUpcomingMeets,
   getEmailAndName,
   getDepartmentChart,
-  totalEmployees
+  totalEmployees,
+  getTotalAttendanceDashboard
 };

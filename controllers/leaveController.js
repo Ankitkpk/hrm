@@ -58,15 +58,16 @@ const uploadLeaveData = async (req, res) => {
   } = req.body;
 
   try {
-    const { documents } = req.files;
-    let document;
-    if (documents) {
-      document = document[0]?.originalname;
+    const { document } = req.files;
+    let data;
+    if (document) {
+      data = document[0]?.originalname;
     }
 
     const startDate = new Date(fromDate);
     const endDate = new Date(toDate);
     const diffTime = endDate - startDate;
+    
     const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     const add = new addLeave({
@@ -77,10 +78,9 @@ const uploadLeaveData = async (req, res) => {
       leaveType,
       reason,
       applyTo,
-      documents,
       employee, 
       documents: {
-        data: document,
+        data: data,
       },
     });
 

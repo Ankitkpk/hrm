@@ -218,7 +218,7 @@ const getNextMeet = async (req, res) => {
 
 const HrmEmployeeSearching = async (req, res) => {
   try {
-    const { empId, employeeName, jobTitle } = req.body; 
+    const { empId, employeeName, jobTitle } = req.query; 
 
     // Check if all required fields are provided
     if (!empId || !employeeName || !jobTitle) {  // check this 

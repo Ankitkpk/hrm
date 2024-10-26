@@ -291,6 +291,15 @@ const getEmployeePaySlipList = async (req, res) => {
   }
 };
 
+const getDesignations = async (req,res)=>{
+  try{
+  const data = await HRMEmployee.distinct('jobTitle')
+  return res.status(200).json(data)
+  }catch(error){
+    return res.status(500).json({message:"Server Error",error:error.message})
+  }
+}
+
 module.exports = {
   createEmployee,
   updatePassword,
@@ -303,5 +312,6 @@ module.exports = {
   HrmEmployeeSearching,
   HrmEmployeeUpdate,
   getPayslipGenerationStatus,
-  getEmployeePaySlipList
+  getEmployeePaySlipList,
+  getDesignations
 };

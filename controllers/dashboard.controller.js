@@ -336,8 +336,8 @@ console.log(nextMeeting);
     });
  
     const response = {
-      nextMeeting,
-      lastMeeting,
+      nextMeeting:nextMeeting[0],
+      lastMeeting:lastMeeting[0],
       totalscheduleMeetings,
       completedMettings,
       canceledMettings,
@@ -443,7 +443,7 @@ const getTotalAttendanceDashboard = async (req, res) => {
   }
 };
 
-
+//not added in postman as frontend guys don't want it
 const getMeetingDetail = async (req,res)=>{
   const {id} = req.params;
   try {

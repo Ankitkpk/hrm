@@ -171,11 +171,88 @@ const getDataForUpdate= async(req,res)=>{
   }
 }
 
+
+const updateAllEducationDetails = async (req, res) => {
+  try {
+    const {
+      fullName,
+      phoneNumber,
+      programSelection,
+      specialization,
+      emailAddress,
+      startingDate,
+      address,
+      endingDate,
+      city,
+      nomineeDetails,
+      pincode,
+      relation,
+    } = req.body;
+
+
+    const {id} = req.params;
+
+    if (
+      !fullName &&
+      !phoneNumber &&
+      !programSelection &&
+      !specialization &&
+      !emailAddress &&
+      !startingDate &&
+      !address &&
+      !endingDate &&
+      !city &&
+      !nomineeDetails &&
+      !pincode &&
+      !relation
+    ) {
+      return res.status(400).json({ message: "Enter fields first" });
+    }
+
+    // Find the record by ID
+    const educationDetails = await EducationDetails.findById(id);
+
+    if (!educationDetails) {
+      return res.status(404).json({
+        message: "Id not found",
+      });
+    }
+    // Update the fields if they are provided
+    if (fullName) educationDetails.fullName = fullName;
+    if (phoneNumber) educationDetails.phoneNumber = phoneNumber;
+    if (programSelection) educationDetails.programSelection = programSelection;
+    if (emailAddress) educationDetails.emailAddress = emailAddress;
+    if (startingDate) educationDetails.startingDate = startingDate;
+    if (address) educationDetails.address = address;
+    if (endingDate) educationDetails.endingDate = endingDate;
+    if (city) educationDetails.city = city;
+    if (nomineeDetails) educationDetails.nomineeDetails = nomineeDetails;
+    if (pincode) educationDetails.pincode = pincode;
+    if (relation) educationDetails.relation = relation;
+
+    // Save the updated document to the database
+    await educationDetails.save();
+
+    return res.status(200).json({
+      message: "All EducationDetails updated successfully",
+      data: educationDetails,
+    });
+
+  } catch (error) {
+    console.error("Error updating EducationDetails:", error);
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   saveEducationDetails,
   getEducationDetails,
   deleteEducationDetails,
   updateEducationDetails,
   documentDetails,
-  getDataForUpdate
+  getDataForUpdate,
+  updateAllEducationDetails
 };

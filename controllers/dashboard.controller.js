@@ -236,9 +236,10 @@ const createMeeting = async (req, res) => {
     } = req.body;
     // const name = await
     // Validate required fields
-    if (!title || !participants || !time) {
+    if (!title || !participants || !time || !userID) {
       return res.status(400).json({ message: "Required fields are missing" });
     }
+    
     const companyId = req.headers['companyid']
 
     // Create a new meeting object

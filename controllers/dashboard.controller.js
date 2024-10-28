@@ -232,13 +232,16 @@ const createMeeting = async (req, res) => {
       location,
       description,
       reminder,
-      userID,
+      userId,
     } = req.body;
     // const name = await
     // Validate required fields
-    if (!title || !participants || !time || !userID) {
+    console.log(title,participants,time,userId);
+ 
+    if (!title || !participants || !time || !userId) {
       return res.status(400).json({ message: "Required fields are missing" });
     }
+    
     
     const companyId = req.headers['companyid']
 
@@ -251,8 +254,8 @@ const createMeeting = async (req, res) => {
       location,
       description,
       companyId,
-      reminder,
-      organizer: userID,
+      reminder, 
+      organizer: userId,
     });
 
     // Save the meeting to the database
@@ -435,6 +438,25 @@ const getTotalAttendanceDashboard = async (req, res) => {
   }
 };
 
+const getMeetingList =(req,res)=>{
+  
+}
+
+const getMeetingDetail = async (req,res)=>{
+  const {id} = req.params;
+  try {
+    const meeting = await Meeting.findById(id).populate('organizer', 'employeeName');
+    if(!meeting){
+      return res.status(404).json({message:"Meeting not found"})
+    }
+    const organizer = await HRMEmployee.findById(meeting.organizer).select('employeeName -_id');
+    meeting.organizer = organizer ? organizer.employeeName : "Unknown";
+    return res.status(200).json(meeting)
+  } catch (error) {
+    return res.status(500).json({message:"Server Error",error:error.message})
+  }
+}
+
 module.exports = {
   createCalendarEntry,
   getWeeklyAttendanceById,
@@ -446,5 +468,6 @@ module.exports = {
   getEmailAndName,
   getDepartmentChart,
   totalEmployees,
-  getTotalAttendanceDashboard
+  getTotalAttendanceDashboard,
+  getMeetingDetail
 };

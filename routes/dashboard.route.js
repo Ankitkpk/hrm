@@ -16,5 +16,6 @@ router.get('/getEmailAndName',dashboardController.getEmailAndName)
 router.get("/getDepartmentChart",dashboardController.getDepartmentChart)
 router.get('/getTotalNumOfEmp',dashboardController.totalEmployees)
 router.get('/getTotalAttendanceDashboard', dashboardController.getTotalAttendanceDashboard);
+router.get('/getMeetingDetail/:id', dashboardController.getMeetingDetail);
 
 module.exports = router ;

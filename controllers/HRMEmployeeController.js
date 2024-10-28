@@ -226,13 +226,13 @@ const HrmEmployeeSearching = async (req, res) => {
     }
 
     const data = await HRMEmployee.find({ empId, employeeName, jobTitle }) 
-      .select('empId employeeName jobTItile department officialEmailId phoneNumber startDate manager officeLocation');
+      .select('empId employeeName jobTitle department officialEmailId phoneNumber startDate manager officeLocation');
 
     if (!data || data.length === 0) {
       return res.status(404).json({ message: "Employee Not Found." });
     }
 
-    return res.status(200).json(data);
+    return res.status(200).json(...data);
   } catch (error) {
     console.error("Error occurred:", error);
     return res.status(500).json({ message: "Server Error", error: error.message });

@@ -438,9 +438,43 @@ const getTotalAttendanceDashboard = async (req, res) => {
   }
 };
 
-const getMeetingList =(req,res)=>{
-  
-}
+// const getMeetingList = async(req,res)=>{
+//   const { id } = req.params;
+//   try {
+//     // Find the employee by ID
+//     const emp = await HRMEmployee.findById(id);
+//     if (!emp) {
+//       return res.status(404).json({ message: "Employee not found" });
+//     }
+
+//     // Get current date and time in "Asia/Kolkata" timezone
+//     const now = moment().tz("Asia/Kolkata");
+
+//     console.log("Current Timestamp:", now.toISOString());
+//     console.log("Employee Email:", emp.officialEmailId);
+
+//     // Find the next meeting where the employee is a participant and the meeting is upcoming
+//     const upcomingMeeting = await Meeting.findOne({
+//       participants: { $in: [emp.officialEmailId] },
+//       date: { $gte: now.format('YYYY-MM-DD') },
+//       time: { $gte: now.format('hh:mm A') }
+//     }).sort({ date: 1, time: 1 }).limit(18);
+
+//     console.log("Upcoming Meetings:", upcomingMeeting);
+
+//     // Check if any meeting was found
+//     if (!upcomingMeeting) {
+//       return res.status(404).json({ message: "No upcoming meetings found for this user" });
+//     }
+
+//     // Return the upcoming meeting
+//     return res.status(200).json(upcomingMeeting);
+    
+//   } catch (error) {
+//     console.error("Error occurred:", error);
+//     return res.status(500).json({ message: "Server Error", error: error.message });
+//   }
+// }
 
 const getMeetingDetail = async (req,res)=>{
   const {id} = req.params;
@@ -469,5 +503,6 @@ module.exports = {
   getDepartmentChart,
   totalEmployees,
   getTotalAttendanceDashboard,
-  getMeetingDetail
+  getMeetingDetail,
+  getMeetingList
 };

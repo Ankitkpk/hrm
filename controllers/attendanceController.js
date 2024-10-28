@@ -104,13 +104,14 @@ const getWeeklyAttendance = async (req, res) => {
     )
       .sort({ createdAt: -1 })
       .limit(1);
+// console.log(currentMonthData[0].dailyAttendance);
 
       if(!currentMonthData){
         return res.status(404).json({message:'Employee not fount'})
       }
 
     let weekData = [...currentMonthData[0].dailyAttendance.reverse().flat(1)];
-    // console.log('week data',weekData);
+     console.log('week data',weekData);
 
     if (
       currentMonthData[0].dailyAttendance.length < 7 ||
@@ -128,15 +129,17 @@ const getWeeklyAttendance = async (req, res) => {
         .sort({ createdAt: -1 })
         .skip(1)
         .limit(limit);
-      // console.log(lastMonthData[0].dailyAttendance);
-      weekData = [...weekData, ...lastMonthData[0].dailyAttendance.reverse()];
+        if(lastMonthData.length){
+          weekData = [...weekData, ...lastMonthData[0].dailyAttendance.reverse()];
+        }
+      // console.log("lAT month",lastMonthData[0].dailyAttendance);
     }
 
     return res.status(200).json(weekData);
   } catch (error) {
-    res
+    return res
       .status(500)
-      .json({ message: "Error fetching weekly attendance", error });
+      .json({ message: "Error fetching weekly attendance", error: error.message });
   }
 };
 

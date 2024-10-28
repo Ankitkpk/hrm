@@ -1,5 +1,6 @@
 const HRMEmployee = require("../models/HRMEmployeeModel");
 const addLeave = require("../models/employeeLeaveModel");
+const User = require('../models/user.model');
 
 const totalLeaves = async (req, res) => {
   const { id } = req.params;
@@ -262,6 +263,22 @@ const getLeaveTypes = async (req, res) => {
   }
 };
 
+const getUserForLeaveApply = async (req, res) => {
+  try {
+    const users = await User.find().select('name -_id');
+
+   
+    if (users.length === 0) {
+      return res.status(404).json({ message: "No users found" });
+    }
+    const names = users.map(user => user.name);
+
+    res.status(200).json(names);
+  } catch (error) {
+    return res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
 module.exports = {
   totalLeaves,
   pendingLeaves,
@@ -273,4 +290,5 @@ module.exports = {
   getEmployeeLeaveSummary,
   getEmployeeLeaveStatusAndApproval,
   getLeaveTypes,
+  getUserForLeaveApply
 };

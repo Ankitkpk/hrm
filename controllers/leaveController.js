@@ -12,7 +12,9 @@ const totalLeaves = async (req, res) => {
     const totalleaves = employee.totalLeave;
     return res.status(200).json(totalleaves);
   } catch (error) {
-    return res.status(500).json({ message: "Server error", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
   }
 };
 
@@ -27,7 +29,9 @@ const pendingLeaves = async (req, res) => {
     const pendingleaves = employee.pendingLeaves;
     return res.status(200).json(pendingleaves);
   } catch (error) {
-    return res.status(500).json({ message: "Server error", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
   }
 };
 
@@ -42,7 +46,9 @@ const leavesTaken = async (req, res) => {
     const leavestaken = employee.leavesTaken;
     return res.status(200).json(leavestaken);
   } catch (error) {
-    return res.status(500).json({ message: "Server error", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
   }
 };
 
@@ -52,7 +58,7 @@ const uploadLeaveData = async (req, res) => {
     fromDate,
     toDate,
     leaveType,
-    reason, 
+    reason,
     applyTo,
     employee,
   } = req.body;
@@ -67,7 +73,7 @@ const uploadLeaveData = async (req, res) => {
     const startDate = new Date(fromDate);
     const endDate = new Date(toDate);
     const diffTime = endDate - startDate;
-    
+
     const totalDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
     const add = new addLeave({
@@ -78,52 +84,51 @@ const uploadLeaveData = async (req, res) => {
       leaveType,
       reason,
       applyTo,
-      employee, 
+      employee,
       documents: {
         data: data,
       },
     });
 
     await add.save();
-    return res
-      .status(201)
-      .json({ message: "Applied for leave", addLeave });
+    return res.status(201).json({ message: "Applied for leave", addLeave });
   } catch (err) {
     return res.status(500).json({ message: err.message });
   }
 };
 
-
 const getLeaveWithEmployeeData = async (req, res) => {
-  const { leaveId } = req.params; 
+  const { leaveId } = req.params;
   try {
-    const leave = await addLeave.findById(leaveId).populate('employee');  
+    const leave = await addLeave.findById(leaveId).populate("employee");
     if (!leave) {
       return res.status(404).json({ message: "Leave application not found" });
     }
     return res.status(200).json({ leave });
   } catch (error) {
-    return res.status(500).json({ message: "Error fetching leave application", error });
+    return res
+      .status(500)
+      .json({ message: "Error fetching leave application", error });
   }
 };
 
-const getAllEmployeeLeaves = async (req,res)=>{
- try{
-  const data = await addLeave.find().populate('employee')
-  if(!data){
-    return res.status(404).json({message:"No leaves found"})
+const getAllEmployeeLeaves = async (req, res) => {
+  try {
+    const data = await addLeave.find().populate("employee");
+    if (!data) {
+      return res.status(404).json({ message: "No leaves found" });
+    }
+    return res.status(200).json({ data });
+  } catch (error) {
+    return res.status(500).json({ message: "Error fetching leaves" });
   }
-  return res.status(200).json({data})
- }catch(error){
-  return res.status(500).json({message:'Error fetching leaves'})
- }
-}
+};
 
-const getEmployeeLeave=async(req,res)=>{
-  try{
-    const data = await addLeave.find().populate('employee')
-    if(!data){
-      return res.status(404).json({message:"No employee leaves found"})
+const getEmployeeLeave = async (req, res) => {
+  try {
+    const data = await addLeave.find().populate("employee");
+    if (!data) {
+      return res.status(404).json({ message: "No employee leaves found" });
     }
     const result = data.map((leave) => ({
       employeeName: leave.employee.employeeName,
@@ -134,52 +139,68 @@ const getEmployeeLeave=async(req,res)=>{
       totalDays: leave.totalDays,
     }));
 
-    return res.status(200).json(result)
-   }catch(error){
-    return res.status(500).json({message:error.message})
-   }
-}
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
 
 const getEmployeeLeaveSummary = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const leaveDetails = await addLeave.find({ employee: id }).populate('employee').populate({
-      path: 'employee', 
-      select: 'leavesTaken totalLeave',
-    });
+    const leaveDetails = await addLeave
+      .find({ employee: id })
+      .populate("employee")
+      .populate({
+        path: "employee",
+        select: "leavesTaken totalLeave",
+      });
 
     if (!leaveDetails || leaveDetails.length === 0) {
-      return res.status(404).json({ message: 'No leave records found for this employee.' });
+      return res
+        .status(404)
+        .json({ message: "No leave records found for this employee." });
     }
 
-    const leaveSummary = leaveDetails.reduce((acc, leave) => {      
-      acc.casualLeavesTaken += leave.employee.leavesTaken.casualLeaves || 0;
-      acc.sickLeavesTaken += leave.employee.leavesTaken.sickLeaves || 0;
-      acc.festivalsTaken += leave.employee.leavesTaken.festivals || 0;
-      acc.totalCasualLeaves = leave.employee.totalLeave.casualLeaves || acc.totalCasualLeaves;
-      acc.totalSickLeaves = leave.employee.totalLeave.sickLeaves || acc.totalSickLeaves;
-      acc.totalFestivalLeaves = leave.employee.totalLeave.festivals || acc.totalFestivalLeaves;    
-      acc.leaveTypeSet.add(leave.leaveType);
+    const leaveSummary = leaveDetails.reduce(
+      (acc, leave) => {
+        acc.casualLeavesTaken += leave.employee.leavesTaken.casualLeaves || 0;
+        acc.sickLeavesTaken += leave.employee.leavesTaken.sickLeaves || 0;
+        acc.festivalsTaken += leave.employee.leavesTaken.festivals || 0;
+        acc.totalCasualLeaves =
+          leave.employee.totalLeave.casualLeaves || acc.totalCasualLeaves;
+        acc.totalSickLeaves =
+          leave.employee.totalLeave.sickLeaves || acc.totalSickLeaves;
+        acc.totalFestivalLeaves =
+          leave.employee.totalLeave.festivals || acc.totalFestivalLeaves;
+        acc.leaveTypeSet.add(leave.leaveType);
 
-      return acc;
-    }, {
-      casualLeavesTaken: 0,
-      sickLeavesTaken: 0,
-      festivalsTaken: 0,
-      totalCasualLeaves: 0,
-      totalSickLeaves: 0,
-      totalFestivalLeaves: 0,
-      leaveTypeSet: new Set() 
-    });
-    
+        return acc;
+      },
+      {
+        casualLeavesTaken: 0,
+        sickLeavesTaken: 0,
+        festivalsTaken: 0,
+        totalCasualLeaves: 0,
+        totalSickLeaves: 0,
+        totalFestivalLeaves: 0,
+        leaveTypeSet: new Set(),
+      }
+    );
+
     const totalLeavesTaken =
-      leaveSummary.casualLeavesTaken + leaveSummary.sickLeavesTaken + leaveSummary.festivalsTaken;
+      leaveSummary.casualLeavesTaken +
+      leaveSummary.sickLeavesTaken +
+      leaveSummary.festivalsTaken;
     const leaveBalance =
-      leaveSummary.totalCasualLeaves + leaveSummary.totalSickLeaves + leaveSummary.totalFestivalLeaves - totalLeavesTaken;
+      leaveSummary.totalCasualLeaves +
+      leaveSummary.totalSickLeaves +
+      leaveSummary.totalFestivalLeaves -
+      totalLeavesTaken;
 
-    const leaveType = Array.from(leaveSummary.leaveTypeSet).join(', ');
-    
+    const leaveType = Array.from(leaveSummary.leaveTypeSet).join(", ");
+
     const response = {
       totalLeavesTaken,
       leaveBalance,
@@ -189,7 +210,9 @@ const getEmployeeLeaveSummary = async (req, res) => {
     return res.status(200).json(response);
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Server Error", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Server Error", error: error.message });
   }
 };
 
@@ -197,30 +220,45 @@ const getEmployeeLeaveStatusAndApproval = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const leaveDetails = await addLeave.find({ employee: id })
-    .populate({
-      path: 'employee', 
-      select: 'employeeName' 
-    })
-    .limit(1) 
-    .select('leaveType fromDate toDate  updatedAt reason appliedDate');
+    const leaveDetails = await addLeave
+      .find({ employee: id })
+      .populate({
+        path: "employee",
+        select: "employeeName",
+      })
+      .limit(1)
+      .select("leaveType fromDate toDate  updatedAt reason appliedDate");
 
     if (!leaveDetails) {
-      return res.status(404).json({ message: 'No leave records found for this employee.' });
+      return res
+        .status(404)
+        .json({ message: "No leave records found for this employee." });
     }
     const response = leaveDetails.map((leave) => ({
       employeeName: leave.employee.employeeName,
       leaveType: leave.leaveType,
       startDate: leave.fromDate,
       endDate: leave.toDate,
-      reason:leave.reason,
-      appliedDate:leave.appliedDate,
-      lastupdated: leave.updatedAt
+      reason: leave.reason,
+      appliedDate: leave.appliedDate,
+      lastupdated: leave.updatedAt,
     }));
     return res.status(200).json(response);
-
   } catch (error) {
-     return res.status(500).json({ message: "Server Error", error: error.message});
+    return res
+      .status(500)
+      .json({ message: "Server Error", error: error.message });
+  }
+};
+
+const getLeaveTypes = async (req, res) => {
+  const leaves = ["Sick", "Casual", "Festivals"];
+  try {
+    res.status(200).json(leaves);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Server Error", error: error.message });
   }
 };
 
@@ -233,5 +271,6 @@ module.exports = {
   getAllEmployeeLeaves,
   getEmployeeLeave,
   getEmployeeLeaveSummary,
-  getEmployeeLeaveStatusAndApproval
+  getEmployeeLeaveStatusAndApproval,
+  getLeaveTypes,
 };

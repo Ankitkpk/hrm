@@ -18,7 +18,7 @@ router.post('/updatePassword', HRMEmployeeController.updatePassword);
  router.get("/getEmployeeByIdForAttendance/:id", HRMEmployeeController.getEmployeeByIdForAttendance);
 
  router.get('/getUpcomingMeet/:id',HRMEmployeeController.upcomingMeeting)
- router.get('/closeMeeting/:id',HRMEmployeeController.getNextMeet)
+ router.get('/closeMeeting/:id',HRMEmployeeController.getNextMeeting)
  router.get('/HrmEmployeeSearching',HRMEmployeeController.HrmEmployeeSearching) //for searching
  router.put('/HrmEmployeeUpdate/:id',HRMEmployeeController.HrmEmployeeUpdate)
  router.get('/getPayslipGenerationStatus',HRMEmployeeController.getPayslipGenerationStatus)

@@ -176,12 +176,8 @@ const upcomingMeeting = async (req, res) => {
 };
 
 
-const getNextMeet = async (req, res) => {
-  const { id } = req.params; 
-  const today = new Date();
-  const now = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const indiaTime = moment().tz("Asia/Kolkata").format('HH:mm:ss'); 
-  console.log("Current Time:", indiaTime);
+const getNextMeeting = async (req, res) => {
+  const { id } = req.params;
 
   try {
     // Find the employee by ID
@@ -189,32 +185,38 @@ const getNextMeet = async (req, res) => {
     if (!emp) {
       return res.status(404).json({ message: "Employee not found" });
     }
-    
-    console.log("Current Timestamp:", now.getTime());
+
+    // Get current date and time in "Asia/Kolkata" timezone
+    const now = moment().tz("Asia/Kolkata");
+
+    console.log("Current Timestamp:", now.toISOString());
     console.log("Employee Email:", emp.officialEmailId);
-    
-    // Find upcoming meetings where the employee is a participant
-    const upcomingMeeting = await Meeting.find({
-      participants: { $in: [emp.officialEmailId] }, 
-      date: { $gte: now },
-      time:{$gte:indiaTime}
-    }).sort({time:1}).limit(1);
-    
+
+    // Find the next meeting where the employee is a participant and the meeting is upcoming
+    const upcomingMeeting = await Meeting.findOne({
+      participants: { $in: [emp.officialEmailId] },
+      date: { $gte: now.format('YYYY-MM-DD') },
+      time: { $gte: now.format('hh:mm A') }
+    }).sort({ date: 1, time: 1 }).limit(1);
+
     console.log("Upcoming Meetings:", upcomingMeeting);
-    
+
     // Check if any meeting was found
-    if (upcomingMeeting.length === 0) {
+    if (!upcomingMeeting) {
       return res.status(404).json({ message: "No upcoming meetings found for this user" });
     }
-    
-    // Return the list of meetings
+
+    // Return the upcoming meeting
     return res.status(200).json(upcomingMeeting);
     
   } catch (error) {
     console.error("Error occurred:", error);
     return res.status(500).json({ message: "Server Error", error: error.message });
   }
-};
+}
+
+
+
 
 const HrmEmployeeSearching = async (req, res) => {
   try {
@@ -308,7 +310,7 @@ module.exports = {
   getEmployeeById,
   getEmployeeByIdForAttendance,
   upcomingMeeting,
-  getNextMeet,
+  getNextMeeting,
   HrmEmployeeSearching,
   HrmEmployeeUpdate,
   getPayslipGenerationStatus,

@@ -278,7 +278,7 @@ const getEmailAndName = async (req, res) => {
   }
 };
 
-const getUpcomingMeets = async (req, res) => {
+const getOverallMeetingStatus = async (req, res) => {
   const { id } = req.params;
 
   const currentDateTime = moment().tz("Asia/Kolkata").format();
@@ -438,7 +438,7 @@ module.exports = {
   getMonthlyCalendarEvents,
   todaySpecialDays,
   createMeeting,
-  getUpcomingMeets,
+  getOverallMeetingStatus,
   getEmailAndName,
   getDepartmentChart,
   totalEmployees,

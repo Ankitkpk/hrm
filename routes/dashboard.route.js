@@ -11,7 +11,7 @@ router.get("/getMonthlyCalendarEvents", checkCompanyId, dashboardController.getM
 router.get("/getspecialDays", checkCompanyId, dashboardController.todaySpecialDays)
 router.post("/createMeeting", checkCompanyId, dashboardController.createMeeting)
 router.post('/calendar', dashboardController.createCalendarEntry);
-router.get('/getUpcomingMeets/:id',dashboardController.getUpcomingMeets)
+router.get('/getOverallMeetingStatus/:id',dashboardController.getOverallMeetingStatus)
 router.get('/getEmailAndName',dashboardController.getEmailAndName)
 router.get("/getDepartmentChart",dashboardController.getDepartmentChart)
 router.get('/getTotalNumOfEmp',dashboardController.totalEmployees)

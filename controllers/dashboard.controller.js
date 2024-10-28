@@ -281,48 +281,51 @@ const getEmailAndName = async (req, res) => {
 const getOverallMeetingStatus = async (req, res) => {
   const { id } = req.params;
 
-  const currentDateTime = moment().tz("Asia/Kolkata").format();
-  const sevenDaysAgo = moment().tz("Asia/Kolkata").subtract(7, "days").format();
+  const currentDateTime = moment().tz("Asia/Kolkata").format("YYYY-MM-DD");
+  const sevenDaysAgo = moment().tz("Asia/Kolkata").subtract(7, "days").format("YYYY-MM-DD"); 
+console.log(sevenDaysAgo);
+console.log(currentDateTime);
 
   try {
     const emp = await HRMEmployee.findById(id);
     if (!emp) {
-      return res.status(404).json({ message: "Employee not found" });
+      return res.status(404).json({ message: "Employee not found" }); 
     }
-
+ 
     const nextMeeting = await Meeting.find({
-      startDate: { $gte: currentDateTime },
+      date: { $gte: currentDateTime },
     })
       .sort({ startDateTime: 1 })
-      .select("title startDate -_id")
+      .select("title date -_id")
       .limit(1);
+console.log(nextMeeting);
 
     const lastMeeting = await Meeting.find({
-      startDate: { $gte: sevenDaysAgo, $lte: currentDateTime },
+      date: { $gte: sevenDaysAgo, $lte: currentDateTime },
       status: { $eq: "Completed" },
     })
       .sort({ date: -1, time: -1 })
-      .select("title startDate -_id")
+      .select("title date -_id")
       .limit(1);
 
     const totalscheduleMeetings = await Meeting.countDocuments({
-      startDate: { $gte: sevenDaysAgo, $lte: currentDateTime },
+      date: { $gte: sevenDaysAgo, $lte: currentDateTime },
       status: { $eq: "Completed" },
     });
 
     const completedMettings = await Meeting.countDocuments({
-      startDate: { $gte: sevenDaysAgo, $lte: currentDateTime },
+      date: { $gte: sevenDaysAgo, $lte: currentDateTime },
       status: "Completed",
     });
     const canceledMettings = await Meeting.countDocuments({
-      startDate: { $gte: sevenDaysAgo, $lte: currentDateTime },
+      date: { $gte: sevenDaysAgo, $lte: currentDateTime },
       status: "Canceled",
     });
     const pendingMettings = await Meeting.countDocuments({
-      startDate: { $gte: sevenDaysAgo, $lte: currentDateTime },
+      date: { $gte: sevenDaysAgo, $lte: currentDateTime },
       status: "Pending",
     });
-
+ 
     const response = {
       nextMeeting,
       lastMeeting,

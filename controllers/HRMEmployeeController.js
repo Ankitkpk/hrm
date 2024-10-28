@@ -253,15 +253,14 @@ const HrmEmployeeUpdate = async (req, res) => {
 
     const update = await HRMEmployee.findByIdAndUpdate(
       id,
-      { department, manager, officeLocation },
-      { new: true } //will return updated value
-    );
+      { department, manager, officeLocation }
+    ).select('empId employeeName jobTitle department officialEmailId phoneNumber startDate manager officeLocation');
 
     if (!update) {
       return res.status(404).json({ message: "Employee with this ID not found." });
     }
 
-    return res.status(200).json({message:'Updated Successfully',update});
+    return res.status(200).json({message:'Updated Successfully',update,});
   } catch (error) {
     console.error("Error occurred:", error);
     return res.status(500).json({ message: "Server Error", error: error.message });

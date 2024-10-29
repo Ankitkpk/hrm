@@ -253,7 +253,8 @@ const HrmEmployeeUpdate = async (req, res) => {
 
     const update = await HRMEmployee.findByIdAndUpdate(
       id,
-      { department, manager, officeLocation }
+      { department, manager, officeLocation },
+      { new: true } // Include the new data in the response
     ).select('empId employeeName jobTitle department officialEmailId phoneNumber startDate manager officeLocation');
 
     if (!update) {

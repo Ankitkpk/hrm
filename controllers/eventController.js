@@ -47,7 +47,7 @@ const getEvent = async (req, res) => {
         $gte: currentDay,
         $lte: threeDaysFromNow,
       },
-    });
+    }).sort({ eventDate: 1 });
 
     return res.status(200).json(events);
   } catch (error) {

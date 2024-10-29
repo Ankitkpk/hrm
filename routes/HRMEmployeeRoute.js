@@ -24,5 +24,6 @@ router.post('/updatePassword', HRMEmployeeController.updatePassword);
  router.get('/getPayslipGenerationStatus',HRMEmployeeController.getPayslipGenerationStatus)
  router.get('/getEmployeePayslipList',HRMEmployeeController.getEmployeePaySlipList);
  router.get('/getDesignations',HRMEmployeeController.getDesignations)
+ router.put('/HrmCoreEmployeeUpdate/:id',HRMEmployeeController.HrmCoreEmployeeUpdate);
 
 module.exports = router; 

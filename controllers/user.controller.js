@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const AccessTable = require('../models/accessTable.model');
+const Company = require("../models/company.model");
 
 
 
@@ -184,10 +185,9 @@ const loginUser = async (req, res) => {
         sameSite: 'Strict',    // Ensures the cookie is not sent with cross-site requests
         maxAge: 3600000        // Cookie expiration time (1 hour in milliseconds)
       });
-  
       // Send a response with user details or redirect URL
       // const redirectUrl = accessRecord.allowedPages.length ? accessRecord.allowedPages[0] : '/default'; // Default or first allowed page
-      return res.status(200).json({ message: 'Login successful',token,id: user._id });
+      return res.status(200).json({ message: 'Login successful',token,id: user._id, companyId:user._id  });
     } catch (error) {
       return res.status(500).json({ message: 'Error logging in', error: error.message });
     }

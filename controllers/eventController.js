@@ -40,7 +40,7 @@ const createEvent = async (req, res) => {
 // GET API to retrieve all events
 const getEvent = async (req, res) => {
   const currentDay = moment().startOf("day").format("YYYY-MM-DD");
-  const threeDaysFromNow = moment().add(3, "days").format("YYYY-MM-DD");
+  const threeDaysFromNow = moment().add(6, "days").format("YYYY-MM-DD");
   try {
     const events = await Event.find({
       eventDate: {

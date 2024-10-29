@@ -1,5 +1,5 @@
 const User = require("../models/user.model");
-const Attendance = require("../models/attendance.model");
+const Attendance = require("../models/attendanceModel");
 const moment = require("moment");
 const Calendar = require("../models/calender.model");
 const Meeting = require("../models/meeting.model");
@@ -414,35 +414,60 @@ const totalEmployees= async(req,res)=>{
 }
 
 
-const getTotalAttendanceDashboard = async (req, res) => {
+const dailyAttendance= async (req, res) => {
   try {
+    const today = moment().startOf('day');
+    const yesterday = moment().subtract(1, 'day').startOf('day');
 
-   
-    const currentDay = moment().startOf('day').format('YYYY-MM-DD');
-   
-    const todayAttendance = await Attendance.find({
-      'dailyAttendance.date':currentDay,
-      'dailyAttendance.status':"Present"
-     
-    });  
+    // Fetch all attendance records for today with 'Present' status
+    const attendanceToday = await Attendance.aggregate([
+      { $unwind: '$dailyAttendance' },
+      {
+        $match: {
+          'dailyAttendance.date': {
+            $gte: today.toDate(),
+            $lt: moment(today).endOf('day').toDate(),
+          },
+          'dailyAttendance.status': 'Present',
+        },
+      },
+    ]);
 
-   
-    const presentCount = todayAttendance.length;
-    const totalEmployees = await HRMEmployee.countDocuments();
-    const attendancePercentage = totalEmployees > 0 ? (presentCount / totalEmployees) * 100 : 0;
+    // Fetch all attendance records for yesterday with 'Present' status
+    const attendanceYesterday = await Attendance.aggregate([
+      { $unwind: '$dailyAttendance' },
+      {
+        $match: {
+          'dailyAttendance.date': {
+            $gte: yesterday.toDate(),
+            $lt: moment(yesterday).endOf('day').toDate(),
+          },
+          'dailyAttendance.status': 'Present',
+        },
+      },
+    ]);
 
-    res.status(200).json({
-      totalEmployees,
-      presentCount,
-      attendancePercentage: attendancePercentage.toFixed(2) + '%'
+    // Calculate counts based on present status
+    const todayCount = attendanceToday.length;
+    const yesterdayCount = attendanceYesterday.length;
+
+    // Calculate the percentage change in attendance from yesterday to today
+    let percentageChange = 0;
+    if (yesterdayCount > 0) {
+      percentageChange = ((todayCount - yesterdayCount) / yesterdayCount) * 100;
+    } else {
+      percentageChange = todayCount > 0 ? 100 : 0; // If no one was present yesterday, handle accordingly
+    }
+
+    return res.json({
+      todayCount,
+      percentageChange,
     });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: "Server Error", error: error.message });
-    
+    console.error("Error calculating attendance percentage:", error);
+    return res.status(500).json({ message: 'Server error' });
   }
 };
-
 //not added in postman as frontend guys don't want it
 const getMeetingDetail = async (req,res)=>{
   const {id} = req.params;
@@ -469,6 +494,7 @@ module.exports = {
   getEmailAndName,
   getDepartmentChart,
   totalEmployees,
-  getTotalAttendanceDashboard,
+  dailyAttendance,
   getMeetingDetail
 };
+ 

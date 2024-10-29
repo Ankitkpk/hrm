@@ -131,6 +131,7 @@ const getEmployeeLeave = async (req, res) => {
     if (!data) {
       return res.status(404).json({ message: "No employee leaves found" });
     }
+    
     const result = data.map((leave) => ({
       employeeName: leave.employee.employeeName,
       leaveType: leave.leaveType,
@@ -217,38 +218,73 @@ const getEmployeeLeaveSummary = async (req, res) => {
   }
 };
 
+// const getEmployeeLeaveStatusAndApproval = async (req, res) => {
+//   const { id } = req.params;
+
+//   try {
+//     const leaveDetails = await addLeave
+//       .find({ employee: id })
+//       .populate({
+//         path: "employee",
+//         select: "employeeName",
+//       })
+//       .limit(1)
+//       .select("leaveType fromDate toDate  updatedAt reason appliedDate");
+
+//     if (!leaveDetails) {
+//       return res
+//         .status(404)
+//         .json({ message: "No leave records found for this employee." });
+//     }
+//     const response = leaveDetails.map((leave) => ({
+//       employeeName: leave.employee.employeeName,
+//       leaveType: leave.leaveType,
+//       startDate: leave.fromDate,
+//       endDate: leave.toDate,
+//       reason: leave.reason,
+//       appliedDate: leave.appliedDate,
+//       lastupdated: leave.updatedAt,
+//     }));
+   
+//     return res.status(200).json(response);
+//   } catch (error) {
+//     return res
+//       .status(500)
+//       .json({ message: "Server Error", error: error.message });
+//   }
+// };
+
 const getEmployeeLeaveStatusAndApproval = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const leaveDetails = await addLeave
-      .find({ employee: id })
-      .populate({
-        path: "employee",
-        select: "employeeName",
-      })
-      .limit(1)
-      .select("leaveType fromDate toDate  updatedAt reason appliedDate");
+    const leaveDetails = await addLeave.find({ employee: id })
+    .populate({
+      path: 'employee', 
+      select: 'employeeName' 
+    })
+    .limit(1) 
+    .select('leaveType fromDate toDate  updatedAt reason appliedDate');
 
     if (!leaveDetails) {
-      return res
-        .status(404)
-        .json({ message: "No leave records found for this employee." });
+      return res.status(404).json({ message: 'No leave records found for this employee.' });
     }
-    const response = leaveDetails.map((leave) => ({
-      employeeName: leave.employee.employeeName,
-      leaveType: leave.leaveType,
-      startDate: leave.fromDate,
-      endDate: leave.toDate,
-      reason: leave.reason,
-      appliedDate: leave.appliedDate,
-      lastupdated: leave.updatedAt,
-    }));
+
+    
+    const response = {
+      employeeName: leaveDetails[0].employee.employeeName,
+      leaveType: leaveDetails[0].leaveType,
+      startDate: leaveDetails[0].fromDate,
+      endDate: leaveDetails[0].toDate,
+      reason: leaveDetails[0].reason,
+      appliedDate: leaveDetails[0].appliedDate,
+      lastUpdated: leaveDetails[0].updatedAt
+    };
+   
     return res.status(200).json(response);
+
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Server Error", error: error.message });
+     return res.status(500).json({ message: "Server Error", error: error.message});
   }
 };
 

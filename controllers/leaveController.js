@@ -133,6 +133,7 @@ const getEmployeeLeave = async (req, res) => {
     }
     
     const result = data.map((leave) => ({
+      _id: leave._id,
       employeeName: leave.employee.employeeName,
       leaveType: leave.leaveType,
       startDate: leave.fromDate,

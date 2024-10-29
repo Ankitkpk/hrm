@@ -84,6 +84,7 @@ const loginEmployee = async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
+    const companyId = await Company.findOne({name: employee.company})
 
     // Generate JWT token
     const token = jwt.sign({ empId: employee.empId }, process.env.JWT_SECRET, {
@@ -91,7 +92,7 @@ const loginEmployee = async (req, res) => {
     });
 
     // Send token back to client
-    return res.json({ message: "Login successful", token,id:employee._id });
+    return res.json({ message: "Login successful", token,id:employee._id,companyId:companyId._id });
   } catch (err) {
     return res.status(500).json({ message: "Server error", error: err.message });
   }

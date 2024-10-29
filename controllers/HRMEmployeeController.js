@@ -447,6 +447,22 @@ const HrmCoreEmployeeUpdate = async (req, res) => {
   }
 };
 
+const getHrmEmployeeList = async (req, res) => {
+  try {
+    const data = await HRMEmployee.find().select(
+      "_id employeeName empId phoneNumber startDate jobTitle"
+    );
+    if (!data) {
+      res.status(402).json({ message: "Data not Found" });
+    }
+    res.status(200).json(data);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Server Error", error: error.message });
+  }
+};
+
 module.exports = {
   createEmployee,
   updatePassword,
@@ -462,4 +478,5 @@ module.exports = {
   getEmployeePaySlipList,
   getDesignations,
   HrmCoreEmployeeUpdate,
+  getHrmEmployeeList
 };

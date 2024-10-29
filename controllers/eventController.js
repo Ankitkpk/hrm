@@ -37,8 +37,44 @@ const createEvent= async (req, res) => {
       return res.status(500).json({ message: error.message });
     }
   };
+  const updateEvent = async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { eventTitle, eventDescription, eventDate, startTime, location, organizer, category } = req.body;
+
+      if(!eventTitle && !eventDescription && !eventDate && !startTime && !location && !organizer && !category){
+        res.status(402).json({message:"At least one field is required to update:eventTitle, eventDescription, eventDate, startTime, location, organizer or category "})
+      }
+
+  
+      // Find and update the event with new details
+      const updatedEvent = await Event.findByIdAndUpdate(
+        id,
+        {
+          eventTitle,
+          eventDescription,
+          eventDate,
+          startTime,
+          location,
+          organizer,
+          category
+        },
+        { new: true } // Returns the updated document
+      );
+  
+      // If event not found, send a 404 response
+      if (!updatedEvent) {
+        return res.status(404).json({ message: 'Event not found' });
+      }
+  
+      return res.status(200).json(updatedEvent);
+    } catch (error) {
+      return res.status(500).json({ message: error.message });
+    }
+  };
 
   module.exports = {
    getEvent,
-   createEvent
+   createEvent,
+   updateEvent
 }

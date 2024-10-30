@@ -452,7 +452,7 @@ const getHrmEmployeeDetails = async(req,res)=>{
   const {id} = req.params;
   try{
     const data = await HRMEmployee.findById(id).select(
-      'empPassword  empId birthDate employeeName qualification grade company address maritalStatus city zipCode state phoneNumber alternatePhoneNumber emergencyNumber relationWithPerson officialEmailId personalEmailId department jobTitle salary aadharCard panCard bankAccountName officeLocation accountNumber bankName branchName ifscCode'
+      '  empId birthDate employeeName qualification grade company address maritalStatus city zipCode state phoneNumber alternatePhoneNumber emergencyNumber relationWithPerson officialEmailId personalEmailId department jobTitle salary aadharCard panCard bankAccountName officeLocation accountNumber bankName branchName ifscCode'
     );
     if (!data) {
       res.status(402).json({ message: "Data not Found" });

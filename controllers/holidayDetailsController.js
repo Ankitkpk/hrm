@@ -1,27 +1,27 @@
 const Holiday = require('../models/holidayDetailsModel');
 
 const createHoliday = async (req, res) => {
-    try {
-      const { holidayTitle, date, type, location } = req.body;
-  
-      if (!holidayTitle || !date || !type || !location) {
-        return res.status(400).json({ message: "All fields are required..." });
-      }
-  
-      const allData = new Holiday({ holidayTitle, date, type, location });
-  
-      await allData.save();
-     return res.status(200).json({
-        message: "Holiday details saved successfully",
-        data: allData,
-      });
-    } catch (error) {
-      return res.status(500).json({
-        message: "Error saving Holiday details",
-        error: error.message,
-      });
+  try {
+    const { holidayTitle, date, month, type, location } = req.body;
+
+    if (!holidayTitle || !date || !month || !type || !location) {
+      return res.status(400).json({ message: "All fields are required..." });
     }
-  };
+
+    const allData = new Holiday({ holidayTitle, date, month,type, location });
+
+    await allData.save();
+   return res.status(200).json({
+      message: "Holiday details saved successfully",
+      data: allData,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error saving Holiday details",
+      error: error.message,
+    });
+  }
+};
   
 
   const getHolidayByDate = async(req,res)=>{

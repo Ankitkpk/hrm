@@ -333,27 +333,15 @@ const leaveApproval= async(req,res) =>{
 }
 
 
-const getAllLeaves = async(req,res)=>{
+const getAllLeavesOfEmployee = async(req,res)=>{
   const id = req.params.id;
-  try {
-    console.log(id);
-    
-    const data = await addLeave.find({employee:id});
+  try {    
+    const data = await addLeave.find({employee:id}).sort({fromDate:-1}).select('leaveType fromDate toDate status _id');
     if (!data) {
       return res.status(404).json({ message: "No employee leaves found" });
     }
-    
-    const result = data.map((leave) => ({
-      _id: leave._id,
-      employeeName: leave.employee.employeeName,
-      leaveType: leave.leaveType,
-      startDate: leave.fromDate,
-      endDate: leave.toDate,
-      status: leave.status,
-      totalDays: leave.totalDays,
-    }));
-
-    return res.status(200).json(result);
+  
+    return res.status(200).json(data);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -372,5 +360,5 @@ module.exports = {
   getLeaveTypes,
   getUserForLeaveApply,
   leaveApproval,
-  getAllLeaves
+  getAllLeavesOfEmployee
 };

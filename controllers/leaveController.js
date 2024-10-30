@@ -316,6 +316,22 @@ const getUserForLeaveApply = async (req, res) => {
   }
 };
 
+const leaveApproval= async(req,res) =>{
+  const {leaveId}= req.params;
+  const {status}= req.body;
+  try {
+    const leave = await addLeave.findById(leaveId);
+    if(!leave){
+      return res.status(404).json({message:"Leave not found"});
+    }
+    leave.status =  status;
+    await leave.save();
+    return res.status(200).json({message:"Leave status updated successfully"});
+  } catch (error) {
+    return res.status(500).json({message:"Server Error", error:error.message});
+  }
+}
+
 module.exports = {
   totalLeaves,
   pendingLeaves,
@@ -327,5 +343,6 @@ module.exports = {
   getEmployeeLeaveSummary,
   getEmployeeLeaveStatusAndApproval,
   getLeaveTypes,
-  getUserForLeaveApply
+  getUserForLeaveApply,
+  leaveApproval
 };

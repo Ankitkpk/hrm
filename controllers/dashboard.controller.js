@@ -236,16 +236,18 @@ const createMeeting = async (req, res) => {
     } = req.body;
     // const name = await
     // Validate required fields
-    console.log(title,participants,time,userId);
- 
+    console.log(title, participants, time, userId);
+
     if (!title || !participants || !time || !userId) {
       return res.status(400).json({ message: "Required fields are missing" });
     }
-    
-    let organizer = await HRMEmployee.findById(userId).select('employeeName -_id');
+
+    let organizer = await HRMEmployee.findById(userId).select(
+      "employeeName -_id"
+    );
     organizer = organizer ? organizer.employeeName : "Unknown";
 
-    const companyId = req.headers['companyid']
+    const companyId = req.headers["companyid"];
 
     // Create a new meeting object
     const newMeeting = new Meeting({
@@ -256,11 +258,11 @@ const createMeeting = async (req, res) => {
       location,
       description,
       companyId,
-      reminder, 
+      reminder,
       organizer: {
         id: userId,
         name: organizer,
-      }
+      },
     });
 
     // Save the meeting to the database
@@ -291,23 +293,26 @@ const getOverallMeetingStatus = async (req, res) => {
   const { id } = req.params;
 
   const currentDateTime = moment().tz("Asia/Kolkata").format("YYYY-MM-DD");
-  const sevenDaysAgo = moment().tz("Asia/Kolkata").subtract(7, "days").format("YYYY-MM-DD"); 
-console.log(sevenDaysAgo);
-console.log(currentDateTime);
+  const sevenDaysAgo = moment()
+    .tz("Asia/Kolkata")
+    .subtract(7, "days")
+    .format("YYYY-MM-DD");
+  console.log(sevenDaysAgo);
+  console.log(currentDateTime);
 
   try {
     const emp = await HRMEmployee.findById(id);
     if (!emp) {
-      return res.status(404).json({ message: "Employee not found" }); 
+      return res.status(404).json({ message: "Employee not found" });
     }
- 
+
     const nextMeeting = await Meeting.find({
       date: { $gte: currentDateTime },
     })
       .sort({ startDateTime: 1 })
       .select("title date -_id")
       .limit(1);
-console.log(nextMeeting);
+    console.log(nextMeeting);
 
     const lastMeeting = await Meeting.find({
       date: { $gte: sevenDaysAgo, $lte: currentDateTime },
@@ -334,10 +339,10 @@ console.log(nextMeeting);
       date: { $gte: sevenDaysAgo, $lte: currentDateTime },
       status: "Pending",
     });
- 
+
     const response = {
-      nextMeeting:nextMeeting[0],
-      lastMeeting:lastMeeting[0],
+      nextMeeting: nextMeeting[0],
+      lastMeeting: lastMeeting[0],
       totalscheduleMeetings,
       completedMettings,
       canceledMettings,
@@ -353,12 +358,12 @@ console.log(nextMeeting);
   }
 };
 
-const getDepartmentChart = async(req,res)=>{
+const getDepartmentChart = async (req, res) => {
   try {
     const result = await HRMEmployee.aggregate([
       {
         $group: {
-          _id: "$department", 
+          _id: "$department",
           count: { $sum: 1 }, // Count the number of employees in each department
         },
       },
@@ -382,67 +387,71 @@ const getDepartmentChart = async(req,res)=>{
           _id: 0,
           department: "$departments.department",
           percentage: {
-            $round:[
+            $round: [
               {
-              $multiply: [
-                { $divide: ["$departments.count", "$total"] }, // Calculate percentage
-                100,
-              ]},
-              2
-            ]
+                $multiply: [
+                  { $divide: ["$departments.count", "$total"] }, // Calculate percentage
+                  100,
+                ],
+              },
+              2,
+            ],
           },
         },
       },
     ]);
 
     console.log(result);
-    return res.status(200).json(result)
+    return res.status(200).json(result);
   } catch (error) {
-    return res.status(500).json("Error calculating department percentage:", error.message);
+    return res
+      .status(500)
+      .json("Error calculating department percentage:", error.message);
   }
-}
+};
 
-const totalEmployees= async(req,res)=>{
+const totalEmployees = async (req, res) => {
   try {
     // Fetch total number of employees from the database
     const total = await HRMEmployee.countDocuments({});
     res.status(200).json({ totalEmployees: total });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error retrieving employee data', error:err.message});
+    res
+      .status(500)
+      .json({ message: "Error retrieving employee data", error: err.message });
   }
-}
+};
 
-
-const dailyAttendance= async (req, res) => {
+const dailyAttendance = async (req, res) => {
   try {
-    const today = moment().startOf('day');
-    const yesterday = moment().subtract(1, 'day').startOf('day');
+    const today = moment().startOf("day");
+    const yesterday = moment().subtract(1, "day").startOf("day");
 
     // Fetch all attendance records for today with 'Present' status
     const attendanceToday = await Attendance.aggregate([
-      { $unwind: '$dailyAttendance' },
+      { $unwind: "$dailyAttendance" },
       {
         $match: {
-          'dailyAttendance.date': {
+          "dailyAttendance.date": {
             $gte: today.toDate(),
-            $lt: moment(today).endOf('day').toDate(),
+            $lt: moment(today).endOf("day").toDate(),
           },
-          'dailyAttendance.status': 'Present',
+          "dailyAttendance.status": "Present",
         },
       },
     ]);
 
     // Fetch all attendance records for yesterday with 'Present' status
     const attendanceYesterday = await Attendance.aggregate([
-      { $unwind: '$dailyAttendance' },
+      { $unwind: "$dailyAttendance" },
       {
         $match: {
-          'dailyAttendance.date': {
+          "dailyAttendance.date": {
             $gte: yesterday.toDate(),
-            $lt: moment(yesterday).endOf('day').toDate(),
+            $lt: moment(yesterday).endOf("day").toDate(),
           },
-          'dailyAttendance.status': 'Present',
+          "dailyAttendance.status": "Present",
         },
       },
     ]);
@@ -458,7 +467,7 @@ const dailyAttendance= async (req, res) => {
     } else {
       percentageChange = todayCount > 0 ? 100 : 0; // If no one was present yesterday, handle accordingly
     }
-    if(percentageChange == -100){
+    if (percentageChange == -100) {
       percentageChange = 0;
     }
     return res.json({
@@ -467,23 +476,73 @@ const dailyAttendance= async (req, res) => {
     });
   } catch (error) {
     console.error("Error calculating attendance percentage:", error);
-    return res.status(500).json({ message: 'Server error' });
+    return res.status(500).json({ message: "Server error" });
   }
 };
 //not added in postman as frontend guys don't want it
-const getMeetingDetail = async (req,res)=>{
-  const {id} = req.params;
+const getMeetingDetail = async (req, res) => {
+  const { id } = req.params;
   try {
-    const meeting = await Meeting.findById(id).populate('organizer', 'employeeName');
-    if(!meeting){
-      return res.status(404).json({message:"Meeting not found"})
+    const meeting = await Meeting.findById(id).populate(
+      "organizer",
+      "employeeName"
+    );
+    if (!meeting) {
+      return res.status(404).json({ message: "Meeting not found" });
     }
-    
-    return res.status(200).json(meeting)
+
+    return res.status(200).json(meeting);
   } catch (error) {
-    return res.status(500).json({message:"Server Error",error:error.message})
+    return res
+      .status(500)
+      .json({ message: "Server Error", error: error.message });
   }
-}
+};
+// ask from sir
+const getAllUpcomingMeets = async (req, res) => {
+  try {
+    const currentDay = moment().add(1, "days").format("YYYY-MM-DD");
+    const today = moment();
+    const endOfMonth = today.isSame(today.clone().endOf("month"), "day")
+      ? today.clone().add(1, "month").endOf("month").format("YYYY-MM-DD")
+      : today.endOf("month").format("YYYY-MM-DD");
+
+    const upcomingMeetings = await Meeting.find({
+      date: { $gte: currentDay, $lte: endOfMonth },
+    })
+      .select("title date time location participants")
+      .lean();
+
+    const sortedMeetings = upcomingMeetings.sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+
+      if (dateA < dateB) return -1;
+      if (dateA > dateB) return 1;
+
+      const timeA = moment(a.time, ["h:mm A"]).format("HH:mm");
+      const timeB = moment(b.time, ["h:mm A"]).format("HH:mm");
+
+      if (timeA < timeB) return -1;
+      if (timeA > timeB) return 1;
+
+      return new Date(a.createdAt) - new Date(b.createdAt);
+    });
+
+    if (sortedMeetings.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No meetings found for this month" });
+    }
+
+    return res.status(200).json(sortedMeetings);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Server Error", error: error.message });
+  }
+};
+
 
 module.exports = {
   createCalendarEntry,
@@ -497,6 +556,6 @@ module.exports = {
   getDepartmentChart,
   totalEmployees,
   dailyAttendance,
-  getMeetingDetail
+  getMeetingDetail,
+  getAllUpcomingMeets,
 };
- 

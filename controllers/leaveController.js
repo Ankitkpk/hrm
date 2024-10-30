@@ -349,6 +349,27 @@ const getAllLeavesOfEmployee = async(req,res)=>{
   }
 }
 
+const getUpComingLeave = async (req, res) => {
+  try {
+    // Fetch leaves where 'toDate' is after the current date
+    const upcomingLeaves = await addLeave.find({ toDate: { $gt: new Date() } })
+      .populate("employee", "name department") // Populate with specific fields from employee
+      .select("employee fromDate toDate "); // Select only relevant fields from addLeave schema
+
+    // Check if there are any upcoming leaves
+    if (upcomingLeaves.length === 0) {
+      return res.status(404).json({ message: "No upcoming leaves found." });
+    }
+
+    return res.status(200).json(upcomingLeaves);
+  } catch (error) {
+    return res.status(500).json({
+      message: "Error retrieving upcoming leaves",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   totalLeaves,
   pendingLeaves,
@@ -362,5 +383,6 @@ module.exports = {
   getLeaveTypes,
   getUserForLeaveApply,
   leaveApproval,
-  getAllLeavesOfEmployee
+  getAllLeavesOfEmployee,
+  getUpComingLeave
 };

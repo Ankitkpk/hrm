@@ -458,7 +458,9 @@ const dailyAttendance= async (req, res) => {
     } else {
       percentageChange = todayCount > 0 ? 100 : 0; // If no one was present yesterday, handle accordingly
     }
-
+    if(percentageChange === -100){
+      percentageChange = 0;
+    }
     return res.json({
       todayCount,
       percentageChange,

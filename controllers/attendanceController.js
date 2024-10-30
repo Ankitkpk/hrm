@@ -188,8 +188,10 @@ const getAllEmployeeAttendanceDetails = async (req, res) => {
     const employeeRecords = await Attendance.find({}, 'attendanceDate  dailyAttendance.date dailyAttendance.status')
       .populate({
         path: 'employee',
-        select: 'empId employeeName jobTitle department'
+        select: 'empId employeeName jobTitle department employeeType'
       });
+      
+      
       const response = employeeRecords.map(record => {
         const { date, status } = record.dailyAttendance[0] || {};
         return {
@@ -198,6 +200,7 @@ const getAllEmployeeAttendanceDetails = async (req, res) => {
           employeeName: record.employee?.employeeName,
           department: record.employee?.department,
           jobTitle: record.employee?.jobTitle,
+          employeeType: record.employee?.employeeType,
           date,
           status
         };

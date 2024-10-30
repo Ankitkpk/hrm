@@ -332,6 +332,33 @@ const leaveApproval= async(req,res) =>{
   }
 }
 
+
+const getAllLeaves = async(req,res)=>{
+  const id = req.params.id;
+  try {
+    console.log(id);
+    
+    const data = await addLeave.find({employee:id});
+    if (!data) {
+      return res.status(404).json({ message: "No employee leaves found" });
+    }
+    
+    const result = data.map((leave) => ({
+      _id: leave._id,
+      employeeName: leave.employee.employeeName,
+      leaveType: leave.leaveType,
+      startDate: leave.fromDate,
+      endDate: leave.toDate,
+      status: leave.status,
+      totalDays: leave.totalDays,
+    }));
+
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+}
+
 module.exports = {
   totalLeaves,
   pendingLeaves,
@@ -344,5 +371,6 @@ module.exports = {
   getEmployeeLeaveStatusAndApproval,
   getLeaveTypes,
   getUserForLeaveApply,
-  leaveApproval
+  leaveApproval,
+  getAllLeaves
 };

@@ -265,7 +265,7 @@ const getEmployeeLeaveStatusAndApproval = async (req, res) => {
       select: 'employeeName' 
     })
     .limit(1) 
-    .select('leaveType fromDate toDate  updatedAt reason appliedDate');
+    .select('leaveType fromDate toDate  updatedAt reason status appliedDate');
 
     if (!leaveDetails) {
       return res.status(404).json({ message: 'No leave records found for this employee.' });

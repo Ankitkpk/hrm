@@ -264,9 +264,10 @@ const getEmployeeLeaveStatusAndApproval = async (req, res) => {
       path: 'employee', 
       select: 'employeeName' 
     })
+    .select('leaveType fromDate toDate  updatedAt reason status appliedDate')
     .limit(1) 
-    .select('leaveType fromDate toDate  updatedAt reason status appliedDate');
-
+    
+    
     if (!leaveDetails) {
       return res.status(404).json({ message: 'No leave records found for this employee.' });
     }
@@ -279,7 +280,8 @@ const getEmployeeLeaveStatusAndApproval = async (req, res) => {
       endDate: leaveDetails[0].toDate,
       reason: leaveDetails[0].reason,
       appliedDate: leaveDetails[0].appliedDate,
-      lastUpdated: leaveDetails[0].updatedAt
+      lastUpdated: leaveDetails[0].updatedAt,
+      status: leaveDetails[0].status
     };
    
     return res.status(200).json(response);

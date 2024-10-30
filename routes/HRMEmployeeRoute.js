@@ -26,5 +26,6 @@ router.post('/updatePassword', HRMEmployeeController.updatePassword);
  router.get('/getDesignations',HRMEmployeeController.getDesignations)
  router.put('/HrmCoreEmployeeUpdate/:id',HRMEmployeeController.HrmCoreEmployeeUpdate);
  router.get('/getHrmEmployeeDetails',HRMEmployeeController.getHrmEmployeeList);
+ router.get('/getHrmEmployeeDetails/:id',HRMEmployeeController.getHrmEmployeeDetails);
 
 module.exports = router; 

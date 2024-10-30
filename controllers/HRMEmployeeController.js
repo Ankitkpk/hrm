@@ -448,6 +448,24 @@ const HrmCoreEmployeeUpdate = async (req, res) => {
   }
 };
 
+const getHrmEmployeeDetails = async(req,res)=>{
+  const {id} = req.params;
+  try{
+    const data = await HRMEmployee.findById(id).select(
+      "empId employeeName qualification grade company address maritalStatus city zipCode state phoneNumber alternatePhoneNumber emergencyNumber relationWithPerson officialEmailId personalEmailId department jobTitle salary aadharCard panCard bankAccountName officeLocation accountNumber bankName branchName ifscCode"
+    );
+    if (!data) {
+      res.status(402).json({ message: "Data not Found" });
+    }
+    return res.status(200).json(data);
+  }
+  catch(error){
+    return res
+   .status(500)
+   .json({ message: "Server Error", error: error.message });
+  }
+}
+
 const getHrmEmployeeList = async (req, res) => {
   try {
     const data = await HRMEmployee.find().select(
@@ -464,6 +482,7 @@ const getHrmEmployeeList = async (req, res) => {
   }
 };
 
+
 module.exports = {
   createEmployee,
   updatePassword,
@@ -479,5 +498,6 @@ module.exports = {
   getEmployeePaySlipList,
   getDesignations,
   HrmCoreEmployeeUpdate,
-  getHrmEmployeeList
+  getHrmEmployeeList,
+  getHrmEmployeeDetails
 };

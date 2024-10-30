@@ -430,8 +430,9 @@ const HrmCoreEmployeeUpdate = async (req, res) => {
 
     const update = await HRMEmployee.findByIdAndUpdate(id, updateData, {
       new: true,
-    });
-
+    }).select(
+      'empPassword employeeName qualification grade company address maritalStatus city zipCode state phoneNumber alternatePhoneNumber emergencyNumber relationWithPerson officialEmailId personalEmailId department jobTitle salary aadharCard panCard bankAccountName officeLocation accountNumber bankName branchName ifscCode'
+    );
     if (!update) {
       return res
         .status(404)

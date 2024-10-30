@@ -13,6 +13,11 @@ type:{
     type:String,
     required:true
 },
+month:{
+    type:String,
+    enum:["January","February","March","April","May","June","July","August","September","October","November","December"],
+    required:true
+},
 location:{
     type:String,
     required:true

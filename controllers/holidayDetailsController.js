@@ -71,21 +71,57 @@ const createHoliday = async (req, res) => {
 //   };
 
 const getAllHolidayDetails = async (req,res)=>{
-    try{
-        const holidayDetails = await Holiday.find();
+  try {
+    // Find all holidays and sort them by month and date within each month
+    const holidays = await Holiday.find().sort({ month: 1, date: 1 });
 
-        if(!holidayDetails){
-          return  res.status(404).json({message:"There are no data available.."})
-        }
+    // Group holidays by month, allowing for multiple holidays in each month
+    const holidaysByMonth = holidays.reduce((acc, holiday) => {
+      // Initialize the month array if it doesn't exist
+      if (!acc[holiday.month]) {
+        acc[holiday.month] = [];
+      }
+      // Add the holiday to the month array
+      acc[holiday.month].push({
+        holidayTitle: holiday.holidayTitle,
+        date: holiday.date,
+        // type: holiday.type,
+        // location: holiday.location,
+      });
+      return acc;
+    }, {});
 
-        return res.status(200).json(holidayDetails);
+    // Convert the holidaysByMonth object into an array for sorting
+    const sortedHolidaysByMonth = Object.keys(holidaysByMonth)
+      .sort((a, b) => {
+        const monthOrder = {
+          January: 1,
+          February: 2,
+          March: 3,
+          April: 4,
+          May: 5,
+          June: 6,
+          July: 7,
+          August: 8,
+          September: 9,
+          October: 10,
+          November: 11,
+          December: 12,
+        };
+        return monthOrder[a] - monthOrder[b];
+      })
+      .map(month => ({
+        month,
+        holidays: holidaysByMonth[month],
+      }));
 
-    }catch(error){
-        return res.status(500).json({
-            message: "Error In Holiday details",
-            error: error.message,
-          });
-    }
+    return res.status(200).json({
+      year: 2024,
+      companyHolidays: sortedHolidaysByMonth,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error retrieving holidays', error });
+  }
 }
   
   module.exports={

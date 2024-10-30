@@ -77,47 +77,48 @@ const getWeeklyAttendanceById = async (req, res) => {
   }
 };
 
-const getWeeklyAttendanceByDepartment = async (weekStart, weekEnd) => {
-  try {
-    // Find attendance records for the specified week, including user data
-    const attendanceRecords = await Attendance.find({
-      date: {
-        $gte: weekStart.toDate(),
-        $lte: weekEnd.toDate(),
-      },
-    })
-      .populate("userId")
-      .lean();
+// const getWeeklyAttendanceByDepartment = async (weekStart, weekEnd) => {
+//   try {
+//     // Find attendance records for the specified week, including user data
+//     const attendanceRecords = await Attendance.find({
+//       date: {
+//         $gte: weekStart.toDate(),
+//         $lte: weekEnd.toDate(),
+//       },
+//     })
+//       .populate("userId")
+//       .lean();
 
-    // Group attendance records by employee and department
-    const employeeAttendanceByDepartment = attendanceRecords.reduce(
-      (acc, attendance) => {
-        const department = attendance.userId.department;
-        const employeeId = attendance.userId._id;
-        if (!acc[department]) {
-          acc[department] = {};
-        }
-        if (!acc[department][employeeId]) {
-          acc[department][employeeId] = {
-            name: attendance.userId.name,
-            totalAttendance: 1,
-          };
-        } else {
-          acc[department][employeeId].totalAttendance++;
-        }
-        return acc;
-      },
-      {}
-    );
+//     // Group attendance records by employee and department
+//     const employeeAttendanceByDepartment = attendanceRecords.reduce(
+//       (acc, attendance) => {
+//         const department = attendance.userId.department;
+//         const employeeId = attendance.userId._id;
+//         if (!acc[department]) {
+//           acc[department] = {};
+//         }
+//         if (!acc[department][employeeId]) {
+//           acc[department][employeeId] = {
+//             name: attendance.userId.name,
+//             totalAttendance: 1,
+//           };
+//         } else {
+//           acc[department][employeeId].totalAttendance++;
+//         }
+//         return acc;
+//       },
+//       {}
+//     );
 
-    return employeeAttendanceByDepartment;
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
-};
+//     return employeeAttendanceByDepartment;
+//   } catch (err) {
+//     console.error(err);
+//     throw err;
+//   }
+// };
 
 // Controller to fetch all calendar events (leaves, holidays, and meetings) month-wise
+
 const getMonthlyCalendarEvents = async (req, res) => {
   try {
     const { month, year } = req.params;
@@ -569,6 +570,61 @@ const getAllTodaysMeetings = async (req, res) => {
     return res.status(500).json({ message: "Server Error", error: error.message });
   }
 };
+
+
+const getWeeklyAttendanceByDepartment = async (req, res) => {
+  try {
+    const today = new Date();
+    const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+    const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 6));
+
+    // Find all attendance records for employees in the current week
+    const attendanceRecords = await Attendance.find({
+      'dailyAttendance.date': { $gte: startOfWeek, $lte: endOfWeek }
+    })
+      .populate({
+        path: 'employee',
+        select: 'department',
+      })
+      .lean();
+
+    // Group by department and calculate the weekly attendance percentage
+    const departmentAttendance = {};
+
+    attendanceRecords.forEach(record => {
+      const department = record.employee.department;
+
+      if (!departmentAttendance[department]) {
+        departmentAttendance[department] = { totalDays: 0, presentDays: 0 };
+      }
+
+      record.dailyAttendance.forEach(day => {
+        if (day.date >= startOfWeek && day.date <= endOfWeek) {
+          departmentAttendance[department].totalDays++;
+          if (day.status === "Present") {
+            departmentAttendance[department].presentDays++;
+          }
+        }
+      });
+    });
+
+   
+    const departmentAttendancePercentage = Object.keys(departmentAttendance).map(department => {
+      const data = departmentAttendance[department];
+      const percentage = (data.presentDays / data.totalDays) * 100 || 0;
+      return {
+        department,
+        weeklyAttendancePercentage: percentage.toFixed(2) + '%'
+      };
+    });
+
+    return res.status(200).json(departmentAttendancePercentage);
+  } catch (error) {
+    console.error("Error fetching weekly attendance:", error);
+    return res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
 
 module.exports = {
   createCalendarEntry,

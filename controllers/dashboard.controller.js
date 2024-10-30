@@ -543,6 +543,32 @@ const getAllUpcomingMeets = async (req, res) => {
   }
 };
 
+const getAllTodaysMeetings = async (req, res) => {
+  try {
+    const currentDay = moment().format('YYYY-MM-DD');
+    const todaysMeetings = await Meeting.find({
+      date: currentDay,
+    }).select('title date time location participants').lean();
+
+    const sortedMeetings = todaysMeetings.sort((a, b) => {
+      const timeA = moment(a.time, ["h:mm A"]).format("HH:mm");
+      const timeB = moment(b.time, ["h:mm A"]).format("HH:mm");
+
+      if (timeA < timeB) return -1;
+      if (timeA > timeB) return 1;
+
+      return new Date(a.createdAt) - new Date(b.createdAt);
+    });
+
+    if (sortedMeetings.length === 0) {
+      return res.status(404).json({ message: "No meetings found for today" });
+    }
+
+    return res.status(200).json(sortedMeetings);
+  } catch (error) {
+    return res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
 
 module.exports = {
   createCalendarEntry,
@@ -558,4 +584,5 @@ module.exports = {
   dailyAttendance,
   getMeetingDetail,
   getAllUpcomingMeets,
+  getAllTodaysMeetings,
 };

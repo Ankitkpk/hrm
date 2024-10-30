@@ -18,5 +18,6 @@ router.get('/getTotalNumOfEmp',dashboardController.totalEmployees)
 router.get('/dailyAttendance',dashboardController.dailyAttendance)
 router.get('/getMeetingDetail/:id', dashboardController.getMeetingDetail);
 router.get('/getAllUpcomingMeets', dashboardController.getAllUpcomingMeets);
+router.get('/getAllTodaysMeetings', dashboardController.getAllTodaysMeetings);
 
 module.exports = router ;

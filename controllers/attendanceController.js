@@ -213,6 +213,51 @@ const getAllEmployeeAttendanceDetails = async (req, res) => {
   }
 };
 
+const getMonthlyAttendance = async (req, res) => {
+  const currentMonth = moment().format('MMMM YYYY'); 
+  const daysInMonth = moment().daysInMonth(); // Automatically gets the number of days in the current month
+  try {
+    const monthlyAttendance = await Attendance.aggregate([
+      {
+        $match: {
+          month: currentMonth,
+          'dailyAttendance.status': 'Present',
+        },
+      },
+      {
+        $project: {
+          employee: 1,
+          dailyAttendance: {
+            $filter: {
+              input: '$dailyAttendance',
+              as: 'attendance',
+              cond: { $eq: ['$$attendance.status', 'Present'] },
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          presentCount: { $size: '$dailyAttendance' },
+        },
+      },
+    ]);
+    
+    const totalPresentCount = monthlyAttendance.reduce((sum, record) => sum + record.presentCount, 0);
+    const totalEmployees = await HRMEmployee.countDocuments();
+    const attendancePercentage = totalEmployees > 0 ? (totalPresentCount / (totalEmployees * daysInMonth)) * 100 : 0;
+
+    const responseData = {
+      attendancePercentage: attendancePercentage.toFixed(2) + '%',
+    };
+
+    return res.status(200).json(responseData);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
+
 
 module.exports = {
   getWeeklyAttendance,
@@ -220,5 +265,6 @@ module.exports = {
   getAttendanceSummaryByMonth,
   getTwoMonthAttendance,
   getEmployeeList,
-  getAllEmployeeAttendanceDetails
+  getAllEmployeeAttendanceDetails,
+  getMonthlyAttendance
 };

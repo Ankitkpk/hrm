@@ -188,7 +188,7 @@ const getAllEmployeeAttendanceDetails = async (req, res) => {
     const employeeRecords = await Attendance.find({}, 'attendanceDate  dailyAttendance.date dailyAttendance.status')
       .populate({
         path: 'employee',
-        select: 'empId employeeName jobTitle department employeeType'
+        select: 'empId employeeName _id jobTitle department employeeType'
       });
       
       
@@ -197,6 +197,7 @@ const getAllEmployeeAttendanceDetails = async (req, res) => {
         return {
           _id: record._id,
           empId: record.employee?.empId,
+          EmpObjectId: record.employee?._id,
           employeeName: record.employee?.employeeName,
           department: record.employee?.department,
           jobTitle: record.employee?.jobTitle,

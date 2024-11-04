@@ -135,6 +135,7 @@ const getEmployeeLeave = async (req, res) => {
     const result = data.map((leave) => ({
       _id: leave._id,
       employeeName: leave.employee.employeeName,
+      EmpObjectId: leave.employee._id,
       leaveType: leave.leaveType,
       startDate: leave.fromDate,
       endDate: leave.toDate,

@@ -260,6 +260,76 @@ const getMonthlyAttendance = async (req, res) => {
 };
 
 
+function getWeeklyRangesForCurrentMonth() {
+  const weeks = [];
+  const startOfMonth = moment().startOf('month');
+  const endOfMonth = moment().endOf('month');
+  let startOfWeek = startOfMonth.clone().startOf('week'); // Start from the beginning of the week
+
+  while (startOfWeek.isSameOrBefore(endOfMonth, 'day')) {
+      const endOfWeek = moment.min(startOfWeek.clone().endOf('week'), endOfMonth);
+      weeks.push({ start: startOfWeek.clone(), end: endOfWeek.clone() });
+      startOfWeek = endOfWeek.add(1, 'day');
+  }
+
+  return weeks;
+}
+
+// GET API to fetch weekly attendance for the current month, excluding all Sundays
+const  weeklyAttendance= async (req, res) => {
+  try {
+      const currentMonth = moment().month(); // 0-based month for calculations
+      const currentYear = moment().year();
+
+      const weeklyRanges = getWeeklyRangesForCurrentMonth();
+      const weeklyData = [];
+
+      for (const week of weeklyRanges) {
+          // Initialize totalDays and totalPresent for this week
+          let totalDays = 0;
+          let totalPresent = 0;
+
+          // Find attendance records within each weekly range
+          const attendanceRecords = await Attendance.find({
+              'dailyAttendance.date': { $gte: week.start.toDate(), $lte: week.end.toDate() },
+          });
+
+          attendanceRecords.forEach(record => {
+              record.dailyAttendance.forEach(entry => {
+                  const entryDate = moment(entry.date);
+
+                  // Check if the date is within the current month and is not a Sunday
+                  if (
+                      entryDate.month() === currentMonth &&
+                      entryDate.day() !== 0 && // Exclude Sundays
+                      entryDate.isBetween(week.start, week.end, null, '[]')
+                  ) {
+                      totalDays++;
+                      if (entry.status === 'Present') {
+                          totalPresent++;
+                      }
+                  }
+              });
+          });
+
+          // Calculate the attendance percentage for this week
+          const attendancePercentage = totalDays > 0 ? (totalPresent / totalDays) * 100 : 0;
+
+          // Push weekly data, even if there is no attendance record for that week
+          weeklyData.push({
+              weekStart: week.start.format('YYYY-MM-DD'),
+              weekEnd: week.end.format('YYYY-MM-DD'),
+              attendancePercentage: `${attendancePercentage.toFixed(2)}%`,
+          });
+      }
+
+      return res.json({ month: currentMonth + 1, year: currentYear, weeklyData });
+  } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Server Error' });
+  }
+};
+
 module.exports = {
   getWeeklyAttendance,
   markAttendance,
@@ -267,5 +337,6 @@ module.exports = {
   getTwoMonthAttendance,
   getEmployeeList,
   getAllEmployeeAttendanceDetails,
-  getMonthlyAttendance
+  getMonthlyAttendance,
+  weeklyAttendance
 };

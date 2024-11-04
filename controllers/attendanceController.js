@@ -1,5 +1,6 @@
 const Attendance = require("../models/attendanceModel");
 const HRMEmployee = require("../models/HRMEmployeeModel");
+const moment = require("moment");
 
 // Get attendance summary for an employee for a month
 const getAttendanceSummaryByMonth = async (req, res) => {

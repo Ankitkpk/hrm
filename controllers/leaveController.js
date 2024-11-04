@@ -127,7 +127,7 @@ const getAllEmployeeLeaves = async (req, res) => {
 
 const getEmployeeLeave = async (req, res) => {
   try {
-    const data = await addLeave.find().populate("employee");
+    const data = await addLeave.find({status:"Pending"}).populate("employee");
     if (!data) {
       return res.status(404).json({ message: "No employee leaves found" });
     }

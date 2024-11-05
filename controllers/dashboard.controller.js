@@ -454,7 +454,7 @@ const totalEmployeesPercentage= async (req, res) => {
 
     // Respond with the results
     res.status(200).json({
-      // currentMonthCount,
+       currentMonthCount,
       // previousMonthCount,
       percentageIncrease
     });

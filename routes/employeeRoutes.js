@@ -81,6 +81,6 @@ router.post("/sendMail", employeeController.sendMail); //done
 
 router.get("/viewNotUploadedDocuments/:id",employeeController.viewNotUploadedDocuments)
 
-
+router.get("/getEmployeePercentage",employeeController.getEmployeePercentage);
 
 module.exports = router;

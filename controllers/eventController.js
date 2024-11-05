@@ -31,7 +31,7 @@ const createEvent = async (req, res) => {
     // Save the event to the database
     const savedEvent = await event.save();
 
-    return res.status(201).json(savedEvent);
+    return res.status(201).json({savedEvent, message: "Event created successfully"});
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

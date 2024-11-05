@@ -411,16 +411,55 @@ const getDepartmentChart = async (req, res) => {
   }
 };
 
-const totalEmployees = async (req, res) => {
+const totalEmployeesPercentage= async (req, res) => {
   try {
-    // Fetch total number of employees from the database
-    const total = await HRMEmployee.countDocuments({});
-    res.status(200).json({ totalEmployees: total });
-  } catch (err) {
-    console.error(err);
-    res
-      .status(500)
-      .json({ message: "Error retrieving employee data", error: err.message });
+    // Get the current month and previous month
+    const currentMonthStart = moment().startOf('month');
+    const currentMonthEnd = moment().endOf('month');
+    const previousMonthStart = moment().subtract(1, 'months').startOf('month');
+    const previousMonthEnd = moment().subtract(1, 'months').endOf('month');
+    
+
+    // Count employees for the current month
+    const currentMonthCount = await HRMEmployee.countDocuments({
+      startDate: {
+        $gte: currentMonthStart.toDate(),
+        $lte: currentMonthEnd.toDate(),
+      },
+    });
+
+    // Count employees for the previous month
+    const previousMonthCount = await HRMEmployee.countDocuments({
+      startDate: {
+        $gte: previousMonthStart.toDate(),
+        $lte: previousMonthEnd.toDate(),
+      },
+    });
+
+    // Calculate percentage increase
+    let percentageIncrease = 0;
+    if (previousMonthCount > 0) {
+      percentageIncrease = ((currentMonthCount - previousMonthCount) / previousMonthCount) * 100;
+    } else if (currentMonthCount > 0) {
+      // If there were no employees in the previous month but some in the current month
+      percentageIncrease = 100; // 100% increase from 0 to some number
+    }
+
+    if( percentageIncrease > 100 ){
+      percentageIncrease = 100;
+    }
+    if (percentageIncrease < 100){
+      percentageIncrease = -100;
+    }
+
+    // Respond with the results
+    res.status(200).json({
+      // currentMonthCount,
+      // previousMonthCount,
+      percentageIncrease
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -636,7 +675,7 @@ module.exports = {
   getOverallMeetingStatus,
   getEmailAndName,
   getDepartmentChart,
-  totalEmployees,
+  totalEmployeesPercentage,
   dailyAttendance,
   getMeetingDetail,
   getAllUpcomingMeets,

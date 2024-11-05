@@ -14,7 +14,7 @@ router.post('/calendar', dashboardController.createCalendarEntry);
 router.get('/getOverallMeetingStatus/:id',dashboardController.getOverallMeetingStatus)
 router.get('/getEmailAndName',dashboardController.getEmailAndName)
 router.get("/getDepartmentChart",dashboardController.getDepartmentChart)
-router.get('/getTotalNumOfEmp',dashboardController.totalEmployees)
+router.get('/getTotalNumOfEmp',dashboardController.totalEmployeesPercentage)
 router.get('/dailyAttendance',dashboardController.dailyAttendance)
 router.get('/getMeetingDetail/:id', dashboardController.getMeetingDetail);
 router.get('/getAllUpcomingMeets', dashboardController.getAllUpcomingMeets);

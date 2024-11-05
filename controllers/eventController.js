@@ -118,7 +118,7 @@ const updateEvent = async (req, res) => {
       return res.status(404).json({ message: "Event not found" });
     }
 
-    return res.status(200).json(updatedEvent);
+    return res.status(200).json({updatedEvent, message: "Event updated successfully"});
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

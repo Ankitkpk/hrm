@@ -464,7 +464,7 @@ const getEmployeeCountForCurrentMonth = async (req, res) => {
     });
 
     return res.json({
-      currentMonthCount,
+      empCount: currentMonthCount,
     });
   } catch (error) {
     console.error("Error calculating employee percentage:", error);

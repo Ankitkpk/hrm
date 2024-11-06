@@ -454,42 +454,17 @@ const viewNotUploadedDocuments = async (req, res) => {
   }
 };
 
-const getEmployeePercentage = async (req, res) => {
+const getEmployeeCountForCurrentMonth = async (req, res) => {
   try {
-    const previousMonthStart = moment().subtract(1, "month").startOf("month").toDate();
-    const previousMonthEnd = moment().subtract(1, "month").endOf("month").toDate();
     const currentMonthStart = moment().startOf("month").toDate();
     const currentMonthEnd = moment().endOf("month").toDate();
 
-    const previousMonthCount = await Employee.countDocuments({
-      createdAt: { $gte: previousMonthStart, $lte: previousMonthEnd },
-    });
-    
-
-  
     const currentMonthCount = await Employee.countDocuments({
       createdAt: { $gte: currentMonthStart, $lte: currentMonthEnd },
     });
-    let percentageChange = 0;
-    if (previousMonthCount > 0) {
-    
-      percentageChange = ((currentMonthCount - previousMonthCount) / previousMonthCount) * 100;
-    } else {
-      
-      percentageChange = currentMonthCount > 0 ? 100 : 0; 
-    }
 
-    if( percentageChange > 100 ){
-      percentageChange = 100;
-    }
-    if (percentageChange < -100){
-      percentageChange = -100;
-    }
-    const NewEmployee = Math.abs(previousMonthCount - currentMonthCount);
-    
     return res.json({
-      percentageChange,
-      NewEmployee
+      currentMonthCount,
     });
   } catch (error) {
     console.error("Error calculating employee percentage:", error);

@@ -1,7 +1,7 @@
 const Employee = require("../models/Employee");
 const nodemailer = require("nodemailer");
 const moment = require("moment");
-const { State, City, Country } = require("country-state-city");
+const { State, City } = require("country-state-city");
 // Create new employee
 
 // change name to

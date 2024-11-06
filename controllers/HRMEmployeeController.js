@@ -336,7 +336,7 @@ const getPayslipGenerationStatus = async (req, res) => {
 const getEmployeePaySlipList = async (req, res) => {
   try {
     const data = await HRMEmployee.find().select(
-      "empId salary employeeName jobTitle -_id"
+      "empId salary employeeName jobTitle _id"
     );
     if (!data.length === 0) {
       return res.status(404).json({ message: "No employee data found" });

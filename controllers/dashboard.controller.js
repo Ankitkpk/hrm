@@ -454,7 +454,7 @@ const totalEmployeesPercentage= async (req, res) => {
 
     // Respond with the results
     res.status(200).json({
-       currentMonthCount,
+       empCount: currentMonthCount,
       // previousMonthCount,
       percentageIncrease
     });
@@ -550,9 +550,9 @@ const getAllUpcomingMeets = async (req, res) => {
     const upcomingMeetings = await Meeting.find({
       date: { $gte: currentDay, $lte: endOfMonth },
     })
-      .select("title date time location participants")
+      .select("title date time location participants organizer description")
       .lean();
-
+    
     const sortedMeetings = upcomingMeetings.sort((a, b) => {
       const dateA = new Date(a.date);
       const dateB = new Date(b.date);

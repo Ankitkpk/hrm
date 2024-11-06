@@ -466,59 +466,42 @@ const totalEmployeesPercentage= async (req, res) => {
 const dailyAttendance = async (req, res) => {
   try {
     const today = moment().startOf("day");
-    const yesterday = moment().subtract(1, "day").startOf("day");
 
-    // Fetch all attendance records for today with 'Present' status
+    // Get total number of employees
+    const totalEmployees = await HRMEmployee.countDocuments();
+
+    // Fetch today's attendance records with 'Present' status
     const attendanceToday = await Attendance.aggregate([
       { $unwind: "$dailyAttendance" },
       {
         $match: {
           "dailyAttendance.date": {
             $gte: today.toDate(),
-            $lt: moment(today).endOf("day").toDate(),
+            $lt: moment(today).endOf("day").toDate()
           },
-          "dailyAttendance.status": "Present",
-        },
-      },
+          "dailyAttendance.status": "Present"
+        }
+      }
     ]);
 
-    // Fetch all attendance records for yesterday with 'Present' status
-    const attendanceYesterday = await Attendance.aggregate([
-      { $unwind: "$dailyAttendance" },
-      {
-        $match: {
-          "dailyAttendance.date": {
-            $gte: yesterday.toDate(),
-            $lt: moment(yesterday).endOf("day").toDate(),
-          },
-          "dailyAttendance.status": "Present",
-        },
-      },
-    ]);
-
-    // Calculate counts based on present status
     const todayCount = attendanceToday.length;
-    const yesterdayCount = attendanceYesterday.length;
+    
+    // Calculate percentage of employees present today
+    const presentPercentage = totalEmployees > 0 
+      ? ((todayCount / totalEmployees) * 100).toFixed(2)
+      : 0;
 
-    // Calculate the percentage change in attendance from yesterday to today
-    let percentageChange = 0;
-    if (yesterdayCount > 0) {
-      percentageChange = ((todayCount - yesterdayCount) / yesterdayCount) * 100;
-    } else {
-      percentageChange = todayCount > 0 ? 100 : 0; // If no one was present yesterday, handle accordingly
-    }
-    if (percentageChange == -100) {
-      percentageChange = 0;
-    }
     return res.json({
-      todayCount,
-      percentageChange,
+      presentToday: todayCount,
+      presentPercentage: `${presentPercentage}%`
     });
+
   } catch (error) {
     console.error("Error calculating attendance percentage:", error);
     return res.status(500).json({ message: "Server error" });
   }
 };
+
 //not added in postman as frontend guys don't want it
 const getMeetingDetail = async (req, res) => {
   const { id } = req.params;

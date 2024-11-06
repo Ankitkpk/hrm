@@ -1,6 +1,7 @@
 const Employee = require("../models/Employee");
 const nodemailer = require("nodemailer");
 const moment = require("moment");
+const { State, City, Country } = require("country-state-city");
 // Create new employee
 
 // change name to
@@ -443,14 +444,14 @@ const viewNotUploadedDocuments = async (req, res) => {
 
     if (missingDocuments.length > 0) {
       return res.status(200).json({
-        missingDocuments
+        missingDocuments,
       });
     }
 
     return res.status(200).json({ message: "All documents are available." });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: error.message});
+    return res.status(500).json({ message: error.message });
   }
 };
 
@@ -472,6 +473,55 @@ const getEmployeeCountForCurrentMonth = async (req, res) => {
   }
 };
 
+const getStates = async (req, res) => {
+  try {
+    const states = State.getStatesOfCountry('IN').map((state) => ({
+      name: state.name,
+      isoCode: state.isoCode,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      data: states,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const getCities = async (req, res) => {
+  try {
+    const { stateCode } = req.query;
+
+    if (!stateCode) {
+      return res.status(400).json({
+        success: false,
+        message: "State code is required",
+      });
+    }
+
+    const cities = City.getCitiesOfState('IN', stateCode).map(
+      (city) => ({
+        name: city.name,
+      })
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: cities,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+
 module.exports = {
   addNewCandidate,
   getCandidateName,
@@ -488,5 +538,7 @@ module.exports = {
   getPositiontype,
   sendMail,
   viewNotUploadedDocuments,
-  getEmployeePercentage
+  getEmployeeCountForCurrentMonth,
+  getStates,
+  getCities
 };

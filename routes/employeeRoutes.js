@@ -84,6 +84,7 @@ router.get("/viewNotUploadedDocuments/:id",employeeController.viewNotUploadedDoc
 router.get("/getEmployeeCountForCurrentMonth",employeeController.getEmployeeCountForCurrentMonth);
 
 // route for getStates  getCities
-
+router.get("/getStates", employeeController.getStates);
+router.get("/getCities", employeeController.getCities);
 
 module.exports = router;

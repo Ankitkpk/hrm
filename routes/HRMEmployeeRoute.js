@@ -47,4 +47,9 @@ router.get(
   "/getEmployeeComprehensiveDetails",
   HRMEmployeeController.getEmployeeComprehensiveDetails
 );
+
+router.get(
+  "/getEmployeePaySlipDetails/:id",
+  HRMEmployeeController.getEmployeePayslipDetails
+);
 module.exports = router;

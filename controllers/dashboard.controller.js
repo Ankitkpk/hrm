@@ -493,7 +493,7 @@ const dailyAttendance = async (req, res) => {
 
     return res.json({
       presentToday: todayCount,
-      presentPercentage: `${presentPercentage}%`
+      presentPercentage: presentPercentage
     });
 
   } catch (error) {

@@ -97,7 +97,7 @@ const getTwoMonthAttendance = async (req, res) => {
 // Get weekly attendance
 const getWeeklyAttendance = async (req, res) => {
   const { employeeId } = req.params;
-
+  
   try {
     const currentMonthData = await Attendance.find(
       { employee: employeeId },
@@ -105,23 +105,18 @@ const getWeeklyAttendance = async (req, res) => {
     )
       .sort({ createdAt: -1 })
       .limit(1);
-// console.log(currentMonthData[0].dailyAttendance);
 
-      if(!currentMonthData){
-        return res.status(404).json({message:'Employee not fount'})
-      }
+    if (!currentMonthData || !currentMonthData.length) {
+      return res.status(404).json({ message: 'Employee not found' });
+    }
 
     let weekData = [...currentMonthData[0].dailyAttendance.reverse().flat(1)];
-     console.log('week data',weekData);
 
     if (
       currentMonthData[0].dailyAttendance.length < 7 ||
       currentMonthData[0].dailyAttendance.length === 0
     ) {
       const limit = 7 - currentMonthData[0].dailyAttendance.length;
-      // console.log(currentMonthData[0].dailyAttendance.length);
-
-      // console.log(limit);
 
       const lastMonthData = await Attendance.find(
         { employee: employeeId },
@@ -130,17 +125,31 @@ const getWeeklyAttendance = async (req, res) => {
         .sort({ createdAt: -1 })
         .skip(1)
         .limit(limit);
-        if(lastMonthData.length){
-          weekData = [...weekData, ...lastMonthData[0].dailyAttendance.reverse()];
-        }
-      // console.log("lAT month",lastMonthData[0].dailyAttendance);
+
+      if (lastMonthData.length) {
+        weekData = [...weekData, ...lastMonthData[0].dailyAttendance.reverse()];
+      }
     }
 
-    return res.status(200).json(weekData);
+   
+    const weekDataWithDays = weekData.map(record => ({
+      ...record.toObject(),
+      day: moment(record.date).format('dddd'),
+      
+    }));
+
+
+    return res.status(200).json({
+      success: true,
+      data: weekDataWithDays.slice(0, 7)
+    });
+
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Error fetching weekly attendance", error: error.message });
+    return res.status(500).json({
+      success: false, 
+      message: "Error fetching weekly attendance",
+      error: error.message
+    });
   }
 };
 

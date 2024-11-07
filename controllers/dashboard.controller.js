@@ -270,7 +270,7 @@ const createMeeting = async (req, res) => {
     // Save the meeting to the database
     const savedMeeting = await newMeeting.save();
     setReminder(newMeeting);
-    return res.status(201).json(savedMeeting);
+    return res.status(200).json({ success: true, savedMeeting , message: "Meeting created successfully" });
   } catch (error) {
     console.error(error);
     return res

@@ -310,10 +310,11 @@ const getOverallMeetingStatus = async (req, res) => {
     const nextMeeting = await Meeting.find({
       date: { $gte: currentDateTime },
     })
-      .sort({ startDateTime: 1 })
+      .sort({ date: 1, time: 1 })
       .select("title date -_id")
       .limit(1);
-    console.log(nextMeeting);
+      
+ 
 
     const lastMeeting = await Meeting.find({
       date: { $gte: sevenDaysAgo, $lte: currentDateTime },

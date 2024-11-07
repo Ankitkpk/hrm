@@ -5,6 +5,7 @@ const Calendar = require("../models/calender.model");
 const Meeting = require("../models/meeting.model");
 const setReminder = require("../utils/meetingReminder");
 const HRMEmployee = require("../models/HRMEmployeeModel");
+const Holiday = require("../models/holidayDetailsModel");
 
 // Endpoint to get weekly attendance record
 
@@ -648,6 +649,63 @@ const getWeeklyAttendanceByDepartment = async (req, res) => {
   }
 };
 
+const getAllUpcomingMeetsAndHolidays = async (req, res) => {
+  try {
+    const today = moment().startOf('day');
+
+    const meetings = await Meeting.find({
+      date: { $gte: today.toDate() }
+    }).select('title date time description location participants organizer status');
+
+   
+    const holidays = await Holiday.find({
+      date: { 
+        $gte: today.format('YYYY-MM-DD')
+      }
+    }).select('holidayTitle date type location');
+
+    const formattedMeetings = meetings.map(meeting => ({
+      type: 'meeting',
+      title: meeting.title,
+      date: moment(meeting.date).format('YYYY-MM-DD'),
+      time: meeting.time,
+      description: meeting.description || '',
+      location: meeting.location || '',
+      status: meeting.status,
+      organizer: meeting.organizer,
+      participants: meeting.participants
+    }));
+
+   
+    const formattedHolidays = holidays.map(holiday => ({
+      type: 'holiday',
+      title: holiday.holidayTitle,
+      date: holiday.date,
+      location: holiday.location,
+      holidayType: holiday.type
+    }));
+
+    
+    const allEvents = [...formattedMeetings, ...formattedHolidays]
+      .sort((a, b) => moment(a.date).valueOf() - moment(b.date).valueOf());
+
+    return res.status(200).json({
+      success: true,
+      totalEvents: allEvents.length,
+      data: allEvents
+    });
+
+  } catch (error) {
+    console.error('Error fetching upcoming events:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error fetching upcoming events',
+      error: error.message
+    });
+  }
+};
+
+
 
 module.exports = {
   createCalendarEntry,
@@ -664,4 +722,5 @@ module.exports = {
   getMeetingDetail,
   getAllUpcomingMeets,
   getAllTodaysMeetings,
+  getAllUpcomingMeetsAndHolidays
 };

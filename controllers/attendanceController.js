@@ -408,8 +408,8 @@ const getMonthlyAttendance = async (req, res) => {
         : 0;
 
       return {
-        month: monthName,
-        attendancePercentage: attendancePercentage.toFixed(2) + '%',
+        label: monthName,
+        percentage: attendancePercentage.toFixed(2) 
       };
     });
 
@@ -673,9 +673,8 @@ const getDailyAttendancePercentage = async (req, res) => {
           : 0;
 
         dailyAttendance.push({
-          date: dateStr,
-          day: currentDate.format('dddd'),
-          percentage: `${percentage}%`,
+          label: dateStr,
+          percentage: percentage,
           // isToday: currentDate.isSame(today, 'day')
         });
       }

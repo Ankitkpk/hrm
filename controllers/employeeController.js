@@ -487,9 +487,36 @@ const getEmployeeCountForCurrentMonth = async (req, res) => {
   }
 };
 
+
+
+const getCountry =(req,res)=>{
+  try{
+    // const countries = State.getCountryList().map((country) => ({
+    //   name: country.name,
+    //   isoCode: country.isoCode,
+    // }));
+    const countries = [
+      {
+        name: "India",
+        isoCode: "IN",
+      }
+    ]
+    return res.status(200).json({
+      success: true,
+      data: countries,
+    });
+  }catch(error){
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+
 const getStates = async (req, res) => {
   try {
-    const states = State.getStatesOfCountry("IN").map((state) => ({
+    const countries = req.query.country;
+    const states = State.getStatesOfCountry(countries).map((state) => ({
       name: state.name,
       isoCode: state.isoCode,
     }));
@@ -508,7 +535,7 @@ const getStates = async (req, res) => {
 
 const getCities = async (req, res) => {
   try {
-    const { stateCode } = req.query;
+    const { stateCode, country } = req.query;
 
     if (!stateCode) {
       return res.status(400).json({
@@ -517,7 +544,7 @@ const getCities = async (req, res) => {
       });
     }
 
-    const cities = City.getCitiesOfState("IN", stateCode).map((city) => ({
+    const cities = City.getCitiesOfState(country, stateCode).map((city) => ({
       name: city.name,
     }));
 
@@ -552,4 +579,5 @@ module.exports = {
   getEmployeeCountForCurrentMonth,
   getStates,
   getCities,
+  getCountry
 };

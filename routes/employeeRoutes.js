@@ -86,5 +86,6 @@ router.get("/getEmployeeCountForCurrentMonth",employeeController.getEmployeeCoun
 // route for getStates  getCities
 router.get("/getStates", employeeController.getStates);
 router.get("/getCities", employeeController.getCities);
+router.get("/getCountries", employeeController.getCountry);
 
 module.exports = router;

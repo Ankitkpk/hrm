@@ -1,5 +1,6 @@
 const Employee = require("../models/Employee");
 const nodemailer = require("nodemailer");
+const moment = require("moment");
 // Create new employee
 
 // change name to
@@ -453,6 +454,52 @@ const viewNotUploadedDocuments = async (req, res) => {
   }
 };
 
+
+const getEmployeePercentage = async (req, res) => {
+  try {
+    const previousMonthStart = moment().subtract(1, "month").startOf("month").toDate();
+    const previousMonthEnd = moment().subtract(1, "month").endOf("month").toDate();
+    const currentMonthStart = moment().startOf("month").toDate();
+    const currentMonthEnd = moment().endOf("month").toDate();
+
+    const previousMonthCount = await Employee.countDocuments({
+      createdAt: { $gte: previousMonthStart, $lte: previousMonthEnd },
+    });
+    
+
+  
+    const currentMonthCount = await Employee.countDocuments({
+      createdAt: { $gte: currentMonthStart, $lte: currentMonthEnd },
+    });
+    let percentageChange = 0;
+    if (previousMonthCount > 0) {
+    
+      percentageChange = ((currentMonthCount - previousMonthCount) / previousMonthCount) * 100;
+    } else {
+      
+      percentageChange = currentMonthCount > 0 ? 100 : 0; 
+    }
+
+    if( percentageChange > 100 ){
+      percentageChange = 100;
+    }
+    if (percentageChange < -100){
+      percentageChange = -100;
+    }
+    const NewEmployee = Math.abs(previousMonthCount - currentMonthCount);
+    
+    return res.json({
+      percentageChange,
+      NewEmployee
+    });
+  } catch (error) {
+    console.error("Error calculating employee percentage:", error);
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+
+
 module.exports = {
   addNewCandidate,
   getCandidateName,
@@ -468,5 +515,6 @@ module.exports = {
   getEmployeetype,
   getPositiontype,
   sendMail,
-  viewNotUploadedDocuments
+  viewNotUploadedDocuments,
+  getEmployeePercentage
 };

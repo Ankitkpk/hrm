@@ -1,5 +1,7 @@
 const Attendance = require("../models/attendanceModel");
 const HRMEmployee = require("../models/HRMEmployeeModel");
+const moment = require("moment");
+
 
 // Get attendance summary for an employee for a month
 const getAttendanceSummaryByMonth = async (req, res) => {
@@ -143,6 +145,46 @@ const getWeeklyAttendance = async (req, res) => {
   }
 };
 
+const getEmpWeeklyAttendance = async (req, res) => {
+  const currentMonth = moment().format('MMMM YYYY');
+  try {
+    const startOfWeek = moment().startOf('week'); 
+    const endOfWeek = moment().endOf('week'); 
+
+
+    const attendanceRecords = await Attendance.find({
+      month: currentMonth,
+      'dailyAttendance.date': { $gte: startOfWeek.toDate(), $lte: endOfWeek.toDate() },
+      'dailyAttendance.status': 'Present',
+    });
+
+    const presentCount = attendanceRecords.reduce((count, record) => {
+      const weeklyAttendance = record.dailyAttendance.filter(attendance => {
+        const attendanceDate = moment(attendance.date);
+        return attendanceDate.isBetween(startOfWeek, endOfWeek, null, '[]');
+      });
+      return count + weeklyAttendance.length; 
+    }, 0);
+
+
+    const totalEmployees = await HRMEmployee.countDocuments();
+    const attendancePercentage = totalEmployees > 0 ? (presentCount / totalEmployees) * 100 : 0;
+
+    
+    const response = {
+      week: `${startOfWeek.format('MMMM D')} - ${endOfWeek.format('MMMM D')}`,
+      presentCount,
+      attendancePercentage,
+    };
+
+    return res.status(200).json(response);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Error fetching weekly attendance", error: error.message });
+  }
+};
+
+
 const getEmployeeList = async (req, res) => {
   try {
    
@@ -212,6 +254,78 @@ const getAllEmployeeAttendanceDetails = async (req, res) => {
   }
 };
 
+const getMonthlyAttendance = async (req, res) => {
+  const currentMonth = moment().format('MMMM YYYY'); 
+  const totalDaysInMonth = moment().daysInMonth(); // Get total days in the month
+  const startOfMonth = moment().startOf('month');
+  const endOfMonth = moment().endOf('month');
+
+  // Count Sundays in the month
+  let sundaysCount = 0;
+  for (let day = startOfMonth; day.isBefore(endOfMonth); day.add(1, 'days')) {
+    if (day.day() === 0) { // Sunday is 0 in moment.js
+      sundaysCount++;
+    }
+  }
+
+  const totalWorkingDays = totalDaysInMonth - sundaysCount; // Subtract Sundays
+
+  try {
+    const monthlyAttendance = await Attendance.aggregate([
+      {
+        $match: {
+          month: currentMonth,
+          'dailyAttendance.status': 'Present',
+        },
+      },
+      {
+        $project: {
+          employee: 1,
+          dailyAttendance: {
+            $filter: {
+              input: '$dailyAttendance',
+              as: 'attendance',
+              cond: {
+                $and: [
+                  { $eq: ['$$attendance.status', 'Present'] },
+                  {
+                    $ne: [
+                      { $dayOfWeek: { $toDate: '$$attendance.date' } }, 
+                      1 
+                    ]
+                  }
+                ]
+              },
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          presentCount: { $size: '$dailyAttendance' },
+        },
+      },
+    ]);
+
+    const totalPresentCount = monthlyAttendance.reduce((sum, record) => sum + record.presentCount, 0);
+    const totalEmployees = await HRMEmployee.countDocuments();
+
+    const attendancePercentage = totalEmployees > 0 
+      ? (totalPresentCount / (totalEmployees * totalWorkingDays)) * 100 
+      : 0;
+
+    const responseData = {
+      attendancePercentage: attendancePercentage.toFixed(2) + '%',
+    };
+
+    res.status(200).json(responseData);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
+
+
 
 module.exports = {
   getWeeklyAttendance,
@@ -219,5 +333,7 @@ module.exports = {
   getAttendanceSummaryByMonth,
   getTwoMonthAttendance,
   getEmployeeList,
-  getAllEmployeeAttendanceDetails
+  getAllEmployeeAttendanceDetails,
+  getMonthlyAttendance,
+  getEmpWeeklyAttendance
 };

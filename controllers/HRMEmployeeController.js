@@ -332,6 +332,43 @@ const getPayslipGenerationStatus = async (req, res) => {
   }
 };
 
+const getEmployeePayslipDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const employee = await HRMEmployee.findById(id);
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    const employeePayslip = {
+      EmployeeName: employee.employeeName,
+      EmployeeId: employee.empId,
+      Department: employee.department,
+      Position: employee.jobTitle,
+      Month: 'August 2024',
+      PayRate: `${employee.salary.toLocaleString('en-IN')} per month`,
+      GrossSalary: '70,000',
+      Deductions: '5,000',
+      NetSalary: '50,000'
+    };
+
+    return res.status(200).json({
+      status: "success",
+      data: employeePayslip
+    });
+
+  } catch (error) {
+    console.error("Error fetching payslip details:", error);
+    return res.status(500).json({ 
+      message: "Server Error", 
+      error: error.message 
+    });
+  }
+};
+
+
+
 const getEmployeePaySlipList = async (req, res) => {
   try {
     const data = await HRMEmployee.find().select(
@@ -499,5 +536,6 @@ module.exports = {
   getDesignations,
   HrmCoreEmployeeUpdate,
   getHrmEmployeeList,
-  getHrmEmployeeDetails
+  getHrmEmployeeDetails,
+  getEmployeePayslipDetails
 };

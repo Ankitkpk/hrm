@@ -10,10 +10,12 @@ router.post('/mark', attendanceController.markAttendance);
 //Weekly attendance
 router.get('/weeklyAttendance/:employeeId', attendanceController.getWeeklyAttendance);
 
-router.get('/getTwoMonthAttendance/:employeeId',attendanceController.getTwoMonthAttendance)
+router.get('/getTwoMonthAttendance/:employeeId',attendanceController.getTwoMonthAttendance);
 
-router.get('/getEmployeeList',attendanceController.getEmployeeList)
+router.get('/getEmployeeList',attendanceController.getEmployeeList);
 
-router.get('/getAllEmployeeAttendanceDetails',attendanceController.getAllEmployeeAttendanceDetails)
+router.get('/getAllEmployeeAttendanceDetails',attendanceController.getAllEmployeeAttendanceDetails);
+router.get('/getMonthlyAttendance', attendanceController.getMonthlyAttendance);
+router.get('/getEmpWeeklyAttendance', attendanceController.getEmpWeeklyAttendance);
 
 module.exports = router;

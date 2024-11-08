@@ -2,22 +2,44 @@ const Employee = require("../models/Employee");
 const nodemailer = require("nodemailer");
 const moment = require("moment");
 const { State, City } = require("country-state-city");
+const Company = require("../models/company.model");
+
 // Create new employee
 
 // change name to
 const addNewCandidate = async (req, res) => {
-  const {
-    fullName,
-    email,
-    phoneNumber,
-    positionApplied,
-    department,
-    dateOfBirth,
-    joiningDate,
-    employmentType,
-    emergencyContact,
-    residentialAddress,
-  } = req.body;
+  //   const {
+  //     candidateId,
+  //     fullName,
+  //     positionAppliedFor,
+  //     department,
+  //     qualification,
+  //     grade,
+  //     company,
+  //     dateOfBirth,
+  //     address,
+  //     maritalStatus,
+  //     country,
+  //     anniversaryDate,
+  //     state,
+  //     city,
+  //     phoneNumber,
+
+  //     alternatePhoneNumber,
+  //     officialEmail,
+  // personalEmail,
+  // emergencyContact,
+  //     relationshipWithPerson,
+  //     salary,
+  //     addharCardNumber,
+  //     joiningDate,
+  //     bankAccountName,
+  //     pancard,
+
+  //     employmentType,
+  //     residentialAddress,
+  //   } = req.body;
+  const data = req.body;
 
   try {
     const { photo } = req.files;
@@ -25,18 +47,10 @@ const addNewCandidate = async (req, res) => {
     if (photo) {
       ph = photo[0]?.originalname;
     }
-
+    const companyId = Company.find(data.company).select("_id");
+    data.company = companyId;
     const employee = new Employee({
-      fullName,
-      email,
-      phoneNumber,
-      positionApplied,
-      department,
-      dateOfBirth,
-      joiningDate,
-      employmentType,
-      emergencyContact,
-      residentialAddress,
+      ...data,
       photo: {
         data: ph,
         date: new Date(),
@@ -475,7 +489,7 @@ const getEmployeeCountForCurrentMonth = async (req, res) => {
 
 const getStates = async (req, res) => {
   try {
-    const states = State.getStatesOfCountry('IN').map((state) => ({
+    const states = State.getStatesOfCountry("IN").map((state) => ({
       name: state.name,
       isoCode: state.isoCode,
     }));
@@ -503,11 +517,9 @@ const getCities = async (req, res) => {
       });
     }
 
-    const cities = City.getCitiesOfState('IN', stateCode).map(
-      (city) => ({
-        name: city.name,
-      })
-    );
+    const cities = City.getCitiesOfState("IN", stateCode).map((city) => ({
+      name: city.name,
+    }));
 
     return res.status(200).json({
       success: true,
@@ -520,7 +532,6 @@ const getCities = async (req, res) => {
     });
   }
 };
-
 
 module.exports = {
   addNewCandidate,
@@ -540,5 +551,5 @@ module.exports = {
   viewNotUploadedDocuments,
   getEmployeeCountForCurrentMonth,
   getStates,
-  getCities
+  getCities,
 };

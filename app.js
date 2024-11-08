@@ -180,7 +180,7 @@ app.use("/api/leave", leaveRoutes);
 app.use("/api/attendance", attendance);
 app.use('/api/eductionDetails',EducationDetailsRoutes)
 app.use('/api/event',event)
-app.use('/api/manageExpense',mangeExpenseRoute)
+// app.use('/api/manageExpense',mangeExpenseRoute)
 app.use("/api/holiday",holidayDetailsRoute)
 // Error handling
 app.use((err, req, res, next) => {

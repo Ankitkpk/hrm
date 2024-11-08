@@ -4,6 +4,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const moment = require("moment-timezone");
 const Company = require("../models/company.model");
+const leave = require("../models/employeeLeaveModel");
 
 const createEmployee = async (req, res) => {
   try {
@@ -372,7 +373,7 @@ const getEmployeePayslipDetails = async (req, res) => {
 const getEmployeePaySlipList = async (req, res) => {
   try {
     const data = await HRMEmployee.find().select(
-      "empId salary employeeName jobTitle -_id"
+      "empId salary employeeName jobTitle _id"
     );
     if (!data.length === 0) {
       return res.status(404).json({ message: "No employee data found" });
@@ -519,6 +520,129 @@ const getHrmEmployeeList = async (req, res) => {
   }
 };
 
+const getEmployeeComprehensiveDetails = async (req, res) => {
+  try {
+    const today = new Date();
+    console.log(today.toISOString().split('T')[0]);
+    
+    const employees = await HRMEmployee.aggregate([
+      {
+        $lookup: {
+          from: "leaveapplications", // Use lowercase collection name if applicable
+          localField: "_id",
+          foreignField: "employee", // Use `employee` instead of `employeeId` to match schema
+          pipeline: [
+            {
+              $match: {
+                fromDate: { $gte: today },
+                status: "Approve"
+              }
+            },
+            { $limit: 1 },{
+              $project: {
+                fromDate: 1,
+                toDate: 1,
+              }
+            },
+          ],
+          as: "upcomingLeaves"
+        }
+      },
+      {
+        $lookup: {
+          from: "attendances", // Collection name in your database
+          localField: "_id",
+          foreignField: "employee",
+          pipeline: [
+            {
+              $project: {
+                dailyAttendance: {
+                  $filter: {
+                    input: "$dailyAttendance",
+                    as: "attendance",
+                    cond: {
+                      $eq: [
+                        { $dateToString: { format: "%Y-%m-%d", date: "$$attendance.date" } },
+                        today.toISOString().split('T')[0]
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            {
+              $match: { "dailyAttendance.0": { $exists: true } } // Ensure there's attendance for today
+            }
+          ],
+          as: "todayAttendance"
+        }
+      },
+      {
+        $project: {
+          employeeName: 1,
+          department: 1,
+          upcomingLeaves: 1,
+          status: {
+            $cond: {
+              if: { $gt: [{ $size: "$todayAttendance" }, 0] },
+              then: "Present",
+              else: "Absent"
+            }
+          },
+          // notes: 1
+        }
+      }
+    ]);
+
+    if (!employees.length) {
+      return res.status(404).json({ message: "No employees found" });
+    }
+
+    
+    res.status(200).json(employees);
+  } catch (error) {
+    console.error("Error fetching employee details:", error); // Log error for debugging
+    return res.status(500).json({ 
+      message: "Server Error", 
+      error: error.message 
+    });
+  }
+};
+
+const getEmployeePayslipDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const employee = await HRMEmployee.findById(id);
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    const employeePayslip = {
+      EmployeeName: employee.employeeName,
+      EmployeeId: employee.empId,
+      Department: employee.department,
+      Position: employee.jobTitle,
+      Month: 'August 2024',
+      PayRate: `${employee.salary.toLocaleString('en-IN')} per month`,
+      GrossSalary: '70,000',
+      Deductions: '5,000',
+      NetSalary: '50,000'
+    };
+
+    return res.status(200).json({
+      status: "success",
+      data: employeePayslip
+    });
+
+  } catch (error) {
+    console.error("Error fetching payslip details:", error);
+    return res.status(500).json({ 
+      message: "Server Error", 
+      error: error.message 
+    });
+  }
+};
 
 module.exports = {
   createEmployee,
@@ -537,5 +661,9 @@ module.exports = {
   HrmCoreEmployeeUpdate,
   getHrmEmployeeList,
   getHrmEmployeeDetails,
+<<<<<<< HEAD
+=======
+  getEmployeeComprehensiveDetails,
+>>>>>>> 34064bb5fc769ca3d91f45994754b4c5c8d304a2
   getEmployeePayslipDetails
 };

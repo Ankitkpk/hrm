@@ -127,7 +127,9 @@ const getAllEmployeeLeaves = async (req, res) => {
 
 const getEmployeeLeave = async (req, res) => {
   try {
-    const data = await addLeave.find().populate("employee");
+    const today = new Date();
+
+    const data = await addLeave.find({status:"Pending",fromDate: { $gte: today }}).populate("employee");
     if (!data) {
       return res.status(404).json({ message: "No employee leaves found" });
     }
@@ -135,6 +137,7 @@ const getEmployeeLeave = async (req, res) => {
     const result = data.map((leave) => ({
       _id: leave._id,
       employeeName: leave.employee.employeeName,
+      EmpObjectId: leave.employee._id,
       leaveType: leave.leaveType,
       startDate: leave.fromDate,
       endDate: leave.toDate,
@@ -353,8 +356,10 @@ const getUpComingLeave = async (req, res) => {
   try {
     // Fetch leaves where 'toDate' is after the current date
     const upcomingLeaves = await addLeave.find({ toDate: { $gt: new Date() } })
-      .populate("employee", "name department") // Populate with specific fields from employee
-      .select("employee fromDate toDate "); // Select only relevant fields from addLeave schema
+      // .populate("employee", "name department") // Populate with specific fields from employee
+      // .select("employee fromDate toDate "); // Select only relevant fields from addLeave schema
+      .populate("employee", "employeeName  department") // Populate with specific fields from employee
+      .select("leaveType fromDate toDate "); 
 
     // Check if there are any upcoming leaves
     if (upcomingLeaves.length === 0) {
@@ -367,6 +372,34 @@ const getUpComingLeave = async (req, res) => {
       message: "Error retrieving upcoming leaves",
       error: error.message,
     });
+  }
+};
+
+const todayLeave = async (req, res) => {
+  try {
+    const currentDate = new Date();
+
+    // Find leave applications where the current date is between fromDate and toDate or equal to fromDate/toDate
+    const leaveApplications = await addLeave.find({
+      $or: [
+        {
+          fromDate: { $lte: currentDate },
+          toDate: { $gte: currentDate }
+        },
+        { fromDate: currentDate },
+        { toDate: currentDate }
+      ]
+    })
+    .populate("employee", "employeeName department") // Populate only employeeName and department from HRMEmployee schema
+    .select("leaveType"); // Select leaveType from LeaveApplication
+
+    // Send response with only the specified fields
+    res.status(200).json(
+      leaveApplications
+    );
+  } catch (error) {
+    console.error("Error fetching leave applications:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -384,5 +417,6 @@ module.exports = {
   getUserForLeaveApply,
   leaveApproval,
   getAllLeavesOfEmployee,
-  getUpComingLeave
+  getUpComingLeave,
+  todayLeave
 };

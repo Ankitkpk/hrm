@@ -49,6 +49,12 @@ const HRMEmployeeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  activeProjects: {
+    type: Number,
+  },
+  notes: {
+    type: String
+  },
   zipCode: {
     type: String,
     required: true,

@@ -5,6 +5,7 @@ const Calendar = require("../models/calender.model");
 const Meeting = require("../models/meeting.model");
 const setReminder = require("../utils/meetingReminder");
 const HRMEmployee = require("../models/HRMEmployeeModel");
+const Holiday = require("../models/holidayDetailsModel");
 
 // Endpoint to get weekly attendance record
 
@@ -269,7 +270,7 @@ const createMeeting = async (req, res) => {
     // Save the meeting to the database
     const savedMeeting = await newMeeting.save();
     setReminder(newMeeting);
-    return res.status(201).json(savedMeeting);
+    return res.status(200).json({ success: true, savedMeeting , message: "Meeting created successfully" });
   } catch (error) {
     console.error(error);
     return res
@@ -310,10 +311,11 @@ const getOverallMeetingStatus = async (req, res) => {
     const nextMeeting = await Meeting.find({
       date: { $gte: currentDateTime },
     })
-      .sort({ startDateTime: 1 })
+      .sort({ date: 1, time: 1 })
       .select("title date -_id")
       .limit(1);
-    console.log(nextMeeting);
+      
+ 
 
     const lastMeeting = await Meeting.find({
       date: { $gte: sevenDaysAgo, $lte: currentDateTime },
@@ -411,75 +413,97 @@ const getDepartmentChart = async (req, res) => {
   }
 };
 
-const totalEmployees = async (req, res) => {
+const totalEmployeesPercentage= async (req, res) => {
   try {
-    // Fetch total number of employees from the database
-    const total = await HRMEmployee.countDocuments({});
-    res.status(200).json({ totalEmployees: total });
-  } catch (err) {
-    console.error(err);
-    res
-      .status(500)
-      .json({ message: "Error retrieving employee data", error: err.message });
+    // Get the current month and previous month
+    const currentMonthStart = moment().startOf('month');
+    const currentMonthEnd = moment().endOf('month');
+    const previousMonthStart = moment().subtract(1, 'months').startOf('month');
+    const previousMonthEnd = moment().subtract(1, 'months').endOf('month');
+    
+
+    // Count employees for the current month
+    const currentMonthCount = await HRMEmployee.countDocuments({
+      startDate: {
+        $gte: currentMonthStart.toDate(),
+        $lte: currentMonthEnd.toDate(),
+      },
+    });
+
+    // Count employees for the previous month
+    const previousMonthCount = await HRMEmployee.countDocuments({
+      startDate: {
+        $gte: previousMonthStart.toDate(),
+        $lte: previousMonthEnd.toDate(),
+      },
+    });
+
+    // Calculate percentage increase
+    let percentageIncrease = 0;
+    if (previousMonthCount > 0) {
+      percentageIncrease = ((currentMonthCount - previousMonthCount) / previousMonthCount) * 100;
+    } else if (currentMonthCount > 0) {
+      // If there were no employees in the previous month but some in the current month
+      percentageIncrease = 100; // 100% increase from 0 to some number
+    }
+
+    if( percentageIncrease > 100 ){
+      percentageIncrease = 100;
+    }
+    if (percentageIncrease < 100){
+      percentageIncrease = -100;
+    }
+
+    // Respond with the results
+    res.status(200).json({
+       empCount: currentMonthCount,
+      // previousMonthCount,
+      percentageIncrease
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 
 const dailyAttendance = async (req, res) => {
   try {
     const today = moment().startOf("day");
-    const yesterday = moment().subtract(1, "day").startOf("day");
 
-    // Fetch all attendance records for today with 'Present' status
+    // Get total number of employees
+    const totalEmployees = await HRMEmployee.countDocuments();
+
+    // Fetch today's attendance records with 'Present' status
     const attendanceToday = await Attendance.aggregate([
       { $unwind: "$dailyAttendance" },
       {
         $match: {
           "dailyAttendance.date": {
             $gte: today.toDate(),
-            $lt: moment(today).endOf("day").toDate(),
+            $lt: moment(today).endOf("day").toDate()
           },
-          "dailyAttendance.status": "Present",
-        },
-      },
+          "dailyAttendance.status": "Present"
+        }
+      }
     ]);
 
-    // Fetch all attendance records for yesterday with 'Present' status
-    const attendanceYesterday = await Attendance.aggregate([
-      { $unwind: "$dailyAttendance" },
-      {
-        $match: {
-          "dailyAttendance.date": {
-            $gte: yesterday.toDate(),
-            $lt: moment(yesterday).endOf("day").toDate(),
-          },
-          "dailyAttendance.status": "Present",
-        },
-      },
-    ]);
-
-    // Calculate counts based on present status
     const todayCount = attendanceToday.length;
-    const yesterdayCount = attendanceYesterday.length;
+    
+    // Calculate percentage of employees present today
+    const presentPercentage = totalEmployees > 0 
+      ? ((todayCount / totalEmployees) * 100).toFixed(2)
+      : 0;
 
-    // Calculate the percentage change in attendance from yesterday to today
-    let percentageChange = 0;
-    if (yesterdayCount > 0) {
-      percentageChange = ((todayCount - yesterdayCount) / yesterdayCount) * 100;
-    } else {
-      percentageChange = todayCount > 0 ? 100 : 0; // If no one was present yesterday, handle accordingly
-    }
-    if (percentageChange == -100) {
-      percentageChange = 0;
-    }
     return res.json({
-      todayCount,
-      percentageChange,
+      presentToday: todayCount,
+      presentPercentage: presentPercentage
     });
+
   } catch (error) {
     console.error("Error calculating attendance percentage:", error);
     return res.status(500).json({ message: "Server error" });
   }
 };
+
 //not added in postman as frontend guys don't want it
 const getMeetingDetail = async (req, res) => {
   const { id } = req.params;
@@ -511,9 +535,9 @@ const getAllUpcomingMeets = async (req, res) => {
     const upcomingMeetings = await Meeting.find({
       date: { $gte: currentDay, $lte: endOfMonth },
     })
-      .select("title date time location participants")
+      .select("title date time location participants organizer description")
       .lean();
-
+    
     const sortedMeetings = upcomingMeetings.sort((a, b) => {
       const dateA = new Date(a.date);
       const dateB = new Date(b.date);
@@ -625,6 +649,63 @@ const getWeeklyAttendanceByDepartment = async (req, res) => {
   }
 };
 
+const getAllUpcomingMeetsAndHolidays = async (req, res) => {
+  try {
+    const today = moment().startOf('day');
+
+    const meetings = await Meeting.find({
+      date: { $gte: today.toDate() }
+    }).select('title date time description location participants organizer status');
+
+   
+    const holidays = await Holiday.find({
+      date: { 
+        $gte: today.format('YYYY-MM-DD')
+      }
+    }).select('holidayTitle date type location');
+
+    const formattedMeetings = meetings.map(meeting => ({
+      type: 'meeting',
+      title: meeting.title,
+      date: moment(meeting.date).format('YYYY-MM-DD'),
+      time: meeting.time,
+      description: meeting.description || '',
+      location: meeting.location || '',
+      status: meeting.status,
+      organizer: meeting.organizer,
+      participants: meeting.participants
+    }));
+
+   
+    const formattedHolidays = holidays.map(holiday => ({
+      type: 'holiday',
+      title: holiday.holidayTitle,
+      date: holiday.date,
+      location: holiday.location,
+      holidayType: holiday.type
+    }));
+
+    
+    const allEvents = [...formattedMeetings, ...formattedHolidays]
+      .sort((a, b) => moment(a.date).valueOf() - moment(b.date).valueOf());
+
+    return res.status(200).json({
+      success: true,
+      totalEvents: allEvents.length,
+      data: allEvents
+    });
+
+  } catch (error) {
+    console.error('Error fetching upcoming events:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error fetching upcoming events',
+      error: error.message
+    });
+  }
+};
+
+
 
 module.exports = {
   createCalendarEntry,
@@ -636,9 +717,10 @@ module.exports = {
   getOverallMeetingStatus,
   getEmailAndName,
   getDepartmentChart,
-  totalEmployees,
+  totalEmployeesPercentage,
   dailyAttendance,
   getMeetingDetail,
   getAllUpcomingMeets,
   getAllTodaysMeetings,
+  getAllUpcomingMeetsAndHolidays
 };

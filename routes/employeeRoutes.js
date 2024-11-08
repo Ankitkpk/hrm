@@ -82,6 +82,10 @@ router.post("/sendMail", employeeController.sendMail); //done
 router.get("/viewNotUploadedDocuments/:id",employeeController.viewNotUploadedDocuments)
 router.get("/getEmployeePercentage",employeeController.getEmployeePercentage);
 
+router.get("/getEmployeeCountForCurrentMonth",employeeController.getEmployeeCountForCurrentMonth);
 
+// route for getStates  getCities
+router.get("/getStates", employeeController.getStates);
+router.get("/getCities", employeeController.getCities);
 
 module.exports = router;

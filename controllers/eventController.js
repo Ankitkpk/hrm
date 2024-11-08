@@ -31,7 +31,7 @@ const createEvent = async (req, res) => {
     // Save the event to the database
     const savedEvent = await event.save();
 
-    return res.status(201).json(savedEvent);
+    return res.status(201).json({savedEvent, message: "Event created successfully"});
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -40,7 +40,7 @@ const createEvent = async (req, res) => {
 // GET API to retrieve all events
 const getEvent = async (req, res) => {
   const currentDay = moment().startOf("day").format("YYYY-MM-DD");
-  const threeDaysFromNow = moment().add(6, "days").format("YYYY-MM-DD");
+  const threeDaysFromNow = moment().add(15, "days").format("YYYY-MM-DD");
   try {
     const events = await Event.find({
       eventDate: {
@@ -118,7 +118,7 @@ const updateEvent = async (req, res) => {
       return res.status(404).json({ message: "Event not found" });
     }
 
-    return res.status(200).json(updatedEvent);
+    return res.status(200).json({updatedEvent, message: "Event updated successfully"});
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }

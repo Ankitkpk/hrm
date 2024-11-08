@@ -1,7 +1,10 @@
 const Attendance = require("../models/attendanceModel");
 const HRMEmployee = require("../models/HRMEmployeeModel");
 const moment = require("moment");
+<<<<<<< HEAD
 
+=======
+>>>>>>> 34064bb5fc769ca3d91f45994754b4c5c8d304a2
 
 // Get attendance summary for an employee for a month
 const getAttendanceSummaryByMonth = async (req, res) => {
@@ -98,7 +101,7 @@ const getTwoMonthAttendance = async (req, res) => {
 // Get weekly attendance
 const getWeeklyAttendance = async (req, res) => {
   const { employeeId } = req.params;
-
+  
   try {
     const currentMonthData = await Attendance.find(
       { employee: employeeId },
@@ -106,23 +109,18 @@ const getWeeklyAttendance = async (req, res) => {
     )
       .sort({ createdAt: -1 })
       .limit(1);
-// console.log(currentMonthData[0].dailyAttendance);
 
-      if(!currentMonthData){
-        return res.status(404).json({message:'Employee not fount'})
-      }
+    if (!currentMonthData || !currentMonthData.length) {
+      return res.status(404).json({ message: 'Employee not found' });
+    }
 
     let weekData = [...currentMonthData[0].dailyAttendance.reverse().flat(1)];
-     console.log('week data',weekData);
 
     if (
       currentMonthData[0].dailyAttendance.length < 7 ||
       currentMonthData[0].dailyAttendance.length === 0
     ) {
       const limit = 7 - currentMonthData[0].dailyAttendance.length;
-      // console.log(currentMonthData[0].dailyAttendance.length);
-
-      // console.log(limit);
 
       const lastMonthData = await Attendance.find(
         { employee: employeeId },
@@ -131,17 +129,31 @@ const getWeeklyAttendance = async (req, res) => {
         .sort({ createdAt: -1 })
         .skip(1)
         .limit(limit);
-        if(lastMonthData.length){
-          weekData = [...weekData, ...lastMonthData[0].dailyAttendance.reverse()];
-        }
-      // console.log("lAT month",lastMonthData[0].dailyAttendance);
+
+      if (lastMonthData.length) {
+        weekData = [...weekData, ...lastMonthData[0].dailyAttendance.reverse()];
+      }
     }
 
-    return res.status(200).json(weekData);
+   
+    const weekDataWithDays = weekData.map(record => ({
+      ...record.toObject(),
+      day: moment(record.date).format('dddd'),
+      
+    }));
+
+
+    return res.status(200).json({
+      success: true,
+      data: weekDataWithDays.slice(0, 7)
+    });
+
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Error fetching weekly attendance", error: error.message });
+    return res.status(500).json({
+      success: false, 
+      message: "Error fetching weekly attendance",
+      error: error.message
+    });
   }
 };
 
@@ -227,26 +239,35 @@ const getEmployeeList = async (req, res) => {
 
 const getAllEmployeeAttendanceDetails = async (req, res) => {
   try {
-    const employeeRecords = await Attendance.find({}, 'attendanceDate  dailyAttendance.date dailyAttendance.status')
-      .populate({
-        path: 'employee',
-        select: 'empId employeeName jobTitle department employeeType'
-      });
-      
-      
-      const response = employeeRecords.map(record => {
-        const { date, status } = record.dailyAttendance[0] || {};
-        return {
-          _id: record._id,
-          empId: record.employee?.empId,
-          employeeName: record.employee?.employeeName,
-          department: record.employee?.department,
-          jobTitle: record.employee?.jobTitle,
-          employeeType: record.employee?.employeeType,
-          date,
-          status
-        };
-      });
+    const today = new Date().toISOString().split('T')[0];
+    const employeeRecords = await Attendance.find(
+      { 'dailyAttendance.date': today },
+      'attendanceDate dailyAttendance'
+    ).populate({
+      path: 'employee',
+      select: 'empId employeeName _id jobTitle department employeeType'
+    });
+    
+    // Format the response data directly
+    const response = employeeRecords.map(record => {
+      const todayAttendance = record.dailyAttendance.find(
+        entry => entry.date.toISOString().split('T')[0] === today
+      );
+
+      return {
+        _id: record._id,
+        empId: record.employee?.empId,
+        EmpObjectId: record.employee?._id,
+        employeeName: record.employee?.employeeName,
+        department: record.employee?.department,
+        jobTitle: record.employee?.jobTitle,
+        employeeType: record.employee?.employeeType,
+        date: todayAttendance.date,
+        status: todayAttendance.status
+      };
+    });
+
+    // Send successful response with formatted data
     return res.status(200).json(response);
   } catch (error) {
     console.error('Error fetching employee details:', error);
@@ -327,6 +348,123 @@ const getMonthlyAttendance = async (req, res) => {
 
 
 
+
+const getMonthlyAttendance = async (req, res) => {
+  const currentMonth = moment().format('MMMM YYYY'); 
+  const daysInMonth = moment().daysInMonth(); // Automatically gets the number of days in the current month
+  try {
+    const monthlyAttendance = await Attendance.aggregate([
+      {
+        $match: {
+          month: currentMonth,
+          'dailyAttendance.status': 'Present',
+        },
+      },
+      {
+        $project: {
+          employee: 1,
+          dailyAttendance: {
+            $filter: {
+              input: '$dailyAttendance',
+              as: 'attendance',
+              cond: { $eq: ['$$attendance.status', 'Present'] },
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          presentCount: { $size: '$dailyAttendance' },
+        },
+      },
+    ]);
+    
+    const totalPresentCount = monthlyAttendance.reduce((sum, record) => sum + record.presentCount, 0);
+    const totalEmployees = await HRMEmployee.countDocuments();
+    const attendancePercentage = totalEmployees > 0 ? (totalPresentCount / (totalEmployees * daysInMonth)) * 100 : 0;
+
+    const responseData = {
+      attendancePercentage: attendancePercentage.toFixed(2) + '%',
+    };
+
+    return res.status(200).json(responseData);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Server Error', error: error.message });
+  }
+};
+
+
+function getWeeklyRangesForCurrentMonth() {
+  const weeks = [];
+  const startOfMonth = moment().startOf('month');
+  const endOfMonth = moment().endOf('month');
+  let startOfWeek = startOfMonth.clone().startOf('week'); // Start from the beginning of the week
+
+  while (startOfWeek.isSameOrBefore(endOfMonth, 'day')) {
+      const endOfWeek = moment.min(startOfWeek.clone().endOf('week'), endOfMonth);
+      weeks.push({ start: startOfWeek.clone(), end: endOfWeek.clone() });
+      startOfWeek = endOfWeek.add(1, 'day');
+  }
+
+  return weeks;
+}
+
+// GET API to fetch weekly attendance for the current month, excluding all Sundays
+const  weeklyAttendance= async (req, res) => {
+  try {
+      const currentMonth = moment().month(); // 0-based month for calculations
+      const currentYear = moment().year();
+
+      const weeklyRanges = getWeeklyRangesForCurrentMonth();
+      const weeklyData = [];
+
+      for (const week of weeklyRanges) {
+          // Initialize totalDays and totalPresent for this week
+          let totalDays = 0;
+          let totalPresent = 0;
+
+          // Find attendance records within each weekly range
+          const attendanceRecords = await Attendance.find({
+              'dailyAttendance.date': { $gte: week.start.toDate(), $lte: week.end.toDate() },
+          });
+
+          attendanceRecords.forEach(record => {
+              record.dailyAttendance.forEach(entry => {
+                  const entryDate = moment(entry.date);
+
+                  // Check if the date is within the current month and is not a Sunday
+                  if (
+                      entryDate.month() === currentMonth &&
+                      entryDate.day() !== 0 && // Exclude Sundays
+                      entryDate.isBetween(week.start, week.end, null, '[]')
+                  ) {
+                      totalDays++;
+                      if (entry.status === 'Present') {
+                          totalPresent++;
+                      }
+                  }
+              });
+          });
+
+          // Calculate the attendance percentage for this week
+          const attendancePercentage = totalDays > 0 ? (totalPresent / totalDays) * 100 : 0;
+
+          // Push weekly data, even if there is no attendance record for that week
+          weeklyData.push({
+              weekStart: week.start.format('YYYY-MM-DD'),
+              weekEnd: week.end.format('YYYY-MM-DD'),
+              attendancePercentage: `${attendancePercentage.toFixed(2)}%`,
+          });
+      }
+
+      return res.json({ month: currentMonth + 1, year: currentYear, weeklyData });
+  } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Server Error' });
+  }
+};
+
 module.exports = {
   getWeeklyAttendance,
   markAttendance,
@@ -335,5 +473,9 @@ module.exports = {
   getEmployeeList,
   getAllEmployeeAttendanceDetails,
   getMonthlyAttendance,
+<<<<<<< HEAD
   getEmpWeeklyAttendance
+=======
+  weeklyAttendance
+>>>>>>> 34064bb5fc769ca3d91f45994754b4c5c8d304a2
 };

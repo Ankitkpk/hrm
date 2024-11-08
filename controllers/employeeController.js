@@ -1,6 +1,10 @@
 const Employee = require("../models/Employee");
 const nodemailer = require("nodemailer");
 const moment = require("moment");
+<<<<<<< HEAD
+=======
+const { State, City } = require("country-state-city");
+>>>>>>> 34064bb5fc769ca3d91f45994754b4c5c8d304a2
 // Create new employee
 
 // change name to
@@ -443,17 +447,18 @@ const viewNotUploadedDocuments = async (req, res) => {
 
     if (missingDocuments.length > 0) {
       return res.status(200).json({
-        missingDocuments
+        missingDocuments,
       });
     }
 
     return res.status(200).json({ message: "All documents are available." });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: error.message});
+    return res.status(500).json({ message: error.message });
   }
 };
 
+<<<<<<< HEAD
 
 const getEmployeePercentage = async (req, res) => {
   try {
@@ -491,6 +496,19 @@ const getEmployeePercentage = async (req, res) => {
     return res.json({
       percentageChange,
       NewEmployee
+=======
+const getEmployeeCountForCurrentMonth = async (req, res) => {
+  try {
+    const currentMonthStart = moment().startOf("month").toDate();
+    const currentMonthEnd = moment().endOf("month").toDate();
+
+    const currentMonthCount = await Employee.countDocuments({
+      createdAt: { $gte: currentMonthStart, $lte: currentMonthEnd },
+    });
+
+    return res.json({
+      empCount: currentMonthCount,
+>>>>>>> 34064bb5fc769ca3d91f45994754b4c5c8d304a2
     });
   } catch (error) {
     console.error("Error calculating employee percentage:", error);
@@ -498,6 +516,56 @@ const getEmployeePercentage = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
+=======
+const getStates = async (req, res) => {
+  try {
+    const states = State.getStatesOfCountry('IN').map((state) => ({
+      name: state.name,
+      isoCode: state.isoCode,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      data: states,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+const getCities = async (req, res) => {
+  try {
+    const { stateCode } = req.query;
+
+    if (!stateCode) {
+      return res.status(400).json({
+        success: false,
+        message: "State code is required",
+      });
+    }
+
+    const cities = City.getCitiesOfState('IN', stateCode).map(
+      (city) => ({
+        name: city.name,
+      })
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: cities,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+>>>>>>> 34064bb5fc769ca3d91f45994754b4c5c8d304a2
 
 
 module.exports = {
@@ -516,5 +584,11 @@ module.exports = {
   getPositiontype,
   sendMail,
   viewNotUploadedDocuments,
+<<<<<<< HEAD
   getEmployeePercentage
+=======
+  getEmployeeCountForCurrentMonth,
+  getStates,
+  getCities
+>>>>>>> 34064bb5fc769ca3d91f45994754b4c5c8d304a2
 };

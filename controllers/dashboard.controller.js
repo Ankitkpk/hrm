@@ -677,13 +677,16 @@ const getAllUpcomingMeetsAndHolidays = async (req, res) => {
     }));
 
    
-    const formattedHolidays = holidays.map(holiday => ({
+    const formattedHolidays = holidays.map(holiday => {
+      
+      const parsedDate = moment(holiday.date, 'MMMM D, YYYY');
+      return {
       type: 'holiday',
       title: holiday.holidayTitle,
-      date: holiday.date,
+      date: parsedDate.format('YYYY-MM-DD'),
       location: holiday.location,
       holidayType: holiday.type
-    }));
+    }});
 
     
     const allEvents = [...formattedMeetings, ...formattedHolidays]

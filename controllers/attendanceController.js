@@ -132,13 +132,12 @@ const getWeeklyAttendance = async (req, res) => {
       }
     }
 
-   
-    const weekDataWithDays = weekData.map(record => ({
-      ...record.toObject(),
-      day: moment(record.date).format('dddd'),
-      
-    }));
-
+    const weekDataWithDays = weekData
+      .map(record => ({
+        ...record.toObject(),
+        day: moment(record.date).format('dddd'),
+      }))
+      .sort((a, b) => - moment(a.date).valueOf() + moment(b.date).valueOf()); // Sort by date
 
     return res.status(200).json({
       success: true,

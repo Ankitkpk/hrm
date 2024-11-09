@@ -329,28 +329,29 @@ const getMonthlyAttendance = async (req, res) => {
   try {
     const year = parseInt(req.query.year) || moment().year();
     const currentMonth = moment().month();
+    const today = moment();
     
-    // Get all holidays for the year at once
     const allHolidays = await Holiday.find({
       year: year
     }).lean();
     
     const totalEmployees = await HRMEmployee.countDocuments();
 
-    // Pre-calculate holidays per month
     const holidaysPerMonth = {};
     allHolidays.forEach(holiday => {
       holidaysPerMonth[holiday.month] = (holidaysPerMonth[holiday.month] || 0) + 1;
     });
 
-    // Pre-calculate Sundays for each month
     const sundaysPerMonth = {};
     for (let month = 0; month <= currentMonth; month++) {
       const date = moment([year, month, 1]);
-      const daysInMonth = date.daysInMonth();
-      let sundayCount = 0;
+      // For current month, only count days until today
+      const lastDay = month === currentMonth ? 
+        today.date() : 
+        date.daysInMonth();
       
-      for (let day = 0; day < daysInMonth; day++) {
+      let sundayCount = 0;
+      for (let day = 0; day < lastDay; day++) {
         if (date.clone().add(day, 'days').day() === 0) sundayCount++;
       }
       sundaysPerMonth[date.format('MMMM')] = sundayCount;
@@ -392,7 +393,12 @@ const getMonthlyAttendance = async (req, res) => {
       const monthMoment = moment().year(year).month(monthIndex);
       const monthName = monthMoment.format('MMMM');
       const shortMonthName = monthMoment.format('MMM');
-      const daysInMonth = monthMoment.daysInMonth();
+      
+      // Calculate days passed in this month
+      const daysInMonth = monthIndex === currentMonth ? 
+        today.date() : 
+        monthMoment.daysInMonth();
+      
       const sundaysCount = sundaysPerMonth[monthName];
       const holidaysCount = holidaysPerMonth[monthName] || 0;
       const totalWorkingDays = daysInMonth - sundaysCount - holidaysCount;
@@ -400,7 +406,7 @@ const getMonthlyAttendance = async (req, res) => {
       const monthData = monthlyAttendance.find(m => m._id === monthMoment.format('MMMM YYYY'));
       const totalPresentCount = monthData ? monthData.totalPresent : 0;
 
-      const attendancePercentage = totalEmployees > 0
+      const attendancePercentage = totalWorkingDays > 0
         ? Math.round((totalPresentCount / (totalEmployees * totalWorkingDays)) * 100)
         : 0;
 

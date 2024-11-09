@@ -336,7 +336,6 @@ const getMonthlyAttendance = async (req, res) => {
       year: year
     }).lean();
     
-    // Cache total employees count
     const totalEmployees = await HRMEmployee.countDocuments();
 
     // Pre-calculate holidays per month
@@ -358,7 +357,6 @@ const getMonthlyAttendance = async (req, res) => {
       sundaysPerMonth[date.format('MMMM')] = sundayCount;
     }
 
-    // Single aggregation pipeline for all months
     const monthlyAttendance = await Attendance.aggregate([
       {
         $match: {
@@ -391,10 +389,10 @@ const getMonthlyAttendance = async (req, res) => {
       }
     ]);
 
-    // Convert aggregation results to final format
     const monthlyStats = Array.from({length: currentMonth + 1}, (_, monthIndex) => {
       const monthMoment = moment().year(year).month(monthIndex);
       const monthName = monthMoment.format('MMMM');
+      const shortMonthName = monthMoment.format('MMM');
       const daysInMonth = monthMoment.daysInMonth();
       const sundaysCount = sundaysPerMonth[monthName];
       const holidaysCount = holidaysPerMonth[monthName] || 0;
@@ -404,22 +402,26 @@ const getMonthlyAttendance = async (req, res) => {
       const totalPresentCount = monthData ? monthData.totalPresent : 0;
 
       const attendancePercentage = totalEmployees > 0
-        ? (totalPresentCount / (totalEmployees * totalWorkingDays)) * 100
+        ? Math.round((totalPresentCount / (totalEmployees * totalWorkingDays)) * 100)
         : 0;
 
       return {
-        label: monthName,
-        percentage: attendancePercentage.toFixed(2) 
+        date: shortMonthName,
+        percentage: attendancePercentage
       };
     });
 
     return res.status(200).json({
-      year,
-      monthlyAttendance: monthlyStats
+      success: true,
+      data: monthlyStats
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: 'Server Error', error: error.message });
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Server Error', 
+      error: error.message 
+    });
   }
 };
 
@@ -608,7 +610,7 @@ const getMonthlyAttendance = async (req, res) => {
 const getDailyAttendancePercentage = async (req, res) => {
   try {
     const today = moment().startOf('day');
-    const twoWeeksAgo = moment().subtract(16, 'days').startOf('day');
+    const twoWeeksAgo = moment().subtract(14, 'days').startOf('day');
     const totalEmployees = await HRMEmployee.countDocuments();
 
     const attendanceRecords = await Attendance.aggregate([
@@ -669,13 +671,12 @@ const getDailyAttendancePercentage = async (req, res) => {
         const dayRecord = attendanceRecords.find(record => record._id === dateStr);
         const presentCount = dayRecord ? dayRecord.presentCount : 0;
         const percentage = totalEmployees > 0 
-          ? ((presentCount / totalEmployees) * 100).toFixed(2)
+          ? Math.round((presentCount / totalEmployees) * 100)
           : 0;
 
         dailyAttendance.push({
-          label: dateStr,
           percentage: percentage,
-          // isToday: currentDate.isSame(today, 'day')
+          date: currentDate.format('D MMM')
         });
       }
       
@@ -684,13 +685,7 @@ const getDailyAttendancePercentage = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      period: {
-        start: twoWeeksAgo.format('YYYY-MM-DD'),
-        end: today.format('YYYY-MM-DD')
-      },
-      totalEmployees,
-      totalDays: dailyAttendance.length,
-      dailyAttendance
+      data: dailyAttendance
     });
 
   } catch (error) {

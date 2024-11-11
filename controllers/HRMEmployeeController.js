@@ -29,6 +29,7 @@ const createEmployee = async (req, res) => {
     return res.status(201).json({
       message: "Employee created successfully",
       data: newEmployee,
+      success: true,
     });
   } catch (error) {
     return res.status(500).json({

@@ -34,6 +34,7 @@ const createEmployee = async (req, res) => {
     return res.status(500).json({
       message: "Error creating employee",
       error: error.message,
+      success: false,
     });
   }
 };

@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const moment = require("moment-timezone");
 const Company = require("../models/company.model");
 const leave = require("../models/employeeLeaveModel");
+const Attendance = require("../models/attendanceModel");
 
 const createEmployee = async (req, res) => {
   try {
@@ -75,9 +76,9 @@ const loginEmployee = async (req, res) => {
 
     // Check if the employee has a stored password
     if (!employee.empPassword) {
-      return res
-        .status(400)
-        .json({ message: "Password not set for this employee" });
+      return res.status(400).json({ 
+        message: "Password not set for this employee" 
+      });
     }
 
     // Check if the password is valid
@@ -85,24 +86,47 @@ const loginEmployee = async (req, res) => {
     if (!isMatch) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
+
     const companyId = await Company.findOne({ name: employee.company });
+
+    // Get today's attendance status
+    const today = moment().startOf('day');
+    const todayAttendance = await Attendance.findOne(
+      {
+        employee: employee._id,
+        'dailyAttendance.date': {
+          $gte: today.toDate(),
+          $lt: moment(today).endOf('day').toDate()
+        }
+      },
+      { 'dailyAttendance.$': 1 }
+    );
+
+    const attendanceStatus = todayAttendance?.dailyAttendance[0]?.status || 'Not Marked';
 
     // Generate JWT token
     const token = jwt.sign({ empId: employee.empId }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
 
-    // Send token back to client
+    // Send response with attendance status
     return res.json({
       message: "Login successful",
       token,
       id: employee._id,
       companyId: companyId._id,
+      todayAttendance: {
+        date: today.format('YYYY-MM-DD'),
+        status: attendanceStatus
+      }
     });
+
   } catch (err) {
-    return res
-      .status(500)
-      .json({ message: "Server error", error: err.message });
+    console.error('Login error:', err);
+    return res.status(500).json({ 
+      message: "Server error", 
+      error: err.message 
+    });
   }
 };
 

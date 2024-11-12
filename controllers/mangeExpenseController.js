@@ -1,4 +1,74 @@
-// const Expense = require("../models/mangeExpenseModel");
+const Expense = require("../models/mangeExpenseModel");
+
+
+
+
+const manageExpenseForTravel = async (req, res) => {
+  try {
+    const {
+      employeeId,
+      place,
+      date,
+      city,
+      outSideOfCity,
+      modeOfTransport,
+      amount, 
+      placeVisited,
+      departure,
+      destination,
+      billNumber,
+      workingRemark,
+      travelDate,
+    } = req.body;
+
+    // Get expenseCategory from query params
+    const expenseCategory = "Travel";
+    // Initialize the expense object with common fields
+    let expenseData = {
+      employeeId,
+      expenseCategory,
+      place,
+      travel: {
+        date,
+        city,
+        outSideOfCity,
+        modeOfTransport,
+        amount: amount || { cash: 0, online: 0 }, // Set a default if amount is undefined
+        placeVisited,
+        departure,
+        destination,
+        billNumber,
+        workingRemark,
+        travelDate,
+        receipt: req.file ? req.file.path : null,
+      }
+    }; 
+   
+    // Create a new Expense document
+    const newExpense = new Expense(expenseData);
+    await newExpense.save();
+
+    res
+      .status(201)
+      .json({ message: "Expense saved successfully", data: newExpense });
+  } catch (error) {
+    console.error("Error saving expense:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+
+
+const getExpenseCategory=(req, res) => {
+  const Categories = ["Travel", "Food", "Gifts", "Stationary", "Other"];
+  try {
+    return res.status(200).json(Categories);
+  } catch (error) {
+    console.error("Error fetching expense categories:", error);
+    return res.status(500).json({ message: "Server error", error: error.message});
+  }
+};
 
 // // Controller to handle POST request and save the expense with manageExpenseFor fixed as 'Sales'
 // const createExpenseForSales = async (req, res) => {
@@ -249,3 +319,6 @@
 //   updateExpenseForSales,
 //   updateExpenseForScreening
 // };
+
+
+module.exports = { manageExpenseForTravel, getExpenseCategory };

@@ -215,7 +215,7 @@ const getCandidate = async (req, res) => {
 // Get all employees
 const getAllEmployees = async (req, res) => {
   try {
-    const employees = await Employee.find();
+    const employees = await Employee.find().sort({ createdAt: -1 });
     return res
       .status(201)
       .json({ message: "Retrieved all employees", employees });

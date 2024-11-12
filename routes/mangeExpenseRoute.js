@@ -56,4 +56,4 @@ router.get('/getExpenseCategory',manageExpense.getExpenseCategory)
 //   manageExpense.updateExpenseForScreening
 // );
 
-// module.exports = router;
+module.exports = router;

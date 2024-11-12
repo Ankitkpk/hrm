@@ -247,6 +247,266 @@ const updateAllEducationDetails = async (req, res) => {
   }
 };
 
+const getProgramSelection = (req, res) => {
+  const programs = [
+    "B.Tech / B.E.",
+    "B.Sc",
+    "B.Com",
+    "BBA",
+    "BA",
+    "M.Tech / M.S.",
+    "M.Sc",
+    "MBA",
+    "MA",
+    "PhD",
+    "Diploma in Engineering",
+    "Diploma in Management",
+    "Diploma in Computer Science",
+    "Diploma in Arts",
+    "Diploma in Hospitality Management",
+    "Diploma in Nursing",
+    "Diploma in Pharmacy"
+  ];
+
+  return res.status(200).json(programs);
+};
+
+const getSpecializations = (req, res) => {
+  const specializations = {
+      "B.Tech / B.E.": [
+        "Computer Science and Engineering",
+        "Electrical Engineering",
+        "Mechanical Engineering",
+        "Civil Engineering",
+        "Electronics and Communication Engineering",
+        "Information Technology",
+        "Chemical Engineering",
+        "Aerospace Engineering",
+        "Biotechnology",
+        "Industrial Engineering",
+        "Environmental Engineering",
+        "Petroleum Engineering",
+        "Automobile Engineering",
+        "Mining Engineering"
+      ],
+      "B.Sc": [
+        "Computer Science",
+        "Physics",
+        "Chemistry",
+        "Mathematics",
+        "Biology",
+        "Environmental Science",
+        "Agricultural Science",
+        "Biotechnology",
+        "Data Science",
+        "Zoology",
+        "Botany",
+        "Microbiology"
+      ],
+      "B.Com": [
+        "General",
+        "Accounting",
+        "Finance",
+        "Banking and Insurance",
+        "Taxation",
+        "Business Analytics",
+        "E-Commerce",
+        "International Business"
+      ],
+      "BBA": [
+        "Marketing",
+        "Finance",
+        "Human Resource Management",
+        "International Business",
+        "Entrepreneurship",
+        "Supply Chain Management",
+        "Retail Management",
+        "Hospitality Management"
+      ],
+      "BA": [
+        "English Literature",
+        "Political Science",
+        "Psychology",
+        "Sociology",
+        "History",
+        "Economics",
+        "Philosophy",
+        "Geography",
+        "Journalism and Mass Communication",
+        "Fine Arts",
+        "Public Administration",
+        "Education",
+        "Law"
+      ],
+      "M.Tech / M.S.": [
+        "Software Engineering",
+        "Artificial Intelligence",
+        "Data Science",
+        "Machine Learning",
+        "Cybersecurity",
+        "Robotics",
+        "Embedded Systems",
+        "VLSI Design",
+        "Power Systems",
+        "Structural Engineering",
+        "Environmental Engineering",
+        "Aerospace Engineering",
+        "Telecommunication Engineering",
+        "Renewable Energy"
+      ],
+      "M.Sc": [
+        "Computer Science",
+        "Physics",
+        "Chemistry",
+        "Mathematics",
+        "Biochemistry",
+        "Biotechnology",
+        "Microbiology",
+        "Zoology",
+        "Botany",
+        "Environmental Science",
+        "Geology",
+        "Data Science",
+        "Applied Mathematics",
+        "Genetics",
+        "Forensic Science"
+      ],
+      "MBA": [
+        "Marketing Management",
+        "Finance Management",
+        "Human Resource Management",
+        "Operations Management",
+        "International Business",
+        "Supply Chain Management",
+        "Digital Marketing",
+        "Entrepreneurship",
+        "Information Technology Management",
+        "Banking and Financial Services",
+        "Retail Management",
+        "Hospitality Management",
+        "Tourism Management"
+      ],
+      "MA": [
+        "English Literature",
+        "Political Science",
+        "Sociology",
+        "Economics",
+        "Psychology",
+        "History",
+        "Public Administration",
+        "Philosophy",
+        "Geography",
+        "Linguistics",
+        "Education",
+        "Journalism and Mass Communication",
+        "Fine Arts",
+        "Social Work"
+      ],
+      "PhD": [
+        "Computer Science and Engineering",
+        "Electrical Engineering",
+        "Mechanical Engineering",
+        "Civil Engineering",
+        "Chemical Engineering",
+        "Biotechnology",
+        "Artificial Intelligence",
+        "Data Science",
+        "Mathematics",
+        "Physics",
+        "Environmental Science",
+        "Business Administration",
+        "Psychology",
+        "Literature and Languages",
+        "Medical Sciences",
+        "Law"
+      ],
+      "Diploma in Engineering": [
+        "Civil Engineering",
+        "Mechanical Engineering",
+        "Electrical Engineering",
+        "Computer Science Engineering",
+        "Electronics Engineering",
+        "Automobile Engineering",
+        "Textile Engineering",
+        "Fashion Designing",
+        "Graphic Designing",
+        "Hospitality Management",
+        "Hotel Management",
+        "Pharmacy",
+        "Nursing",
+        "Web Development",
+        "Animation and Multimedia",
+        "Accounting and Finance"
+      ],
+      "Diploma in Management": [
+        "Business Administration",
+        "Marketing",
+        "Human Resource Management",
+        "Finance",
+        "Retail Management",
+        "Hospitality Management",
+        "Tourism Management",
+        "Event Management"
+      ],
+      "Diploma in Computer Science": [
+        "Web Development",
+        "Software Engineering",
+        "Networking",
+        "Cybersecurity",
+        "Data Science",
+        "Artificial Intelligence",
+        "Mobile App Development",
+        "Cloud Computing",
+        "Database Management",
+        "Game Development"
+      ],
+      "Diploma in Arts": [
+        "Fine Arts",
+        "Graphic Design",
+        "Fashion Designing",
+        "Interior Designing",
+        "Animation",
+        "Photography",
+        "Music",
+        "Film Making",
+        "Theatre Arts"
+      ],
+      "Diploma in Hospitality Management": [
+        "Hotel Management",
+        "Tourism Management",
+        "Event Management",
+        "Food and Beverage Management",
+        "Catering Management",
+        "Travel and Tourism",
+        "Leisure and Recreation"
+      ],
+      "Diploma in Nursing": [
+        "General Nursing",
+        "Mental Health Nursing",
+        "Pediatric Nursing",
+        "Obstetric Nursing",
+        "Community Health Nursing",
+        "Critical Care Nursing"
+      ],
+      "Diploma in Pharmacy": [
+        "Pharmaceutical Chemistry",
+        "Pharmacology",
+        "Pharmaceutical Technology",
+        "Clinical Pharmacy",
+        "Medicinal Chemistry"
+      ]
+
+    // Add other programs and their specializations here...
+  };
+
+  const program = req.query.program;
+  if (specializations[program]) {
+    return res.status(200).json(specializations[program]);
+  } else {
+    return res.status(404).json({ message: "Program not found" });
+  }
+};
+
 module.exports = {
   saveEducationDetails,
   getEducationDetails,
@@ -254,5 +514,7 @@ module.exports = {
   updateEducationDetails,
   documentDetails,
   getDataForUpdate,
-  updateAllEducationDetails
+  updateAllEducationDetails,
+  getProgramSelection,
+  getSpecializations
 };

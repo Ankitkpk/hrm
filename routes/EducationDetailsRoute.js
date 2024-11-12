@@ -25,6 +25,8 @@ router.put("/updateEducationDetails/:id", upload.single("document"), EducationDe
 router.get("/documentDetails/:id",  EducationDetailsController.documentDetails);
 router.get('/document/:id',EducationDetailsController.getDataForUpdate)
 router.put("/updateAllEducationDetails/:id",  EducationDetailsController.updateAllEducationDetails); 
+router.get('/programSelection', EducationDetailsController.getProgramSelection);
+router.get('/specializations', EducationDetailsController.getSpecializations);
 
 
 module.exports = router;

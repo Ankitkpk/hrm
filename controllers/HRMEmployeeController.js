@@ -116,6 +116,7 @@ const loginEmployee = async (req, res) => {
       message: "Login successful",
       token,
       id: employee._id,
+      name: employee.employeeName,
       companyId: companyId._id,
       todayAttendance: {
         date: today.format('YYYY-MM-DD'),

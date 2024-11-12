@@ -249,6 +249,8 @@ const updateAllEducationDetails = async (req, res) => {
 
 const getProgramSelection = (req, res) => {
   const programs = [
+    "SSC",
+    "HSC",
     "B.Tech / B.E.",
     "B.Sc",
     "B.Com",

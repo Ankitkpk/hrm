@@ -140,6 +140,7 @@ const HRMEmployeeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  country: { type: String},
   ifscCode: {
     type: String,
     required: true,

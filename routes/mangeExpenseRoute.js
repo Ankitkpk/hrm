@@ -19,12 +19,18 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 
-router.post(
-  "/manageExpenseForTravel",
-  upload.single("receipts"),
-  manageExpense.manageExpenseForTravel
-);
 
+router.post(
+  "/addTravelExpense",
+  // upload.single("receipt"),
+  manageExpense.addTravelExpense
+)
+
+router.post(
+  "/addFoodExpense",
+ // upload.single("receipt"),
+  manageExpense.addFoodExpense
+)
 
 router.get('/getExpenseCategory',manageExpense.getExpenseCategory)
 
@@ -45,7 +51,7 @@ router.get('/getExpenseCategory',manageExpense.getExpenseCategory)
 // router.get('/getExpenseDetails/:id',manageExpense.getExpenseDetails)
 // router.delete('/deleteExpense/:id',manageExpense.deleteExpense)
 
-// router.put(
+// router.put( 
 //   "/updateExpenseForSales/:id",
 //   upload.single("attachReceipt"),
 //   manageExpense.updateExpenseForSales

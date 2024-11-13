@@ -602,8 +602,6 @@ const getEmployeeComprehensiveDetails = async (req, res) => {
       pagination: {
         currentPage: page,
         totalPages,
-        totalItems: totalCount,
-        itemsPerPage: limit,
         hasNextPage: page < totalPages,
         hasPrevPage: page > 1
       }

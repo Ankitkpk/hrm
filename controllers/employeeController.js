@@ -215,14 +215,51 @@ const getCandidate = async (req, res) => {
 // Get all employees
 const getAllEmployees = async (req, res) => {
   try {
-    const employees = await Employee.find().sort({ createdAt: -1 });
-    return res
-      .status(201)
-      .json({ message: "Retrieved all employees", employees });
+    // Get pagination parameters from query
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination
+    const totalCount = await Employee.countDocuments();
+    const totalPages = Math.ceil(totalCount / limit);
+
+    // Get paginated employees
+    const employees = await Employee.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    if (!employees.length) {
+      return res.status(404).json({ 
+        success: false,
+        message: "No employees found" 
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Retrieved employees successfully",
+      data: {
+        employees,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems: totalCount,
+          itemsPerPage: limit,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1
+        }
+      }
+    });
+
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Error retrieving employees", error });
+    console.error("Error retrieving employees:", error);
+    return res.status(500).json({ 
+      success: false,
+      message: "Error retrieving employees",
+      error: error.message 
+    });
   }
 }; 
 

@@ -513,14 +513,19 @@ const getHrmEmployeeList = async (req, res) => {
 const getEmployeeComprehensiveDetails = async (req, res) => {
   try {
     const today = new Date();
-    console.log(today.toISOString().split('T')[0]);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Get total count first
+    const totalCount = await HRMEmployee.countDocuments();
     
     const employees = await HRMEmployee.aggregate([
       {
         $lookup: {
-          from: "leaveapplications", // Use lowercase collection name if applicable
+          from: "leaveapplications",
           localField: "_id",
-          foreignField: "employee", // Use `employee` instead of `employeeId` to match schema
+          foreignField: "employee",
           pipeline: [
             {
               $match: {
@@ -528,7 +533,8 @@ const getEmployeeComprehensiveDetails = async (req, res) => {
                 status: "Approve"
               }
             },
-            { $limit: 1 },{
+            { $limit: 1 },
+            {
               $project: {
                 fromDate: 1,
                 toDate: 1,
@@ -540,7 +546,7 @@ const getEmployeeComprehensiveDetails = async (req, res) => {
       },
       {
         $lookup: {
-          from: "attendances", // Collection name in your database
+          from: "attendances",
           localField: "_id",
           foreignField: "employee",
           pipeline: [
@@ -561,7 +567,7 @@ const getEmployeeComprehensiveDetails = async (req, res) => {
               }
             },
             {
-              $match: { "dailyAttendance.0": { $exists: true } } // Ensure there's attendance for today
+              $match: { "dailyAttendance.0": { $exists: true } }
             }
           ],
           as: "todayAttendance"
@@ -578,20 +584,33 @@ const getEmployeeComprehensiveDetails = async (req, res) => {
               then: "Present",
               else: "Absent"
             }
-          },
-          // notes: 1
+          }
         }
-      }
+      },
+      { $skip: skip },
+      { $limit: limit }
     ]);
 
     if (!employees.length) {
       return res.status(404).json({ message: "No employees found" });
     }
 
+    const totalPages = Math.ceil(totalCount / limit);
     
-    res.status(200).json(employees);
+    res.status(200).json({
+      employees,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems: totalCount,
+        itemsPerPage: limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1
+      }
+    });
+
   } catch (error) {
-    console.error("Error fetching employee details:", error); // Log error for debugging
+    console.error("Error fetching employee details:", error);
     return res.status(500).json({ 
       message: "Server Error", 
       error: error.message 

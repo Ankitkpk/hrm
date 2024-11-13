@@ -230,8 +230,8 @@ const getAllDocuments = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Find the employee by ID with specific document fields
     const user = await Employee.findById(id).select({
+      "fullName":1,
       'photo': 1,
       'cv': 1,
       'relievingLetter': 1,
@@ -246,27 +246,60 @@ const getAllDocuments = async (req, res) => {
       });
     }
 
-    // Initialize documents object
-    const documentFields = {};
+    const documentFields = {
+      name: user.fullName,
+    };
 
-    // Helper function to add document if exists
+    // Helper function to get file type from path or base64
+    const getFileType = (data) => {
+      if (!data) return null;
+      
+      // Check if it's a base64 string
+      if (data.startsWith('data:')) {
+        const matches = data.match(/^data:([A-Za-z-+\/]+);base64,/);
+        if (matches && matches.length > 1) {
+          return matches[1];
+        }
+      }
+      
+      // Check file extension if it's a path
+      if (typeof data === 'string') {
+        const extension = data.split('.').pop().toLowerCase();
+        switch(extension) {
+          case 'pdf':
+            return 'pdf';
+          case 'jpg':
+          case 'jpeg':
+            return 'jpeg';
+          case 'png':
+            return 'png';
+          default:
+            return 'octet-stream';
+        }
+      }
+      
+      return 'octet-stream';
+    };
+
     const addDocumentIfExists = (fieldName) => {
       if (user[fieldName] && user[fieldName].data) {
+        const fileType = getFileType(user[fieldName].data);
         documentFields[fieldName] = {
           data: user[fieldName].data,
           date: user[fieldName].date || null,
-          exists: true
+          exists: true,
+          fileType: fileType
         };
       } else {
         documentFields[fieldName] = {
           data: null,
           date: null,
-          exists: false
+          exists: false,
+          fileType: null
         };
       }
     };
 
-    // Add available documents
     ['photo', 'cv', 'relievingLetter', 'bankDetails', 'aadharCard'].forEach(doc => {
       addDocumentIfExists(doc);
     });

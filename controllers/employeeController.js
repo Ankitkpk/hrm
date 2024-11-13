@@ -224,55 +224,66 @@ const getAllEmployees = async (req, res) => {
       .status(500)
       .json({ message: "Error retrieving employees", error });
   }
-};
+}; 
 
 const getAllDocuments = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Find the employee by ID
-    const user = await Employee.findById(id);
+    // Find the employee by ID with specific document fields
+    const user = await Employee.findById(id).select({
+      'photo': 1,
+      'cv': 1,
+      'relievingLetter': 1,
+      'bankDetails': 1,
+      'aadharCard': 1
+    });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ 
+        success: false,
+        message: "Employee not found" 
+      });
     }
 
-    const documentFields = {
-      photo: {
-        photo: user.photo.data,
-        date: user.photo.date,
-      },
-      cv: {
-        cv: user.cv.data,
-        date: user.cv.date,
-      },
-      relievingLetter: {
-        relievingLetter: user.relievingLetter.data,
-        date: user.relievingLetter.date,
-      },
-      bankDetails: {
-        bankDetails: user.bankDetails.data,
-        date: user.bankDetails.date,
-      },
-      aadharCard: {
-        aadharCard: user.aadharCard.data,
-        date: user.aadharCard.date,
-      },
-      postalAddress: {
-        postalAddress: user.postalAddress.data,
-        date: user.postalAddress.date,
-      },
-      permanentAddress: {
-        permanentAddress: user.permanentAddress.data,
-        date: user.permanentAddress.date,
-      },
+    // Initialize documents object
+    const documentFields = {};
+
+    // Helper function to add document if exists
+    const addDocumentIfExists = (fieldName) => {
+      if (user[fieldName] && user[fieldName].data) {
+        documentFields[fieldName] = {
+          data: user[fieldName].data,
+          date: user[fieldName].date || null,
+          exists: true
+        };
+      } else {
+        documentFields[fieldName] = {
+          data: null,
+          date: null,
+          exists: false
+        };
+      }
     };
 
-    return res.status(200).json({ documents: documentFields });
+    // Add available documents
+    ['photo', 'cv', 'relievingLetter', 'bankDetails', 'aadharCard'].forEach(doc => {
+      addDocumentIfExists(doc);
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Documents retrieved successfully",
+      documents: documentFields
+    });
+
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Server error", error: error.message });
+    console.error("Error fetching documents:", error);
+    return res.status(500).json({ 
+      success: false,
+      message: "Error retrieving documents",
+      error: error.message 
+    });
   }
 };
 
@@ -559,6 +570,8 @@ const getCities = async (req, res) => {
     });
   }
 };
+
+
 
 module.exports = {
   addNewCandidate,

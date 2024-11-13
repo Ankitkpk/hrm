@@ -598,13 +598,14 @@ const getEmployeeComprehensiveDetails = async (req, res) => {
     const totalPages = Math.ceil(totalCount / limit);
     
     res.status(200).json({
-      employees,
       pagination: {
         currentPage: page,
         totalPages,
         hasNextPage: page < totalPages,
         hasPrevPage: page > 1
-      }
+      },
+      employees
+     
     });
 
   } catch (error) {

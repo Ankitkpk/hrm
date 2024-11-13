@@ -56,5 +56,5 @@
     upload.single("attachReceipt"),
     manageExpense.updateExpenseForScreening
   );
- router.get("/getExpenseCategory" , manageExpense.getExpenseCategory);
+ //router.get("/getExpenseCategory" , manageExpense.getExpenseCategory);
  module.exports = router;

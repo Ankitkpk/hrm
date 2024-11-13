@@ -241,13 +241,14 @@ const getAllEmployees = async (req, res) => {
       success: true,
       message: "Retrieved employees successfully",
       data: {
-        employees,
         pagination: {
           currentPage: page,
           totalPages,
           hasNextPage: page < totalPages,
           hasPrevPage: page > 1
-        }
+        },
+        employees
+        
       }
     });
 

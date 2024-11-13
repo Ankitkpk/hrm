@@ -14,14 +14,14 @@ router.get('/getTwoMonthAttendance/:employeeId',attendanceController.getTwoMonth
 
 router.get('/getEmployeeList',attendanceController.getEmployeeList);
 
-<<<<<<< HEAD
+
 router.get('/getAllEmployeeAttendanceDetails',attendanceController.getAllEmployeeAttendanceDetails);
 router.get('/getMonthlyAttendance', attendanceController.getMonthlyAttendance);
 router.get('/getEmpWeeklyAttendance', attendanceController.getEmpWeeklyAttendance);
-=======
+
 router.get('/getAllEmployeeAttendanceDetails',attendanceController.getAllEmployeeAttendanceDetails)
 router.get('/getMonthlyAttendance', attendanceController.getMonthlyAttendance);
 router.get('/weeklyAttendance',attendanceController.weeklyAttendance)
->>>>>>> 34064bb5fc769ca3d91f45994754b4c5c8d304a2
+
 
 module.exports = router;

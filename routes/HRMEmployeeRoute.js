@@ -21,7 +21,7 @@ router.get(
   HRMEmployeeController.getEmployeeByIdForAttendance
 );
 
-<<<<<<< HEAD
+
  router.get('/getUpcomingMeet/:id',HRMEmployeeController.upcomingMeeting)
  router.get('/closeMeeting/:id',HRMEmployeeController.getNextMeeting)
  router.get('/HrmEmployeeSearching',HRMEmployeeController.HrmEmployeeSearching) //for searching
@@ -34,7 +34,6 @@ router.get(
  router.get('/getHrmEmployeeDetails/:id',HRMEmployeeController.getHrmEmployeeDetails);
  router.get('/getEmployeePayslipDetails',HRMEmployeeController.getEmployeePayslipDetails);
  
-=======
 router.get("/getUpcomingMeet/:id", HRMEmployeeController.upcomingMeeting);
 router.get("/closeMeeting/:id", HRMEmployeeController.getNextMeeting);
 router.get("/HrmEmployeeSearching", HRMEmployeeController.HrmEmployeeSearching); //for searching
@@ -61,7 +60,7 @@ router.get(
   "/getEmployeeComprehensiveDetails",
   HRMEmployeeController.getEmployeeComprehensiveDetails
 );
->>>>>>> 34064bb5fc769ca3d91f45994754b4c5c8d304a2
+
 
 router.get(
   "/getEmployeePaySlipDetails/:id",

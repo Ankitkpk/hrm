@@ -1,4 +1,4 @@
-const express = require("express");
+/*const express = require("express");
 const router = express.Router();
 const employeeController = require("../controllers/employeeController");
 const multer = require("multer");
@@ -89,3 +89,4 @@ router.get("/getStates", employeeController.getStates);
 router.get("/getCities", employeeController.getCities);
 
 module.exports = router;
+*/

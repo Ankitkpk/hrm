@@ -359,7 +359,8 @@ const getUpComingLeave = async (req, res) => {
       // .populate("employee", "name department") // Populate with specific fields from employee
       // .select("employee fromDate toDate "); // Select only relevant fields from addLeave schema
       .populate("employee", "employeeName  department") // Populate with specific fields from employee
-      .select("leaveType fromDate toDate "); 
+      .select("leaveType fromDate toDate ")
+      .sort({ fromDate: 1 });
 
     // Check if there are any upcoming leaves
     if (upcomingLeaves.length === 0) {

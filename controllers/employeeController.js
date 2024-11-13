@@ -1,10 +1,9 @@
-const Employee = require("../models/Employee");
+/*(const Employee = require("../models/Employee");
 const nodemailer = require("nodemailer");
 const moment = require("moment");
-<<<<<<< HEAD
-=======
+
 const { State, City } = require("country-state-city");
->>>>>>> 34064bb5fc769ca3d91f45994754b4c5c8d304a2
+
 // Create new employee
 
 // change name to
@@ -590,5 +589,73 @@ module.exports = {
   getEmployeeCountForCurrentMonth,
   getStates,
   getCities
->>>>>>> 34064bb5fc769ca3d91f45994754b4c5c8d304a2
+
 };
+const updateExpense = async (req, res) => {
+  const { emp, amount, billNumber, description, receiverName, receiverNumber, purpose, date } = req.body;
+  const { expenseCategory } = req.query;
+
+  // Validate expenseCategory
+  const validCategories = ["Travel", "Food", "Gifts", "Stationary", "Other"];
+  if (!validCategories.includes(expenseCategory)) {
+    return res.status(400).json({ message: "Invalid expense category" });
+  }
+
+  try {
+    // Fetch the expense for the specified employee and category
+    const expense = await Expense.findOne({ emp, expenseCategory });
+    if (!expense) {
+      return res.status(404).json({ error: "Expense not found for the specified employee and category" });
+    }
+
+    // Dynamically update the category fields
+    if (expenseCategory === "Other") {
+      if (!expense.other) expense.other = {};  // Initialize 'other' field if not already present
+      expense.other.date = date || expense.other.date;
+      expense.other.amount = expense.other.amount || {};
+      expense.other.amount.cash = amount?.cash || expense.other.amount.cash;
+      expense.other.amount.online = amount?.online || expense.other.amount.online;
+      expense.other.billNumber = billNumber || expense.other.billNumber;
+      expense.other.description = description || expense.other.description;
+      expense.other.receipts = req.file ? req.file.path : expense.other.receipts;
+    }
+
+    if (expenseCategory === "Gifts") {
+      if (!expense.gifts) expense.gifts = {};  // Initialize 'gifts' field if not already present
+      expense.gifts.date = date || expense.gifts.date;
+      expense.gifts.amount = expense.gifts.amount || {};
+      expense.gifts.amount.cash = amount?.cash || expense.gifts.amount.cash;
+      expense.gifts.amount.online = amount?.online || expense.gifts.amount.online;
+      expense.gifts.billNumber = billNumber || expense.gifts.billNumber;
+      expense.gifts.description = description || expense.gifts.description;
+      expense.gifts.receiverName = receiverName || expense.gifts.receiverName;
+      expense.gifts.receiverNumber = receiverNumber || expense.gifts.receiverNumber;
+      expense.gifts.purpose = purpose || expense.gifts.purpose;
+      expense.gifts.receipts = req.file ? req.file.path : expense.gifts.receipts;
+    }
+
+    if (expenseCategory === "Stationary") {
+      if (!expense.stationary) expense.stationary = {};  // Initialize 'stationary' field if not already present
+      expense.stationary.date = date || expense.stationary.date;
+      expense.stationary.amount = expense.stationary.amount || {};
+      expense.stationary.amount.cash = amount?.cash || expense.stationary.amount.cash;
+      expense.stationary.amount.online = amount?.online || expense.stationary.amount.online;
+      expense.stationary.billNumber = billNumber || expense.stationary.billNumber;
+      expense.stationary.description = description || expense.stationary.description;
+      expense.stationary.receipts = req.file ? req.file.path : expense.stationary.receipts;
+    }
+
+    // Save the updated expense document
+    await expense.save();
+    return res.status(200).json({ message: `${expenseCategory} expense updated successfully`, data: expense });
+  } catch (error) {
+    console.error("Error updating expense:", error);
+    return res.status(500).json({ error: "Server error", message: error.message });
+  }
+};
+
+
+
+
+
+*/

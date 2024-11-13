@@ -1,6 +1,6 @@
 const express = require("express");
 const connectDB = require("./config/db");
-const employeeRoutes = require("./routes/employeeRoutes");
+//const employeeRoutes = require("./routes/employeeRoutes");
 const notificationRoutes = require("./routes/notification.route");
 const companyRoutes = require("./routes/company.route");
 const dashboardRoutes = require("./routes/dashboard.route");
@@ -171,16 +171,16 @@ app.use(express.urlencoded({ extended: true })); // Handles URL-encoded form dat
 app.use("/uploads", express.static("uploads")); // Make uploads publicly accessible
 
 // Routes
-app.use("/api/employees", employeeRoutes);
+//app.use("/api/employees", employeeRoutes);
 app.use("/api/notification", notificationRoutes);
 app.use("/api/company", companyRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/hrmEmployee", hrmEmployee);
 app.use("/api/leave", leaveRoutes);
 app.use("/api/attendance", attendance);
-app.use('/api/eductionDetails',EducationDetailsRoutes)
-app.use('/api/event',event)
-// app.use('/api/manageExpense',mangeExpenseRoute)
+app.use('/api/eductionDetails',EducationDetailsRoutes);
+app.use('/api/event',event);
+ app.use('/api/manageExpense',mangeExpenseRoute);
 app.use("/api/holiday",holidayDetailsRoute)
 // Error handling
 app.use((err, req, res, next) => {

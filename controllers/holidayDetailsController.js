@@ -2,16 +2,26 @@ const Holiday = require('../models/holidayDetailsModel');
 
 const createHoliday = async (req, res) => {
   try {
-    const { holidayTitle, date, month, type, location } = req.body;
+    const { holidayTitle, date, type, location } = req.body;
 
-    if (!holidayTitle || !date || !month || !type || !location) {
+    if (!holidayTitle || !date || !type || !location) {
       return res.status(400).json({ message: "All fields are required..." });
     }
 
-    const allData = new Holiday({ holidayTitle, date, month,type, location });
+    // Extract month from date
+    const dateObj = new Date(date);
+    const month = dateObj.toLocaleString('default', { month: 'long' });
+
+    const allData = new Holiday({ 
+      holidayTitle, 
+      date, 
+      month, // Extracted month
+      type, 
+      location 
+    });
 
     await allData.save();
-   return res.status(200).json({
+    return res.status(200).json({
       message: "Holiday details saved successfully",
       data: allData,
     });

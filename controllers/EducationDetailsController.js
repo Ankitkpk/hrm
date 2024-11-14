@@ -3,18 +3,10 @@ const EducationDetails = require("../models/EducationDetailsModel");
 const saveEducationDetails = async (req, res) => {
   try {
     const {
-      fullName,
-      phoneNumber,
       programSelection,
       specialization,
-      emailAddress,
       startingDate,
-      address,
       endingDate,
-      city,
-      nomineeDetails,
-      pincode,
-      relation,
       degree,
       year,
       institute,
@@ -23,34 +15,20 @@ const saveEducationDetails = async (req, res) => {
       hrmEmployeeId, // Use correct name from model
     } = req.body;
 
-    // Check if email already exists
-    const existingRecord = await EducationDetails.findOne({ emailAddress });
-
-    if (existingRecord) {
-      return res.status(400).json({
-        message: "Email already exists. Please use a different email address.",
-      });
-    }
+  
 
     // Create a new education details record
     const newEducationDetails = new EducationDetails({
-      fullName,
-      phoneNumber,
       programSelection,
       specialization,
-      emailAddress,
       startingDate,
-      address,
       endingDate,
-      city,
-      nomineeDetails,
-      pincode,
-      relation,
       degree,
       year,
       institute,
       grade,
-      hrmEmployeeId, // Use correct field name
+      document,
+      hrmEmployeeId,
       document: req.file ? req.file.path : null, // Save file path if uploaded
     });
 
@@ -107,40 +85,67 @@ const deleteEducationDetails = async (req, res) => {
 // Update EducationDetails by ID
 const updateEducationDetails = async (req, res) => {
   try {
-    const { id } = req.params; // Get the ID from the route parameters
-    const { grade, degree, institute, year } = req.body; // Destructure the fields from the request body
+    const { id } = req.params;
+    const { 
+      programSelection,
+      specialization,
+      startingDate,
+      endingDate,
+      degree,
+      year,
+      institute,
+      grade,
+      hrmEmployeeId,
+    } = req.body;
 
-    if (!grade && !degree && !institute && !year) {
-     return res.status(400).json({ message: "Enter fields first"});
-    }
-    // Find the record by ID
-    const educationDetails = await EducationDetails.findById(id);
-
-    if (!educationDetails) {
-      return res.status(404).json({
-        message: "EducationDetails not found",
+    // Validate required fields
+    if (!programSelection || !specialization || !startingDate || !endingDate) {
+      return res.status(400).json({
+        success: false,
+        message: "Required fields missing"
       });
     }
 
-    // Update the fields if they are provided
-    if (grade) educationDetails.grade = grade;
-    if (degree) educationDetails.degree = degree;
-    if (institute) educationDetails.institute = institute;
-    if (year) educationDetails.year = year;
-    if (req.file) educationDetails.document = req.file.path; // Update document if uploaded
+    // Find and update the record
+    const updatedEducationDetails = await EducationDetails.findByIdAndUpdate(
+      id,
+      {
+        programSelection,
+        specialization,
+        startingDate,
+        endingDate,
+        degree,
+        year,
+        institute,
+        grade,
+        hrmEmployeeId,
+        document: req.file ? req.file.path : undefined // Only update if new file
+      },
+      { 
+        new: true, // Return updated document
+        runValidators: true // Run schema validations
+      }
+    );
 
-    // Save the updated document to the database
-    await educationDetails.save();
+    if (!updatedEducationDetails) {
+      return res.status(404).json({
+        success: false,
+        message: "Education details not found"
+      });
+    }
 
     return res.status(200).json({
-      message: "EducationDetails updated successfully",
-      data: educationDetails,
+      success: true,
+      message: "Education details updated successfully",
+      data: updatedEducationDetails
     });
+
   } catch (error) {
-    console.error("Error updating EducationDetails:", error);
+    console.error("Error updating education details:", error);
     return res.status(500).json({
+      success: false,
       message: "Server error",
-      error: error.message,
+      error: error.message
     });
   }
 };
@@ -251,24 +256,24 @@ const getProgramSelection = (req, res) => {
   const programs = [
     "SSC",
     "HSC",
-    "B.Tech / B.E.",
-    "B.Sc",
-    "B.Com",
-    "BBA",
-    "BA",
-    "M.Tech / M.S.",
-    "M.Sc",
-    "MBA",
-    "MA",
-    "PhD",
-    "Diploma in Engineering",
-    "Diploma in Management",
-    "Diploma in Computer Science",
-    "Diploma in Arts",
-    "Diploma in Hospitality Management",
-    "Diploma in Nursing",
-    "Diploma in Pharmacy"
-  ];
+      "B.Tech / B.E.",
+      "B.Sc",
+      "B.Com",
+      "BBA",
+      "BA",
+      "M.Tech / M.S.",
+      "M.Sc",
+      "MBA",
+      "MA",
+      "PhD",
+      "Diploma in Engineering",
+      "Diploma in Management",
+      "Diploma in Computer Science",
+      "Diploma in Arts",
+      "Diploma in Hospitality Management",
+      "Diploma in Nursing",
+      "Diploma in Pharmacy"
+    ];
 
   return res.status(200).json(programs);
 };

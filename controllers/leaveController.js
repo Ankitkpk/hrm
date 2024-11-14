@@ -443,6 +443,55 @@ const todayLeave = async (req, res) => {
   }
 };
 
+const searchEmployees = async (req, res) => {
+  try {
+    const { name, empId, department } = req.query;
+
+    if (!name && !empId && !department) {
+      return res.status(400).json({
+        success: false,
+        message: "At least one search parameter is required"
+      });
+    }
+
+    // Build search query with exact matches
+    let searchQuery = {};
+
+    if (name) {
+      searchQuery.employeeName = name;
+    }
+    if (empId) {
+      searchQuery.empId = empId;
+    }
+    if (department) {
+      searchQuery.department = department;
+    }
+
+    const employee = await HRMEmployee.findOne(searchQuery)
+      .select('_id');
+
+    if (!employee) {
+      return res.status(404).json({
+        success: false,
+        message: "No employee found matching all criteria"
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: { _id: employee._id }
+    });
+
+  } catch (error) {
+    console.error('Error searching employee:', error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   totalLeaves,
   pendingLeaves,
@@ -458,5 +507,6 @@ module.exports = {
   leaveApproval,
   getAllLeavesOfEmployee,
   getUpComingLeave,
-  todayLeave
+  todayLeave,
+  searchEmployees
 };

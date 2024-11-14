@@ -34,5 +34,6 @@ router.post("/leaveApproval/:leaveId",leaveController.leaveApproval);
 router.get("/getAllLeaves/:id",leaveController.getAllLeavesOfEmployee);
 router.get("/getUpComingLeave",leaveController.getUpComingLeave);
 router.get("/todayLeave",leaveController.todayLeave);
+router.get("/searchEmployees",leaveController.searchEmployees);
 
 module.exports = router;

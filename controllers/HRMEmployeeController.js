@@ -346,33 +346,95 @@ const HrmEmployeeUpdate = async (req, res) => {
 
 const getPayslipGenerationStatus = async (req, res) => {
   try {
-    const data = await HRMEmployee.find().select(
-      "empId employeeName paySlipStatus -_id"
-    );
-    if (!data.length === 0) {
-      return res.status(404).json({ message: "No employee data found" });
+    // Get pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Get total count
+    const totalCount = await HRMEmployee.countDocuments();
+    const totalPages = Math.ceil(totalCount / limit);
+
+    // Get paginated data
+    const employees = await HRMEmployee.find()
+      .select("empId employeeName paySlipStatus -_id")
+      .skip(skip)
+      .limit(limit);
+
+    if (!employees || employees.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No employee data found"
+      });
     }
-    return res.status(200).json(data);
+
+    return res.status(200).json({
+      success: true,
+      message: "Retrieved employees successfully",
+      data: {
+        pagination: {
+          currentPage: page,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1
+        },
+        employees
+      }
+    });
+
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Server Error", error: error.message });
+    return res.status(500).json({
+      success: false, 
+      message: "Server Error",
+      error: error.message
+    });
   }
 };
 
 const getEmployeePaySlipList = async (req, res) => {
   try {
-    const data = await HRMEmployee.find().select(
-      "empId salary employeeName jobTitle _id"
-    );
-    if (!data.length === 0) {
-      return res.status(404).json({ message: "No employee data found" });
+    // Get pagination parameters from query
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination
+    const totalCount = await HRMEmployee.countDocuments();
+    const totalPages = Math.ceil(totalCount / limit);
+
+    // Get paginated employees with selected fields
+    const employees = await HRMEmployee.find()
+      .select("empId salary employeeName jobTitle _id")
+      .skip(skip)
+      .limit(limit);
+
+    if (!employees || employees.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No employee data found"
+      });
     }
-    return res.status(200).json(data);
+
+    return res.status(200).json({
+      success: true,
+      message: "Retrieved employees successfully",
+      data: {
+        pagination: {
+          currentPage: page,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1
+        },
+        employees
+      }
+    });
+
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Server Error", error: error.message });
+    return res.status(500).json({ 
+      success: false,
+      message: "Server Error", 
+      error: error.message 
+    });
   }
 };
 

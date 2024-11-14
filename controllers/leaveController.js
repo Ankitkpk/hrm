@@ -127,14 +127,37 @@ const getAllEmployeeLeaves = async (req, res) => {
 
 const getEmployeeLeave = async (req, res) => {
   try {
+    // Get pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
     const today = new Date();
 
-    const data = await addLeave.find({status:"Pending",fromDate: { $gte: today }}).populate("employee");
-    if (!data) {
-      return res.status(404).json({ message: "No employee leaves found" });
+    // Get total count
+    const totalCount = await addLeave.countDocuments({
+      status: "Pending",
+      fromDate: { $gte: today }
+    });
+    const totalPages = Math.ceil(totalCount / limit);
+
+    // Get paginated data
+    const data = await addLeave.find({
+      status: "Pending",
+      fromDate: { $gte: today }
+    })
+    .populate("employee")
+    .skip(skip)
+    .limit(limit);
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No employee leaves found"
+      });
     }
     
-    const result = data.map((leave) => ({
+    const employees = data.map((leave) => ({
       _id: leave._id,
       employeeName: leave.employee.employeeName,
       EmpObjectId: leave.employee._id,
@@ -145,9 +168,25 @@ const getEmployeeLeave = async (req, res) => {
       totalDays: leave.totalDays,
     }));
 
-    return res.status(200).json(result);
+    return res.status(200).json({
+      success: true,
+      message: "Retrieved employees successfully",
+      data: {
+        pagination: {
+          currentPage: page,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1
+        },
+        employees
+      }
+    });
+
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
   }
 };
 

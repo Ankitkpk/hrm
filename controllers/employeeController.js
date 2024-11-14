@@ -283,6 +283,7 @@ const getAllDocuments = async (req, res) => {
     }
 
     const documentFields = {
+      id: user._id,
       name: user.fullName,
     };
 

@@ -195,17 +195,33 @@ const getEmployeeList = async (req, res) => {
 
 const getAllEmployeeAttendanceDetails = async (req, res) => {
   try {
+    // Get pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
     const today = new Date().toISOString().split('T')[0];
+
+    // Get total count
+    const totalCount = await Attendance.countDocuments({
+      'dailyAttendance.date': today
+    });
+    const totalPages = Math.ceil(totalCount / limit);
+
+    // Get paginated records
     const employeeRecords = await Attendance.find(
       { 'dailyAttendance.date': today },
       'attendanceDate dailyAttendance'
-    ).populate({
+    )
+    .populate({
       path: 'employee',
       select: 'empId employeeName _id jobTitle department employeeType'
-    });
+    })
+    .skip(skip)
+    .limit(limit);
     
-    // Format the response data directly
-    const response = employeeRecords.map(record => {
+    // Format the response data
+    const employees = employeeRecords.map(record => {
       const todayAttendance = record.dailyAttendance.find(
         entry => entry.date.toISOString().split('T')[0] === today
       );
@@ -223,11 +239,27 @@ const getAllEmployeeAttendanceDetails = async (req, res) => {
       };
     });
 
-    // Send successful response with formatted data
-    return res.status(200).json(response);
+    return res.status(200).json({
+      success: true,
+      message: "Retrieved employees successfully",
+      data: {
+        pagination: {
+          currentPage: page,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1
+        },
+        employees
+      }
+    });
+
   } catch (error) {
     console.error('Error fetching employee details:', error);
-    return res.status(500).json({ message: 'Server Error', error: error.message });
+    return res.status(500).json({ 
+      success: false,
+      message: 'Server Error', 
+      error: error.message 
+    });
   }
 };
 

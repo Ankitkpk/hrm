@@ -470,12 +470,6 @@
         });
       }
   
-      const { expenseCategory } = req.query;
-      const validCategories = ["Travel", "Food", "Gifts", "Stationary", "Other"];
-      if (!validCategories.includes(expenseCategory)) {
-        return res.status(400).json({ message: "Invalid expense category" });
-      }
-  
       // Get the month for the expense record
       const month = expenseDate.toLocaleString('default', { month: 'long' }) + ' ' + expenseDate.getFullYear();
   

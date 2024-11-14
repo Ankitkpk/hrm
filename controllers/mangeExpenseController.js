@@ -271,9 +271,112 @@ const getEmployeeNameAndDepartment = async (req, res) => {
   }
 };
 
+
+const manageExpenseForStationary = async (req, res) => {
+  try {
+    const {
+      employeeId,
+      name,
+      place,
+      date,
+      amount,
+      billNumber,
+      description,
+      itemName,
+      quantity,
+      purpose
+    } = req.body;
+
+    // Validate required fields
+    if (!name || !place || !date || !employeeId) {
+      return res.status(400).json({
+        success: false,
+        message: "Name, place, date, and employeeId are required"
+      });
+    }
+
+    // Validate date format
+    const expenseDate = new Date(date);
+    if (isNaN(expenseDate.getTime())) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid date format"
+      });
+    }
+
+    // Generate month string from date
+    const month = expenseDate.toLocaleString('default', { month: 'long' }) + ' ' + expenseDate.getFullYear();
+
+    // Define the stationary expense object
+    const stationaryExpense = {
+      date: expenseDate,
+      amount: amount || { cash: 0, online: 0 },
+      billNumber,
+      description,
+      itemName,
+      quantity,
+      purpose,
+      receipt: req.file ? req.file.path : null,
+      status: "pending"
+    };
+
+    // Define start and end of the day for date comparison
+    const startOfDay = new Date(expenseDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(expenseDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Find existing expense entry for the employee
+    let expense = await Expense.findOne({
+      employeeId,
+      place,
+      month
+    });
+
+    // If expense exists, update daily expenses
+    if (expense) {
+      let dayExpense = expense.dailyExpenses.find(day => 
+        new Date(day.date) >= startOfDay && new Date(day.date) <= endOfDay
+      );
+      if (dayExpense) {
+        dayExpense.stationeries.push(stationaryExpense); // Add the stationery expense to the existing day
+      } else {
+        expense.dailyExpenses.push({
+          date: expenseDate,
+          stationeries: [stationaryExpense] // Add a new entry for the day if it doesn't exist
+        });
+      }
+    } else {
+      // If no expense record, create a new one
+      expense = new Expense({
+        name,
+        employeeId,
+        place,
+        month,
+        dailyExpenses: [{
+          date: expenseDate,
+          stationeries: [stationaryExpense]
+        }]
+      });
+    }
+
+    // Sort daily expenses by date
+    expense.dailyExpenses.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Save the expense record
+    await expense.save();
+
+    res.status(200).json({ success: true, message: "Stationery expense saved successfully", data: expense });
+  } catch (error) {
+    console.error("Error saving stationery expense:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   addFoodExpense,
   getExpenseCategory,
   addTravelExpense,
-  getEmployeeNameAndDepartment
+  getEmployeeNameAndDepartment,
+  manageExpenseForStationary
 };

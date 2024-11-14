@@ -32,6 +32,12 @@ router.post(
   manageExpense.addFoodExpense
 )
 
+router.post(
+  "/manageExpenseForStationary",
+  upload.single("receipt"),
+  manageExpense.manageExpenseForStationary,
+ );
+
 router.get('/getExpenseCategory',manageExpense.getExpenseCategory)
 
 router.get('/getEmployeeNameAndDepartment/:id',manageExpense.getEmployeeNameAndDepartment)

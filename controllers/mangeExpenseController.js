@@ -1,5 +1,5 @@
 const Expense = require("../models/mangeExpenseModel");
-
+const HRMEmployee = require("../models/HRMEmployeeModel");
 
 const getExpenseCategory=(req, res) => {
   const Categories = ["Travel", "Food", "Gifts", "Stationary", "Other"];
@@ -241,5 +241,39 @@ const addFoodExpense = async (req, res) => {
   }
 };
 
+// api for getting name, manager, and department from HRMEmployee model
 
-module.exports = { addFoodExpense , getExpenseCategory, addTravelExpense };
+const getEmployeeNameAndDepartment = async (req, res) => {
+  try {
+    const {id} = req.params;
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Employee ID is required"
+      });
+    }
+    const employees = await HRMEmployee.findById(id)
+      .select('employeeName department manager -_id')
+      .lean();
+ 
+
+    return res.status(200).json({
+      success: true,
+      data: employees
+    });
+
+  } catch (error) {
+    console.error("Error fetching employee details:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+module.exports = {
+  addFoodExpense,
+  getExpenseCategory,
+  addTravelExpense,
+  getEmployeeNameAndDepartment
+};

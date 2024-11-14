@@ -34,6 +34,8 @@ router.post(
 
 router.get('/getExpenseCategory',manageExpense.getExpenseCategory)
 
+router.get('/getEmployeeNameAndDepartment/:id',manageExpense.getEmployeeNameAndDepartment)
+
 // // Route to handle expense creation with file upload
 // router.post(
 //   "/manageExpensesForSales/:id",

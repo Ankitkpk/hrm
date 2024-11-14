@@ -496,17 +496,48 @@ const getHrmEmployeeDetails = async(req,res)=>{
 
 const getHrmEmployeeList = async (req, res) => {
   try {
-    const data = await HRMEmployee.find().select(
-      "_id employeeName empId phoneNumber startDate jobTitle"
-    );
-    if (!data) {
-      res.status(402).json({ message: "Data not Found" });
+    // Get pagination parameters from query
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination
+    const totalCount = await HRMEmployee.countDocuments();
+    const totalPages = Math.ceil(totalCount / limit);
+
+    // Get paginated employees
+    const data = await HRMEmployee.find()
+      .select("_id employeeName empId phoneNumber startDate jobTitle")
+      .skip(skip)
+      .limit(limit);
+
+    if (!data || data.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "No employees found"
+      });
     }
-    res.status(200).json(data);
+
+    return res.status(200).json({
+      success: true,
+      message: "Retrieved employees successfully",
+      data: {
+        pagination: {
+          currentPage: page,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1
+        },
+        employees: data
+      }
+    });
+
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Server Error", error: error.message });
+    return res.status(500).json({ 
+      success: false,
+      message: "Server Error", 
+      error: error.message 
+    });
   }
 };
 

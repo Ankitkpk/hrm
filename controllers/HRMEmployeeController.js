@@ -403,7 +403,7 @@ const getEmployeePaySlipList = async (req, res) => {
     const totalPages = Math.ceil(totalCount / limit);
 
     // Get paginated employees with selected fields
-    const employees = await HRMEmployee.find()
+    const employees = await HRMEmployee.find() 
       .select("empId salary employeeName jobTitle _id")
       .skip(skip)
       .limit(limit);

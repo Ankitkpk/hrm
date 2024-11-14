@@ -38,6 +38,12 @@ router.post(
   manageExpense.manageExpenseForStationary,
  );
 
+ router.post(
+  "/manageExpenseForGifts",
+  upload.single("receipt"),
+  manageExpense.manageExpenseForGifts,
+);
+
 router.get('/getExpenseCategory',manageExpense.getExpenseCategory)
 
 router.get('/getEmployeeNameAndDepartment/:id',manageExpense.getEmployeeNameAndDepartment)

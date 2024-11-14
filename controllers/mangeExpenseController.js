@@ -474,11 +474,108 @@ const manageExpenseForGifts = async (req, res) => {
   }
 };
 
+
+const manageExpenseForOther = async (req, res) => {
+  try {
+    const {
+      employeeId,
+      name,
+      place,
+      date,
+      amount,
+      billNumber,
+      description,
+    } = req.body;
+
+    // Validate required fields
+    if (!name || !place || !date || !employeeId) {
+      return res.status(400).json({
+        success: false,
+        message: "Name, place, date, and employeeId are required"
+      });
+    }
+
+    // Validate date format
+    const expenseDate = new Date(date);
+    if (isNaN(expenseDate.getTime())) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid date format"
+      });
+    }
+
+    // Get the month for the expense record
+    const month = expenseDate.toLocaleString('default', { month: 'long' }) + ' ' + expenseDate.getFullYear();
+
+    // Define the other expense object
+    const otherExpense = {
+      date: expenseDate,
+      amount: amount || { cash: 0, online: 0 },
+      billNumber,
+      description,
+      receipt: req.file ? req.file.path : null,
+      status: "pending"
+    };
+
+    // Define start and end of the day
+    const startOfDay = new Date(expenseDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(expenseDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    // Find existing expense entry for the employee
+    let expense = await Expense.findOne({
+      employeeId,
+      place,
+      month
+    });
+
+    // If expense exists, update daily expenses
+    if (expense) {
+      let dayExpense = expense.dailyExpenses.find(day => 
+        new Date(day.date) >= startOfDay && new Date(day.date) <= endOfDay
+      );
+      if (dayExpense) {
+        dayExpense.others.push(otherExpense); // Add the other expense to the existing day
+      } else {
+        expense.dailyExpenses.push({
+          date: expenseDate,
+          others: [otherExpense] // Add a new entry for the day if it doesn't exist
+        });
+      }
+    } else {
+      // If no expense record, create a new one
+      expense = new Expense({
+        name,
+        employeeId,
+        place,
+        month,
+        dailyExpenses: [{
+          date: expenseDate,
+          others: [otherExpense]
+        }]
+      });
+    }
+
+    // Sort daily expenses by date
+    expense.dailyExpenses.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Save the expense record
+    await expense.save();
+
+    res.status(200).json({ message: "Other expense saved successfully", data: expense });
+  } catch (error) {
+    console.error("Error saving other expense:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   addFoodExpense,
   getExpenseCategory,
   addTravelExpense,
   getEmployeeNameAndDepartment,
   manageExpenseForStationary,
-  manageExpenseForGifts
+  manageExpenseForGifts,
+  manageExpenseForOther,
 };

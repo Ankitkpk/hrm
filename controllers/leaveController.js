@@ -393,33 +393,80 @@ const getAllLeavesOfEmployee = async(req,res)=>{
 
 const getUpComingLeave = async (req, res) => {
   try {
-    // Fetch leaves where 'toDate' is after the current date
-    const upcomingLeaves = await addLeave.find({ toDate: { $gt: new Date() } })
-      // .populate("employee", "name department") // Populate with specific fields from employee
-      // .select("employee fromDate toDate "); // Select only relevant fields from addLeave schema
-      .populate("employee", "employeeName  department") // Populate with specific fields from employee
-      .select("leaveType fromDate toDate ")
-      .sort({ fromDate: 1 });
+    // Get pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-    // Check if there are any upcoming leaves
-    if (upcomingLeaves.length === 0) {
-      return res.status(404).json({ message: "No upcoming leaves found." });
+    // Get total count
+    const totalCount = await addLeave.countDocuments({ 
+      toDate: { $gt: new Date() } 
+    });
+    const totalPages = Math.ceil(totalCount / limit);
+
+    // Fetch paginated upcoming leaves
+    const upcomingLeaves = await addLeave.find({ 
+      toDate: { $gt: new Date() } 
+    })
+      .populate("employee", "employeeName department")
+      .select("leaveType fromDate toDate")
+      .sort({ fromDate: 1 })
+      .skip(skip)
+      .limit(limit);
+
+    if (!upcomingLeaves.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No upcoming leaves found"
+      });
     }
 
-    return res.status(200).json(upcomingLeaves);
+    return res.status(200).json({
+      success: true,
+      message: "Retrieved employees successfully",
+      data: {
+        pagination: {
+          currentPage: page,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1
+        },
+        employees: upcomingLeaves
+      }
+    });
+
   } catch (error) {
+    console.error("Error retrieving upcoming leaves:", error);
     return res.status(500).json({
+      success: false,
       message: "Error retrieving upcoming leaves",
-      error: error.message,
+      error: error.message
     });
   }
 };
 
 const todayLeave = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
     const currentDate = new Date();
 
-    // Find leave applications where the current date is between fromDate and toDate or equal to fromDate/toDate
+    // Get total count for pagination
+    const totalCount = await addLeave.countDocuments({
+      $or: [
+        {
+          fromDate: { $lte: currentDate },
+          toDate: { $gte: currentDate }
+        },
+        { fromDate: currentDate },
+        { toDate: currentDate }
+      ]
+    });
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    // Find leave applications with pagination
     const leaveApplications = await addLeave.find({
       $or: [
         {
@@ -430,16 +477,39 @@ const todayLeave = async (req, res) => {
         { toDate: currentDate }
       ]
     })
-    .populate("employee", "employeeName department") // Populate only employeeName and department from HRMEmployee schema
-    .select("leaveType"); // Select leaveType from LeaveApplication
+    .populate("employee", "employeeName department")
+    .select("leaveType fromDate toDate")
+    .skip(skip)
+    .limit(limit);
 
-    // Send response with only the specified fields
-    res.status(200).json(
-      leaveApplications
-    );
+    if (!leaveApplications.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No leaves found for today"
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Retrieved employees successfully",
+      data: {
+        pagination: {
+          currentPage: page,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1
+        },
+        employees: leaveApplications
+      }
+    });
+
   } catch (error) {
     console.error("Error fetching leave applications:", error);
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
+    });
   }
 };
 

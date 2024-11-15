@@ -37,6 +37,16 @@
     manageExpense.manageExpenseForStationary,
   );
   router.post(
+    "/addFoodExpense",
+    upload.single("receipt"),
+    manageExpense.addFoodExpense,
+  );
+  router.post(
+    "/addTravelExpense",
+    upload.single("receipt"),
+    manageExpense.addTravelExpense,
+  );
+  router.post(
     "/manageExpenseForOther",
     upload.single("receipt"),
     manageExpense.manageExpenseForOther,

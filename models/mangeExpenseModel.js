@@ -45,6 +45,7 @@ const food = {
     amount: { type: Number },
     message: { type: String }
    },
+   status: { type: String, default: "pending" },
 }
 
 const gift = {
@@ -64,6 +65,7 @@ const gift = {
     amount: { type: Number },
     message: { type: String }
    },
+   status: { type: String, default: "pending" },
 }
 
 
@@ -81,6 +83,7 @@ const stationary = {
     amount: { type: Number },
     message: { type: String }
    },
+   status: { type: String, default: "pending" },
 }
 
 
@@ -98,6 +101,7 @@ const  other= {
     amount: { type: Number },
     message: { type: String }
    },
+   status: { type: String, default: "pending" },
 }
 
 const expenseSchema = new mongoose.Schema({

@@ -393,24 +393,54 @@ const getAllLeavesOfEmployee = async(req,res)=>{
 
 const getUpComingLeave = async (req, res) => {
   try {
-    // Fetch leaves where 'toDate' is after the current date
-    const upcomingLeaves = await addLeave.find({ toDate: { $gt: new Date() } })
-      // .populate("employee", "name department") // Populate with specific fields from employee
-      // .select("employee fromDate toDate "); // Select only relevant fields from addLeave schema
-      .populate("employee", "employeeName  department") // Populate with specific fields from employee
-      .select("leaveType fromDate toDate ")
-      .sort({ fromDate: 1 });
+    // Get pagination parameters
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-    // Check if there are any upcoming leaves
-    if (upcomingLeaves.length === 0) {
-      return res.status(404).json({ message: "No upcoming leaves found." });
+    // Get total count
+    const totalCount = await addLeave.countDocuments({ 
+      toDate: { $gt: new Date() } 
+    });
+    const totalPages = Math.ceil(totalCount / limit);
+
+    // Fetch paginated upcoming leaves
+    const upcomingLeaves = await addLeave.find({ 
+      toDate: { $gt: new Date() } 
+    })
+      .populate("employee", "employeeName department")
+      .select("leaveType fromDate toDate")
+      .sort({ fromDate: 1 })
+      .skip(skip)
+      .limit(limit);
+
+    if (!upcomingLeaves.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No upcoming leaves found"
+      });
     }
 
-    return res.status(200).json(upcomingLeaves);
+    return res.status(200).json({
+      success: true,
+      message: "Retrieved employees successfully",
+      data: {
+        pagination: {
+          currentPage: page,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1
+        },
+        employees: upcomingLeaves
+      }
+    });
+
   } catch (error) {
+    console.error("Error retrieving upcoming leaves:", error);
     return res.status(500).json({
+      success: false,
       message: "Error retrieving upcoming leaves",
-      error: error.message,
+      error: error.message
     });
   }
 };

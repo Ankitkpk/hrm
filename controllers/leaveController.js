@@ -449,7 +449,21 @@ const todayLeave = async (req, res) => {
   try {
     const currentDate = new Date();
 
-    // Find leave applications where the current date is between fromDate and toDate or equal to fromDate/toDate
+    // Get total count for pagination
+    const totalCount = await addLeave.countDocuments({
+      $or: [
+        {
+          fromDate: { $lte: currentDate },
+          toDate: { $gte: currentDate }
+        },
+        { fromDate: currentDate },
+        { toDate: currentDate }
+      ]
+    });
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    // Find leave applications with pagination
     const leaveApplications = await addLeave.find({
       $or: [
         {
@@ -460,16 +474,39 @@ const todayLeave = async (req, res) => {
         { toDate: currentDate }
       ]
     })
-    .populate("employee", "employeeName department") // Populate only employeeName and department from HRMEmployee schema
-    .select("leaveType"); // Select leaveType from LeaveApplication
+    .populate("employee", "employeeName department")
+    .select("leaveType fromDate toDate")
+    .skip(skip)
+    .limit(limit);
 
-    // Send response with only the specified fields
-    res.status(200).json(
-      leaveApplications
-    );
+    if (!leaveApplications.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No leaves found for today"
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Retrieved employees successfully",
+      data: {
+        pagination: {
+          currentPage: page,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1
+        },
+        employees: leaveApplications
+      }
+    });
+
   } catch (error) {
     console.error("Error fetching leave applications:", error);
-    res.status(500).json({ message: "Server error" });
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
+    });
   }
 };
 

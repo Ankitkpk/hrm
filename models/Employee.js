@@ -39,18 +39,6 @@ const employeeSchema = new mongoose.Schema(
     department: {
       type: String,
       required: true,
-      enum: [
-        "Human Resources",
-        "Finance",
-        "Marketing",
-        "Sales",
-        "Operations",
-        "Information Technology",
-        "Customer Service",
-        "Research and Development (R&D)",
-        "Legal",
-        "Software Development",
-      ],
     },
     companyId:{
       type:mongoose.Schema.Types.ObjectId,

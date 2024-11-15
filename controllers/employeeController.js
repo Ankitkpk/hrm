@@ -417,16 +417,8 @@ const getAllDepartment = async (req, res) => {
   try {
     // Use distinct method to get unique department names from Employee collection
     const departments = [
-      "Human Resources",
-      "Finance",
-      "Marketing",
       "Sales",
-      "Operations",
-      "Information Technology",
-      "Customer Service",
-      "Research and Development (R&D)",
-      "Legal",
-      "Software Development",
+      "Screening",
     ];
     return res.status(200).json({ departments: departments });
   } catch (error) {

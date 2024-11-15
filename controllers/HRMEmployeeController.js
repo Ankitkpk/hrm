@@ -393,6 +393,7 @@ const getPayslipGenerationStatus = async (req, res) => {
 
 const getEmployeePaySlipList = async (req, res) => {
   try {
+    const { employeeName } = req.query;
     // Get pagination parameters from query
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
@@ -403,7 +404,7 @@ const getEmployeePaySlipList = async (req, res) => {
     const totalPages = Math.ceil(totalCount / limit);
 
     // Get paginated employees with selected fields
-    const employees = await HRMEmployee.find() 
+    const employees = await HRMEmployee.find({employeeName}) 
       .select("empId salary employeeName jobTitle _id")
       .skip(skip)
       .limit(limit);

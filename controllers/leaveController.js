@@ -447,6 +447,9 @@ const getUpComingLeave = async (req, res) => {
 
 const todayLeave = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
     const currentDate = new Date();
 
     // Get total count for pagination

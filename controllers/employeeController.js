@@ -204,7 +204,7 @@ const getCandidate = async (req, res) => {
     if (!employee) {
       return res.status(404).json({ message: "Employee not found" });
     }
-    return res.status(200).json(employee);
+    return res.status(200).json({ success: true, employee});
   } catch (error) {
     return res
       .status(500)
@@ -284,7 +284,7 @@ const getAllDocuments = async (req, res) => {
 
     const documentFields = {
       id: user._id,
-      name: user.fullName,
+      fullName: user.fullName,
     };
 
     // Helper function to get file type from path or base64

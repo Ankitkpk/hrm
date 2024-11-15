@@ -55,6 +55,9 @@ router.get('/getExpenseCategory',manageExpense.getExpenseCategory)
 
 router.get('/getEmployeeNameAndDepartment/:id',manageExpense.getEmployeeNameAndDepartment)
 
+router.get('/getExpenseHistory',manageExpense.getExpenseHistory);
+router.get('/getExpenseStatus/:employeeId',manageExpense.getExpenseStatus);
+
 // // Route to handle expense creation with file upload
 // router.post(
 //   "/manageExpensesForSales/:id",

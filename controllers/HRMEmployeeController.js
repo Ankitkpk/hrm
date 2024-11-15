@@ -286,7 +286,7 @@ const HrmEmployeeSearching = async (req, res) => {
         });
     }
 
-    const data = await HRMEmployee.find({
+    const data = await HRMEmployee.findOne({
       empId,
       employeeName,
       jobTitle,
@@ -298,7 +298,7 @@ const HrmEmployeeSearching = async (req, res) => {
       return res.status(404).json({ message: "Employee Not Found." });
     }
 
-    return res.status(200).json(...data);
+    return res.status(200).json({ success: true, data });
   } catch (error) {
     console.error("Error occurred:", error);
     return res

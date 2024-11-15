@@ -570,6 +570,124 @@ const manageExpenseForOther = async (req, res) => {
   }
 };
 
+const getExpenseHistory = async (req, res) => {
+  const expenseDate = new Date();
+  const month = expenseDate.toLocaleString('default', { month: 'long' }) + ' ' + expenseDate.getFullYear();
+  try {
+    
+    const expenses = await Expense.find({ month:month }).select("dailyExpenses");
+   
+    const expenseHistory = expenses.flatMap((expense) => 
+      expense.dailyExpenses.flatMap((dailyExpense) =>
+        ['travels', 'foods', 'gifts', 'stationeries', 'others'].flatMap((category) =>
+          dailyExpense[category].map((item) => {
+              const amount = (item.amount?.cash || 0) + (item.amount?.online || 0);
+              let status="";
+              switch (category) {
+                case 'gifts':
+                 
+                   status=item.status || " ";
+                  break;
+                case 'stationeries':
+                 
+                   status=item.status || " ";
+                  break;
+                case 'others':
+                 
+                  status=item.status || " ";
+                  break;
+                case 'travels':
+                 
+                  status=item.status || " ";
+                  break;
+                case 'foods':
+                 
+                  status=item.status || " ";
+                  break;
+              }
+
+              return {
+                id:item.id,
+                date: (item.date),
+                category,
+                amount,
+                status
+              };
+            
+            
+          })
+        )
+      )
+    );
+    const totalExpenseHistory = expenseHistory.filter(expense => expense.status === "approved");
+
+   const totalExpense = totalExpenseHistory.reduce((accumulator, item) => accumulator + item.amount, 0);
+    return res.status(200).json({ totalExpenseHistory, totalExpense });
+  } catch (error) {
+    console.error("Error fetching expense history:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+const getExpenseStatus = async (req, res) => {
+  try {
+    const { employeeId } = req.params;
+    const { expenseCategory, date, status } = req.query; // Get optional filters from query parameters
+
+    // Fetch expenses for the given employee ID
+    const expensesArray = await Expense.find({ employeeId }).select("dailyExpenses")  //.lean();
+
+    if (!expensesArray || expensesArray.length === 0) {
+      return res.status(404).json({ message: "No expenses found for this employee." });
+    }
+
+    // Reduce across all records in the expensesArray to collect daily expenses
+    let expenseDetails = expensesArray.reduce((acc, expenses) => {
+      expenses.dailyExpenses.forEach(dailyExpense => {
+        const categories = [
+          { category: "Travel", expenses: dailyExpense.travels },
+          { category: "Food", expenses: dailyExpense.foods },
+          { category: "Gift", expenses: dailyExpense.gifts },
+          { category: "Stationary", expenses: dailyExpense.stationeries },
+          { category: "Other", expenses: dailyExpense.others }
+        ];
+
+        // Collect all expenses into acc
+        categories.forEach(({ category, expenses }) => {
+          expenses.forEach(item => {
+            acc.push({
+              date: item.date,
+              expenseCategory: category,
+              amount: (item.amount?.cash || 0) + (item.amount?.online || 0),
+              status: item.status,
+            });
+          });
+        });
+      });
+      return acc;
+    }, []);
+
+    // Apply default sorting by date in ascending order
+    expenseDetails = expenseDetails.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Apply optional filters
+    if (expenseCategory) {
+      expenseDetails = expenseDetails.filter(expense => expense.expenseCategory === expenseCategory);
+    }
+    if (date) {
+      expenseDetails = expenseDetails.filter(expense => expense.date === date);
+    }
+    if (status) {
+      expenseDetails = expenseDetails.filter(expense => expense.status === status);
+    }
+
+    return res.status(200).json(expenseDetails);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+};
+
+
 module.exports = {
   addFoodExpense,
   getExpenseCategory,
@@ -578,4 +696,6 @@ module.exports = {
   manageExpenseForStationary,
   manageExpenseForGifts,
   manageExpenseForOther,
+  getExpenseHistory,
+  getExpenseStatus,
 };

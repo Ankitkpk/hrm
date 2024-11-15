@@ -202,7 +202,7 @@ const getCandidate = async (req, res) => {
     const employee = await Employee.findOne(req.query);
 
     if (!employee) {
-      return res.status(404).json({ message: "Employee not found" });
+      return res.status(404).json({ success: false, message: "Employee not found" });
     }
     return res.status(200).json({ success: true, employee});
   } catch (error) {

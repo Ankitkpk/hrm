@@ -22,17 +22,48 @@ const createNotification = async (req, res) => {
 const getNotificationsForUser = async (req, res) => {
   try {
     const userId = req.params.userId;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-    // Find notifications for the specified user
-    const notifications = await Notification.find({ user: userId }).sort({
-      createdAt: -1,
+    // Get total count
+    const totalCount = await Notification.countDocuments({ user: userId });
+    const totalPages = Math.ceil(totalCount / limit);
+
+    // Find notifications with pagination
+    const notifications = await Notification.find({ user: userId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    if (!notifications.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No notifications found"
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Retrieved notifications successfully",
+      data: {
+        pagination: {
+          currentPage: page,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1
+        },
+        notifications
+      }
     });
 
-    // Respond with the list of notifications
-    return res.status(200).json(notifications);
   } catch (error) {
     console.error("Error retrieving notifications:", error);
-    return res.status(500).json({ message: "Server error" });
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
+    });
   }
 };
 

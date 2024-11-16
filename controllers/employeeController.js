@@ -1,25 +1,45 @@
-/*(const Employee = require("../models/Employee");
+const Employee = require("../models/Employee");
 const nodemailer = require("nodemailer");
 const moment = require("moment");
-
 const { State, City } = require("country-state-city");
+const Company = require("../models/company.model");
 
 // Create new employee
 
 // change name to
 const addNewCandidate = async (req, res) => {
-  const {
-    fullName,
-    email,
-    phoneNumber,
-    positionApplied,
-    department,
-    dateOfBirth,
-    joiningDate,
-    employmentType,
-    emergencyContact,
-    residentialAddress,
-  } = req.body;
+  //   const {
+  //     candidateId,
+  //     fullName,
+  //     positionAppliedFor,
+  //     department,
+  //     qualification,
+  //     grade,
+  //     company,
+  //     dateOfBirth,
+  //     address,
+  //     maritalStatus,
+  //     country,
+  //     anniversaryDate,
+  //     state,
+  //     city,
+  //     phoneNumber,
+
+  //     alternatePhoneNumber,
+  //     officialEmail,
+  // personalEmail,
+  // emergencyContact,
+  //     relationshipWithPerson,
+  //     salary,
+  //     addharCardNumber,
+  //     joiningDate,
+  //     bankAccountName,
+  //     pancard,
+
+  //     employmentType,
+  //     residentialAddress,
+  //   } = req.body;
+  const data = req.body;
 
   try {
     const { photo } = req.files;
@@ -27,18 +47,10 @@ const addNewCandidate = async (req, res) => {
     if (photo) {
       ph = photo[0]?.originalname;
     }
-
+    const companyId = Company.find(data.company).select("_id");
+    data.company = companyId;
     const employee = new Employee({
-      fullName,
-      email,
-      phoneNumber,
-      positionApplied,
-      department,
-      dateOfBirth,
-      joiningDate,
-      employmentType,
-      emergencyContact,
-      residentialAddress,
+      ...data,
       photo: {
         data: ph,
         date: new Date(),
@@ -190,9 +202,9 @@ const getCandidate = async (req, res) => {
     const employee = await Employee.findOne(req.query);
 
     if (!employee) {
-      return res.status(404).json({ message: "Employee not found" });
+      return res.status(404).json({ success: false, message: "Employee not found" });
     }
-    return res.status(200).json(employee);
+    return res.status(200).json({ success: true, employee});
   } catch (error) {
     return res
       .status(500)
@@ -203,64 +215,145 @@ const getCandidate = async (req, res) => {
 // Get all employees
 const getAllEmployees = async (req, res) => {
   try {
-    const employees = await Employee.find();
-    return res
-      .status(201)
-      .json({ message: "Retrieved all employees", employees });
+    // Get pagination parameters from query
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Get total count for pagination
+    const totalCount = await Employee.countDocuments();
+    const totalPages = Math.ceil(totalCount / limit);
+
+    // Get paginated employees
+    const employees = await Employee.find()
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    if (!employees.length) {
+      return res.status(404).json({ 
+        success: false,
+        message: "No employees found" 
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Retrieved employees successfully",
+      data: {
+        pagination: {
+          currentPage: page,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1
+        },
+        employees
+        
+      }
+    });
+
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Error retrieving employees", error });
+    console.error("Error retrieving employees:", error);
+    return res.status(500).json({ 
+      success: false,
+      message: "Error retrieving employees",
+      error: error.message 
+    });
   }
-};
+}; 
 
 const getAllDocuments = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Find the employee by ID
-    const user = await Employee.findById(id);
+    const user = await Employee.findById(id).select({
+      "fullName":1,
+      'photo': 1,
+      'cv': 1,
+      'relievingLetter': 1,
+      'bankDetails': 1,
+      'aadharCard': 1
+    });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ 
+        success: false,
+        message: "Employee not found" 
+      });
     }
 
     const documentFields = {
-      photo: {
-        photo: user.photo.data,
-        date: user.photo.date,
-      },
-      cv: {
-        cv: user.cv.data,
-        date: user.cv.date,
-      },
-      relievingLetter: {
-        relievingLetter: user.relievingLetter.data,
-        date: user.relievingLetter.date,
-      },
-      bankDetails: {
-        bankDetails: user.bankDetails.data,
-        date: user.bankDetails.date,
-      },
-      aadharCard: {
-        aadharCard: user.aadharCard.data,
-        date: user.aadharCard.date,
-      },
-      postalAddress: {
-        postalAddress: user.postalAddress.data,
-        date: user.postalAddress.date,
-      },
-      permanentAddress: {
-        permanentAddress: user.permanentAddress.data,
-        date: user.permanentAddress.date,
-      },
+      id: user._id,
+      fullName: user.fullName,
     };
 
-    return res.status(200).json({ documents: documentFields });
+    // Helper function to get file type from path or base64
+    const getFileType = (data) => {
+      if (!data) return null;
+      
+      // Check if it's a base64 string
+      if (data.startsWith('data:')) {
+        const matches = data.match(/^data:([A-Za-z-+\/]+);base64,/);
+        if (matches && matches.length > 1) {
+          return matches[1];
+        }
+      }
+      
+      // Check file extension if it's a path
+      if (typeof data === 'string') {
+        const extension = data.split('.').pop().toLowerCase();
+        switch(extension) {
+          case 'pdf':
+            return 'pdf';
+          case 'jpg':
+          case 'jpeg':
+            return 'jpeg';
+          case 'png':
+            return 'png';
+          default:
+            return 'octet-stream';
+        }
+      }
+      
+      return 'octet-stream';
+    };
+
+    const addDocumentIfExists = (fieldName) => {
+      if (user[fieldName] && user[fieldName].data) {
+        const fileType = getFileType(user[fieldName].data);
+        documentFields[fieldName] = {
+          data: user[fieldName].data,
+          date: user[fieldName].date || null,
+          exists: true,
+          fileType: fileType
+        };
+      } else {
+        documentFields[fieldName] = {
+          data: null,
+          date: null,
+          exists: false,
+          fileType: null
+        };
+      }
+    };
+
+    ['photo', 'cv', 'relievingLetter', 'bankDetails', 'aadharCard'].forEach(doc => {
+      addDocumentIfExists(doc);
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Documents retrieved successfully",
+      documents: documentFields
+    });
+
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Server error", error: error.message });
+    console.error("Error fetching documents:", error);
+    return res.status(500).json({ 
+      success: false,
+      message: "Error retrieving documents",
+      error: error.message 
+    });
   }
 };
 
@@ -324,16 +417,8 @@ const getAllDepartment = async (req, res) => {
   try {
     // Use distinct method to get unique department names from Employee collection
     const departments = [
-      "Human Resources",
-      "Finance",
-      "Marketing",
       "Sales",
-      "Operations",
-      "Information Technology",
-      "Customer Service",
-      "Research and Development (R&D)",
-      "Legal",
-      "Software Development",
+      "Screening",
     ];
     return res.status(200).json({ departments: departments });
   } catch (error) {
@@ -457,45 +542,6 @@ const viewNotUploadedDocuments = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
-
-const getEmployeePercentage = async (req, res) => {
-  try {
-    const previousMonthStart = moment().subtract(1, "month").startOf("month").toDate();
-    const previousMonthEnd = moment().subtract(1, "month").endOf("month").toDate();
-    const currentMonthStart = moment().startOf("month").toDate();
-    const currentMonthEnd = moment().endOf("month").toDate();
-
-    const previousMonthCount = await Employee.countDocuments({
-      createdAt: { $gte: previousMonthStart, $lte: previousMonthEnd },
-    });
-    
-
-  
-    const currentMonthCount = await Employee.countDocuments({
-      createdAt: { $gte: currentMonthStart, $lte: currentMonthEnd },
-    });
-    let percentageChange = 0;
-    if (previousMonthCount > 0) {
-    
-      percentageChange = ((currentMonthCount - previousMonthCount) / previousMonthCount) * 100;
-    } else {
-      
-      percentageChange = currentMonthCount > 0 ? 100 : 0; 
-    }
-
-    if( percentageChange > 100 ){
-      percentageChange = 100;
-    }
-    if (percentageChange < -100){
-      percentageChange = -100;
-    }
-    const NewEmployee = Math.abs(previousMonthCount - currentMonthCount);
-    
-    return res.json({
-      percentageChange,
-      NewEmployee
-=======
 const getEmployeeCountForCurrentMonth = async (req, res) => {
   try {
     const currentMonthStart = moment().startOf("month").toDate();
@@ -507,7 +553,6 @@ const getEmployeeCountForCurrentMonth = async (req, res) => {
 
     return res.json({
       empCount: currentMonthCount,
->>>>>>> 34064bb5fc769ca3d91f45994754b4c5c8d304a2
     });
   } catch (error) {
     console.error("Error calculating employee percentage:", error);
@@ -515,11 +560,36 @@ const getEmployeeCountForCurrentMonth = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
-=======
+
+
+const getCountry =(req,res)=>{
+  try{
+    // const countries = State.getCountryList().map((country) => ({
+    //   name: country.name,
+    //   isoCode: country.isoCode,
+    // }));
+    const countries = [
+      {
+        name: "India",
+        isoCode: "IN",
+      }
+    ]
+    return res.status(200).json({
+      success: true,
+      data: countries,
+    });
+  }catch(error){
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+
 const getStates = async (req, res) => {
   try {
-    const states = State.getStatesOfCountry('IN').map((state) => ({
+    const countries = req.query.country;
+    const states = State.getStatesOfCountry(countries).map((state) => ({
       name: state.name,
       isoCode: state.isoCode,
     }));
@@ -538,7 +608,7 @@ const getStates = async (req, res) => {
 
 const getCities = async (req, res) => {
   try {
-    const { stateCode } = req.query;
+    const { stateCode, country } = req.query;
 
     if (!stateCode) {
       return res.status(400).json({
@@ -547,11 +617,9 @@ const getCities = async (req, res) => {
       });
     }
 
-    const cities = City.getCitiesOfState('IN', stateCode).map(
-      (city) => ({
-        name: city.name,
-      })
-    );
+    const cities = City.getCitiesOfState(country, stateCode).map((city) => ({
+      name: city.name,
+    }));
 
     return res.status(200).json({
       success: true,
@@ -564,7 +632,7 @@ const getCities = async (req, res) => {
     });
   }
 };
->>>>>>> 34064bb5fc769ca3d91f45994754b4c5c8d304a2
+
 
 
 module.exports = {
@@ -583,79 +651,8 @@ module.exports = {
   getPositiontype,
   sendMail,
   viewNotUploadedDocuments,
-<<<<<<< HEAD
-  getEmployeePercentage
-=======
   getEmployeeCountForCurrentMonth,
   getStates,
-  getCities
-
+  getCities,
+  getCountry
 };
-const updateExpense = async (req, res) => {
-  const { emp, amount, billNumber, description, receiverName, receiverNumber, purpose, date } = req.body;
-  const { expenseCategory } = req.query;
-
-  // Validate expenseCategory
-  const validCategories = ["Travel", "Food", "Gifts", "Stationary", "Other"];
-  if (!validCategories.includes(expenseCategory)) {
-    return res.status(400).json({ message: "Invalid expense category" });
-  }
-
-  try {
-    // Fetch the expense for the specified employee and category
-    const expense = await Expense.findOne({ emp, expenseCategory });
-    if (!expense) {
-      return res.status(404).json({ error: "Expense not found for the specified employee and category" });
-    }
-
-    // Dynamically update the category fields
-    if (expenseCategory === "Other") {
-      if (!expense.other) expense.other = {};  // Initialize 'other' field if not already present
-      expense.other.date = date || expense.other.date;
-      expense.other.amount = expense.other.amount || {};
-      expense.other.amount.cash = amount?.cash || expense.other.amount.cash;
-      expense.other.amount.online = amount?.online || expense.other.amount.online;
-      expense.other.billNumber = billNumber || expense.other.billNumber;
-      expense.other.description = description || expense.other.description;
-      expense.other.receipts = req.file ? req.file.path : expense.other.receipts;
-    }
-
-    if (expenseCategory === "Gifts") {
-      if (!expense.gifts) expense.gifts = {};  // Initialize 'gifts' field if not already present
-      expense.gifts.date = date || expense.gifts.date;
-      expense.gifts.amount = expense.gifts.amount || {};
-      expense.gifts.amount.cash = amount?.cash || expense.gifts.amount.cash;
-      expense.gifts.amount.online = amount?.online || expense.gifts.amount.online;
-      expense.gifts.billNumber = billNumber || expense.gifts.billNumber;
-      expense.gifts.description = description || expense.gifts.description;
-      expense.gifts.receiverName = receiverName || expense.gifts.receiverName;
-      expense.gifts.receiverNumber = receiverNumber || expense.gifts.receiverNumber;
-      expense.gifts.purpose = purpose || expense.gifts.purpose;
-      expense.gifts.receipts = req.file ? req.file.path : expense.gifts.receipts;
-    }
-
-    if (expenseCategory === "Stationary") {
-      if (!expense.stationary) expense.stationary = {};  // Initialize 'stationary' field if not already present
-      expense.stationary.date = date || expense.stationary.date;
-      expense.stationary.amount = expense.stationary.amount || {};
-      expense.stationary.amount.cash = amount?.cash || expense.stationary.amount.cash;
-      expense.stationary.amount.online = amount?.online || expense.stationary.amount.online;
-      expense.stationary.billNumber = billNumber || expense.stationary.billNumber;
-      expense.stationary.description = description || expense.stationary.description;
-      expense.stationary.receipts = req.file ? req.file.path : expense.stationary.receipts;
-    }
-
-    // Save the updated expense document
-    await expense.save();
-    return res.status(200).json({ message: `${expenseCategory} expense updated successfully`, data: expense });
-  } catch (error) {
-    console.error("Error updating expense:", error);
-    return res.status(500).json({ error: "Server error", message: error.message });
-  }
-};
-
-
-
-
-
-*/

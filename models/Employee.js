@@ -2,15 +2,26 @@ const mongoose = require("mongoose");
 
 const employeeSchema = new mongoose.Schema(
   {
+    candidateId: { type: String, required: true, unique: true },
     fullName: {
       type: String,
       required: true,
     },
-    email: {
+    qualifications: {
+      SSC: { type: Boolean, default: false },
+      HSC: { type: Boolean, default: false },
+      UG: { type: Boolean, default: false },
+      PG: { type: Boolean, default: false },
+      PHD: { type: Boolean, default: false },
+      Diploma: { type: Boolean, default: false }
+    },
+    grade: { type: String, required: true },
+    officialEmail: {
       type: String,
       required: true,
       unique: true,
     },
+    personalEmail: { type: String },
     phoneNumber: {
       type: String,
       required: true,
@@ -28,24 +39,66 @@ const employeeSchema = new mongoose.Schema(
     department: {
       type: String,
       required: true,
-      enum: [
-        "Human Resources",
-        "Finance",
-        "Marketing",
-        "Sales",
-        "Operations",
-        "Information Technology",
-        "Customer Service",
-        "Research and Development (R&D)",
-        "Legal",
-        "Software Development",
-      ],
+    },
+    companyId:{
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"Company"
     },
     dateOfBirth: {
       type: String,
       required: true,
     },
+    country: { type: String},
     joiningDate: {
+      type: String,
+      required: true,
+    },
+    accountNumber: {
+      type: String,
+      required: true,
+    },
+    panCard: {
+      type: String,
+      required: true,
+    },
+    bankAccountName: {
+      type: String,
+      required: true,
+    },
+    ifscCode: {
+      type: String,
+      required: true,
+    },
+    zipCode: {
+      type: String,
+      required: true,
+    },
+    state: {
+      type: String,
+      required: true,
+    },
+    maritalStatus: {
+      type: String,
+      required: true,
+    },
+    salary: {
+      type: Number,
+      required: true,
+    },
+    anniversaryDate: {
+      type: Date,
+      
+    },
+    relationWithPerson: {
+      type: String,
+      required: true,
+    },
+    aadharCardNumber: {type:String },
+    city: {
+      type: String,
+      required: true,
+    },
+    bankName: {
       type: String,
       required: true,
     },
@@ -58,7 +111,8 @@ const employeeSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    residentialAddress: {
+    alternatePhoneNumber: { type: String },
+    address: {
       type: String,
       required: true,
     },
@@ -78,15 +132,11 @@ const employeeSchema = new mongoose.Schema(
       data: { type: String },
       date: { type: Date },
     },
+    branchName: {
+      type: String,
+      required: true,
+    },
     aadharCard: {
-      data: { type: String },
-      date: { type: Date },
-    },
-    postalAddress: {
-      data: { type: String },
-      date: { type: Date },
-    },
-    permanentAddress: {
       data: { type: String },
       date: { type: Date },
     },
